@@ -1,6 +1,7 @@
 using ImmichDrive.Models;
 using System.Net.Http;
 using System.Net.Http.Headers;
+using System.Security.Cryptography.X509Certificates;
 using System.Text.Json;
 
 namespace ImmichDrive.Services;
@@ -25,14 +26,35 @@ public enum ImmichReachability
 public sealed class ImmichClient : IDisposable
 {
     private readonly HttpClient _http;
+    private readonly X509Certificate2? _clientCertificate;
 
     /// <summary>The normalized API base, e.g. <c>https://photos.example.com/api</c>.</summary>
     public string ApiBase { get; }
 
-    public ImmichClient(string serverUrl, string apiKey, TimeSpan? timeout = null)
+    public ImmichClient(string serverUrl, string apiKey, TimeSpan? timeout = null, string? clientCertificateThumbprint = null)
     {
         ApiBase = NormalizeApiBase(serverUrl);
-        _http = new HttpClient { Timeout = timeout ?? TimeSpan.FromSeconds(100) };
+        var handler = new HttpClientHandler { ClientCertificateOptions = ClientCertificateOption.Manual };
+        try
+        {
+            if (!string.IsNullOrWhiteSpace(clientCertificateThumbprint))
+            {
+                if (!Uri.TryCreate(ApiBase, UriKind.Absolute, out var uri) || uri.Scheme != Uri.UriSchemeHttps)
+                    throw new InvalidOperationException("A client certificate requires an HTTPS server URL.");
+                // Keep the selected client identity and API key on the configured server.
+                handler.AllowAutoRedirect = false;
+                _clientCertificate = ClientCertificates.Load(clientCertificateThumbprint);
+                handler.ClientCertificates.Add(_clientCertificate);
+            }
+            // Default Windows server certificate and hostname verification remain enabled.
+            _http = new HttpClient(handler) { Timeout = timeout ?? TimeSpan.FromSeconds(100) };
+        }
+        catch
+        {
+            handler.Dispose();
+            _clientCertificate?.Dispose();
+            throw;
+        }
         _http.DefaultRequestHeaders.Add("x-api-key", apiKey);
         _http.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
     }
@@ -329,5 +351,9 @@ public sealed class ImmichClient : IDisposable
         obj.TryGetProperty(name, out var v) && v.ValueKind == JsonValueKind.Array
             ? v.EnumerateArray().ToArray() : null;
 
-    public void Dispose() => _http.Dispose();
+    public void Dispose()
+    {
+        _http.Dispose();
+        _clientCertificate?.Dispose();
+    }
 }

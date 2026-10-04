@@ -18,8 +18,43 @@ public sealed partial class ConnectionPage : Page
         ServerBox.Text = s.ServerUrl;
         ApiKeyBox.Password = s.ApiKey;
         FolderBox.Text = s.EffectiveSyncRootPath;
+        LoadCertificates(s.ClientCertificateThumbprint);
         UpdateButtons();
     }
+
+    private void LoadCertificates(string selected)
+    {
+        CertificateCombo.Items.Clear();
+        CertificateCombo.Items.Add(new ComboBoxItem { Content = "None", Tag = "" });
+        CertificateCombo.SelectedIndex = 0;
+        try
+        {
+            foreach (var certificate in ClientCertificates.ListAvailable())
+            {
+                var item = new ComboBoxItem { Content = certificate.Label, Tag = certificate.Thumbprint };
+                CertificateCombo.Items.Add(item);
+                if (certificate.Thumbprint.Equals(selected, StringComparison.OrdinalIgnoreCase))
+                    CertificateCombo.SelectedItem = item;
+            }
+        }
+        catch (Exception)
+        {
+            ResultBar.IsOpen = true;
+            ResultBar.Severity = InfoBarSeverity.Error;
+            ResultBar.Title = "Cannot read client certificates";
+            ResultBar.Message = "Check access to your Windows Current User > Personal certificate store.";
+        }
+        // Never silently replace a missing/expired configured certificate with None.
+        if (!string.IsNullOrEmpty(selected) && CertificateCombo.SelectedIndex == 0)
+        {
+            var missing = new ComboBoxItem { Content = "Previously selected certificate unavailable - refresh or choose a replacement", Tag = selected };
+            CertificateCombo.Items.Add(missing);
+            CertificateCombo.SelectedItem = missing;
+        }
+    }
+
+    private void RefreshCertificates_Click(object sender, RoutedEventArgs e) =>
+        LoadCertificates((CertificateCombo.SelectedItem as ComboBoxItem)?.Tag as string ?? "");
 
     private void UpdateButtons()
     {
@@ -32,6 +67,7 @@ public sealed partial class ConnectionPage : Page
         var s = SettingsManager.Current;
         s.ServerUrl = ServerBox.Text.Trim();
         s.ApiKey = ApiKeyBox.Password;
+        s.ClientCertificateThumbprint = (CertificateCombo.SelectedItem as ComboBoxItem)?.Tag as string ?? "";
         // Note: the drive folder is NOT written from here — it's read-only in the UI and only ever
         // changed via ChangeFolder_Click (which also moves the drive when it's live).
         SettingsManager.SaveSettings();
@@ -164,7 +200,7 @@ public sealed partial class ConnectionPage : Page
         try
         {
             using var client = new ImmichClient(SettingsManager.Current.ServerUrl, SettingsManager.Current.ApiKey,
-                TimeSpan.FromSeconds(15));
+                TimeSpan.FromSeconds(15), SettingsManager.Current.ClientCertificateThumbprint);
             string? who = await client.TestConnectionAsync();
             ResultBar.IsOpen = true;
             if (who != null)
@@ -177,8 +213,15 @@ public sealed partial class ConnectionPage : Page
             {
                 ResultBar.Severity = InfoBarSeverity.Error;
                 ResultBar.Title = "Could not connect";
-                ResultBar.Message = "Check the server URL and API key.";
+                ResultBar.Message = "Check the server URL, API key, and selected client certificate (if required). Use the final server URL, without redirects.";
             }
+        }
+        catch (Exception ex)
+        {
+            ResultBar.IsOpen = true;
+            ResultBar.Severity = InfoBarSeverity.Error;
+            ResultBar.Title = "Could not connect";
+            ResultBar.Message = ex.Message;
         }
         finally
         {

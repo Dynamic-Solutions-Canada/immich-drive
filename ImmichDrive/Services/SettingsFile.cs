@@ -11,7 +11,7 @@ namespace ImmichDrive.Services;
 /// </summary>
 public static class SettingsFile
 {
-    public static (string ServerUrl, string ApiKey)? ReadConnection()
+    public static (string ServerUrl, string ApiKey, string ClientCertificateThumbprint)? ReadConnection()
     {
         try
         {
@@ -22,7 +22,8 @@ public static class SettingsFile
             string url = root.TryGetProperty("ServerUrl", out var u) ? u.GetString() ?? "" : "";
             string key = root.TryGetProperty("ApiKey", out var k) ? k.GetString() ?? "" : "";
             if (url.Length == 0 || key.Length == 0) return null;
-            return (url, key);
+            string thumbprint = root.TryGetProperty("ClientCertificateThumbprint", out var cert) ? cert.GetString() ?? "" : "";
+            return (url, key, thumbprint);
         }
         catch { return null; }
     }

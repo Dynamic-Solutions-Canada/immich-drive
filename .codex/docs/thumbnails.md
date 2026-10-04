@@ -91,3 +91,7 @@ loading there, and the returned HBITMAP format.
 - Linked source (`ImmichAsset`, `ImmichClient`, `AssetIndex`, `SharedPaths`, `SettingsFile`,
   via `<Compile Include="..\ImmichDrive\…" Link="Shared\…" />`) must stay WinUI-free and trim-safe.
 - Use a short HTTP timeout (5 s) — a slow server must not hang Explorer.
+
+The linked settings reader also reads `ClientCertificateThumbprint`. The thumbnail
+client loads that certificate from Current User / Personal, using the same mTLS
+transport as the resident app without UI prompts or private-key export.

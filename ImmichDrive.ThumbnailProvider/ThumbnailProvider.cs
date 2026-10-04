@@ -60,7 +60,7 @@ public sealed class ImmichThumbnailProvider : IThumbnailProvider, IInitializeWit
             var conn = SettingsFile.ReadConnection();
             if (conn is not { } c) { Log("GetThumbnail: no connection in settings"); return E_FAIL; }
 
-            byte[]? bytes = FetchThumbnail(c.ServerUrl, c.ApiKey, assetId);
+            byte[]? bytes = FetchThumbnail(c.ServerUrl, c.ApiKey, assetId, c.ClientCertificateThumbprint);
             if (bytes is null || bytes.Length == 0) { Log($"GetThumbnail: empty thumb for {assetId}"); return E_FAIL; }
 
             phbmp = ToHBitmap(bytes, (int)cx);
@@ -82,9 +82,9 @@ public sealed class ImmichThumbnailProvider : IThumbnailProvider, IInitializeWit
         catch { }
     }
 
-    private static byte[]? FetchThumbnail(string url, string key, string assetId)
+    private static byte[]? FetchThumbnail(string url, string key, string assetId, string clientCertificateThumbprint)
     {
-        using var client = new ImmichClient(url, key, HttpTimeout);
+        using var client = new ImmichClient(url, key, HttpTimeout, clientCertificateThumbprint);
         // Block briefly; the shell calls us on a worker thread. preview = JPEG (decodable by GDI+).
         return Task.Run(() => client.GetThumbnailBytesAsync(assetId, "preview")).GetAwaiter().GetResult();
     }

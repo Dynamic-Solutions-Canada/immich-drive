@@ -14,6 +14,24 @@ behind the "Test connection" button, the connect path, and the offline watchdog.
 the key) / `Unreachable` (anything else, including transport failures); `DriveManager` treats those
 as two very different states, so keep the distinction when adding callers.
 
+## Optional client certificates (mTLS)
+
+Select a certificate on the Connection page after importing it into Windows
+Current User > Personal. `ClientCertificates` lists valid certificates with a
+private key suitable for TLS client authentication. If an EKU extension exists,
+it must explicitly include Client Authentication, matching HttpClient selection;
+Any Extended Key Usage alone is not sufficient. Selection is explicit; the
+app never chooses an unrelated certificate automatically. Settings persist only
+the thumbprint. Private keys remain in the Windows certificate store.
+
+`ImmichClient` loads the selected certificate for connection tests, background
+sync, uploads, hydration, and the linked thumbnail client. Missing, expired, or
+unusable configured certificates fail instead of silently falling back. HTTPS
+is required and normal server-certificate validation remains enabled. Automatic
+redirects are disabled when a client certificate is selected, so configure the
+final server URL. With no certificate selected, existing behavior is unchanged.
+After renewal, refresh the certificate list, select the replacement, and Connect.
+
 ## Timeline (the source of the date layout)
 
 1. **Buckets** — `GET /api/timeline/buckets?size=MONTH`
@@ -98,3 +116,6 @@ enough. If `originalFileName` isn't in the bucket payload, fall back to `GET /ap
   stored on the placeholders for Explorer sorting.
 - Videos are included; the layout treats them the same (placeholder + thumbnail + hydrate).
 - Be tolerant of extra/missing JSON fields — Immich evolves quickly. Deserialize loosely.
+
+Certificate-filter regression checks (generated certificates, no store changes):
+`dotnet run --project tests/ClientCertificates.Tests`.

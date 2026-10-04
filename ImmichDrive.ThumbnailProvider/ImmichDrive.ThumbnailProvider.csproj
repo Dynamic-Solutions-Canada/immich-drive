@@ -30,6 +30,7 @@
        (linked, not duplicated). These files must stay WinUI-free and trim-safe. -->
   <ItemGroup>
     <Compile Include="..\ImmichDrive\Models\ImmichAsset.cs" Link="Shared\ImmichAsset.cs" />
+    <Compile Include="..\ImmichDrive\Services\ClientCertificates.cs" Link="Shared\ClientCertificates.cs" />
     <Compile Include="..\ImmichDrive\Services\ImmichClient.cs" Link="Shared\ImmichClient.cs" />
     <Compile Include="..\ImmichDrive\Services\AssetIndex.cs" Link="Shared\AssetIndex.cs" />
     <Compile Include="..\ImmichDrive\Services\SharedPaths.cs" Link="Shared\SharedPaths.cs" />
