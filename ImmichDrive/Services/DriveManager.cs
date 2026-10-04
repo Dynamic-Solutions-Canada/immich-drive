@@ -137,7 +137,7 @@ public sealed class DriveManager
             _pins = null;
 
             _client?.Dispose();
-            _client = new ImmichClient(s.ServerUrl, s.ApiKey);
+            _client = new ImmichClient(s.ServerUrl, s.ApiKey, clientCertificateThumbprint: s.ClientCertificateThumbprint);
             var (reachability, who) = await _client.ProbeAsync();
             if (reachability == ImmichReachability.Unauthorized)
             {

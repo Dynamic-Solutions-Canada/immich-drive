@@ -16,6 +16,13 @@
                              PlaceholderText="https://photos.example.com" />
                     <PasswordBox x:Name="ApiKeyBox" Header="API key"
                                  PlaceholderText="Immich → Account Settings → API Keys" />
+                    <StackPanel Spacing="6">
+                        <ComboBox x:Name="CertificateCombo" Header="Client certificate (optional)"
+                                  HorizontalAlignment="Stretch" />
+                        <TextBlock Text="For servers requiring mTLS. Install your certificate in Windows Current User > Personal, then refresh."
+                                   TextWrapping="Wrap" Opacity="0.7" />
+                        <Button Content="Refresh certificates" Click="RefreshCertificates_Click" />
+                    </StackPanel>
                     <Grid ColumnSpacing="8">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="*" />

@@ -20,6 +20,7 @@
 |---|---|
 | `ServerUrl` | Immich base URL (no trailing `/api`). |
 | `ApiKey` | Immich API key (sent as `x-api-key`). Stored locally. |
+| `ClientCertificateThumbprint` | Optional mTLS certificate from Current User / Personal. Only the thumbprint is stored; empty disables mTLS. |
 | `Connected` | Whether the sync root is currently registered/connected. |
 | `SyncRootPath` | Local folder presented as the drive. Empty = default `%UserProfile%\ImmichDrive`. |
 | `EffectiveSyncRootPath` | `[JsonIgnore]` computed: `SyncRootPath` or the default if unset. |

@@ -62,6 +62,12 @@ and freeing space dehydrates it back to a placeholder.
 3. Click **Test connection**, then **Connect**. Your drive appears in Explorer under
    *ImmichDrive* (a sync-root entry in the navigation pane, like OneDrive).
 
+If your server requires **mTLS**, import your client certificate into Windows
+**Current User > Personal**, click **Refresh certificates** on the Connection
+page, and select it before testing or connecting. The same certificate is used
+for sync, downloads, and Explorer thumbnails. Leave **None** selected for servers
+that do not require client certificates. Use the final HTTPS URL, without redirects.
+
 That's it — browse by date and double-click (or attach) any photo.
 
 ## Requirements

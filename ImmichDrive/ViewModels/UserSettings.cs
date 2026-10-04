@@ -23,6 +23,9 @@ public partial class UserSettings : ObservableObject
     /// <summary>Immich API key (sent as x-api-key). Stored locally in plaintext JSON.</summary>
     [ObservableProperty] public partial string ApiKey { get; set; } = "";
 
+    /// <summary>Optional CurrentUser/Personal client certificate. Only the public thumbprint is stored.</summary>
+    [ObservableProperty] public partial string ClientCertificateThumbprint { get; set; } = "";
+
     /// <summary>Whether the drive should be connected/registered.</summary>
     [ObservableProperty] public partial bool Connected { get; set; }
 
@@ -79,6 +82,7 @@ public partial class UserSettings : ObservableObject
     public void CompleteInitialization()
     {
         ServerUrl ??= "";
+        ClientCertificateThumbprint ??= "";
         ApiKey ??= "";
         SyncRootPath ??= "";
         _initializing = false;
