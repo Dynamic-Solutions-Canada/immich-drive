@@ -3,6 +3,18 @@
     x:Class="ImmichDrive.Pages.ConnectionPage"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <Page.Resources>
+        <Style x:Key="CodeTextBlockStyle" TargetType="TextBlock">
+            <Setter Property="FontFamily" Value="Consolas" />
+            <Setter Property="FontSize" Value="13" />
+            <Setter Property="TextWrapping" Value="Wrap" />
+        </Style>
+        <Style x:Key="CodeBlockBorderStyle" TargetType="Border">
+            <Setter Property="Background" Value="{ThemeResource ControlFillColorSecondaryBrush}" />
+            <Setter Property="CornerRadius" Value="4" />
+            <Setter Property="Padding" Value="10,6" />
+        </Style>
+    </Page.Resources>
     <ScrollViewer Padding="32,16,32,32">
         <StackPanel Spacing="16" MaxWidth="760" HorizontalAlignment="Left">
             <TextBlock Text="Connection" Style="{StaticResource TitleTextBlockStyle}" />
@@ -16,6 +28,51 @@
                              PlaceholderText="https://photos.example.com" />
                     <PasswordBox x:Name="ApiKeyBox" Header="API key"
                                  PlaceholderText="Immich → Account Settings → API Keys" />
+                    <StackPanel Spacing="8">
+                        <TextBlock Text="API key permissions" Style="{StaticResource BodyStrongTextBlockStyle}" />
+                        <TextBlock Text="In Immich, create or edit your key under Account Settings → API Keys. Select these permissions; All permissions is not needed."
+                                   TextWrapping="Wrap" Opacity="0.7" />
+                        <TextBlock Text="Required for photos" Style="{StaticResource BodyStrongTextBlockStyle}"
+                                   Margin="0,4,0,0" />
+                        <Border Style="{StaticResource CodeBlockBorderStyle}" HorizontalAlignment="Left">
+                            <TextBlock Text="user.read&#x0a;asset.read&#x0a;asset.view&#x0a;asset.download"
+                                       Style="{StaticResource CodeTextBlockStyle}" />
+                        </Border>
+                        <TextBlock TextWrapping="Wrap" Opacity="0.7">
+                            <Run Text="Include " /><Run Text="user.read" FontFamily="Consolas" />
+                            <Run Text=" even for Test connection." />
+                        </TextBlock>
+                        <TextBlock Text="Optional features" Style="{StaticResource BodyStrongTextBlockStyle}"
+                                   Margin="0,4,0,0" />
+                        <Grid ColumnSpacing="12" RowSpacing="6">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto" />
+                                <ColumnDefinition Width="*" />
+                            </Grid.ColumnDefinitions>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="Auto" />
+                            </Grid.RowDefinitions>
+                            <Border Grid.Row="0" Style="{StaticResource CodeBlockBorderStyle}" HorizontalAlignment="Left">
+                                <TextBlock Text="album.read" Style="{StaticResource CodeTextBlockStyle}" />
+                            </Border>
+                            <TextBlock Grid.Row="0" Grid.Column="1" Text="Albums folders"
+                                       TextWrapping="Wrap" VerticalAlignment="Center" />
+                            <Border Grid.Row="1" Style="{StaticResource CodeBlockBorderStyle}" HorizontalAlignment="Left">
+                                <TextBlock Text="partner.read" Style="{StaticResource CodeTextBlockStyle}" />
+                            </Border>
+                            <TextBlock Grid.Row="1" Grid.Column="1" Text="Libraries shared with you in Partners"
+                                       TextWrapping="Wrap" VerticalAlignment="Center" />
+                            <Border Grid.Row="2" Style="{StaticResource CodeBlockBorderStyle}" HorizontalAlignment="Left">
+                                <TextBlock Text="asset.upload" Style="{StaticResource CodeTextBlockStyle}" />
+                            </Border>
+                            <TextBlock Grid.Row="2" Grid.Column="1" Text="Upload files through the Upload folder"
+                                       TextWrapping="Wrap" VerticalAlignment="Center" />
+                        </Grid>
+                        <TextBlock Text="Delete, update, API key management, and admin permissions are not needed."
+                                   TextWrapping="Wrap" Opacity="0.7" />
+                    </StackPanel>
                     <Grid ColumnSpacing="8">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="*" />

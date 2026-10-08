@@ -1,16 +1,5 @@
 # ImmichDrive — Development
 
-ImmichDrive ships as a single MSIX containing **two components**:
-
-- **`ImmichDrive.exe`** — the resident WinUI 3 app. It is both the settings UI **and** the cloud
-  sync provider: an invisible host window owns the tray icon and the Cloud Files (cfapi) connection
-  for the life of the process, registers the sync root, populates placeholders from the Immich
-  timeline, and services hydration callbacks. It must stay running for the drive to be online.
-- **`ImmichDrive.ThumbnailProvider`** — an out-of-process `IThumbnailProvider` COM server that the
-  shell launches (in its own process) to render placeholder thumbnails **without hydrating** them.
-  It stays dependency-light and WinUI-free, and shares `ImmichClient` and the `AssetIndex` reader
-  with the app via linked source files.
-
 ## Prerequisites
 
 - Windows 11 (build 22621+)
@@ -24,8 +13,8 @@ from `PROCESSOR_ARCHITECTURE` (ARM64 → ARM64, otherwise x64). Override with `-
 
 ## Build the app (dev)
 
-```powershell
-dotnet build ImmichDrive/ImmichDrive.csproj -c Debug
+```bash
+npm run verify:desktop
 ```
 
 Good for iterating on the settings UI. The Cloud Files provider and the COM thumbnail handler only
@@ -33,14 +22,12 @@ register cleanly from the packaged build, so use the MSIX for end-to-end testing
 
 ## Build the MSIX
 
-```powershell
-powershell -File ImmichDriveMSIX/generate-msix-images.ps1   # (re)generate the icon + visual assets
-powershell -File ImmichDriveMSIX/build-msix.ps1             # sideload build (dev-signed, updates in place)
-powershell -File ImmichDriveMSIX/build-msix.ps1 -NoSign     # Store build (unsigned; the Store re-signs)
+```bash
+npm run build:desktop       # sideload build (dev-signed, updates in place)
+npm run package:desktop     # Store build (unsigned; the Store re-signs)
 ```
 
-- Bump `<Version>` in `Directory.Build.props` for each build — MSIX blocks reinstalling the same
-  version with different content.
+- Bump the tracked version for releases only. Local dev revisions change in staging.
 - **Identity:** sideload (signed) builds swap in a local dev identity so they form a stable package
   family that updates your install in place; `-NoSign` (Store) builds keep the real Partner Center
   identity declared in `ImmichDriveMSIX/Package.appxmanifest`.
@@ -95,3 +82,13 @@ powershell -File ImmichDriveMSIX/build-msix.ps1 -NoSign     # Store build (unsig
 - CommunityToolkit.Mvvm (`[ObservableProperty]`), `System.Text.Json` settings,
   Microsoft.Data.Sqlite index, NLog
 - Native tray via `Shell_NotifyIcon`; Cloud Files API via P/Invoke (`cldapi.dll`)
+
+## Windows desktop workflow
+
+Source is authoritative in WSL. Read `.codex/docs/windows-development.md` and use
+`npm run build:desktop`, `npm run verify:desktop`, `npm run install:desktop`, and
+`npm run package:desktop` from the repository root. The common bridge builds in
+a disposable C: Windows TEMP directory and cleans it after use. Never use a D:
+checkout or build directly against WSL source with Windows tools. Dev install
+versions change only in the temporary copy; never uninstall to bypass an update
+error. Store releases keep their existing project-specific release workflow.

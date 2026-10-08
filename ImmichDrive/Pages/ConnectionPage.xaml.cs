@@ -165,19 +165,27 @@ public sealed partial class ConnectionPage : Page
         {
             using var client = new ImmichClient(SettingsManager.Current.ServerUrl, SettingsManager.Current.ApiKey,
                 TimeSpan.FromSeconds(15));
-            string? who = await client.TestConnectionAsync();
+            var (reachability, who) = await client.ProbeAsync();
             ResultBar.IsOpen = true;
-            if (who != null)
+            if (reachability == ImmichReachability.Ok)
             {
                 ResultBar.Severity = InfoBarSeverity.Success;
                 ResultBar.Title = "Connected";
-                ResultBar.Message = $"Reached Immich as {who}.";
+                ResultBar.Message = $"Reached Immich as {who}. This checks your URL and user.read permission; " +
+                                    "select the permissions listed above for the features you use.";
+            }
+            else if (reachability == ImmichReachability.Unauthorized)
+            {
+                ResultBar.Severity = InfoBarSeverity.Error;
+                ResultBar.Title = "API key rejected";
+                ResultBar.Message = "Check that your API key is correct and includes user.read. " +
+                                    "Select the permissions listed above in Immich's API key settings.";
             }
             else
             {
                 ResultBar.Severity = InfoBarSeverity.Error;
                 ResultBar.Title = "Could not connect";
-                ResultBar.Message = "Check the server URL and API key.";
+                ResultBar.Message = "Check the server URL and that your Immich server is reachable.";
             }
         }
         finally

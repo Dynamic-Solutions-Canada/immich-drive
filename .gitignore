@@ -380,3 +380,5 @@ build_out.txt
 
 # MSIX build output
 RepilotMSIX/bin/
+
+/.artifacts/

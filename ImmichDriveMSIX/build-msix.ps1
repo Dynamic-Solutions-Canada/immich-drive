@@ -28,11 +28,17 @@ param(
 
     [string]$TrustedPfxPath = "",
     [string]$TrustedPfxPassword = "",
+    # Explicit local testing mode: preserve the Store family for an in-place update.
+    [switch]$UseStoreIdentity,
     [switch]$NoSign
 )
 
 $ErrorActionPreference = "Stop"
 Set-StrictMode -Version Latest
+
+if ($UseStoreIdentity -and $NoSign) {
+    throw "UseStoreIdentity is for signed local testing, not Store upload builds."
+}
 
 # -- Paths -------------------------------------------------------------------------
 $msixDir     = $PSScriptRoot
@@ -179,13 +185,20 @@ if (-not $NoSign) {
     $signingPfx = if ([string]::IsNullOrEmpty($TrustedPfxPath)) { $pfxFile } else { $TrustedPfxPath }
     $signingPwd = if ([string]::IsNullOrEmpty($TrustedPfxPath)) { "ImmichDrive" } else { $TrustedPfxPassword }
     $signCert = New-Object System.Security.Cryptography.X509Certificates.X509Certificate2($signingPfx, $signingPwd)
+    if ($UseStoreIdentity) {
+        [xml]$storeManifest = $manifestContent
+        if ($signCert.Subject -ne $storeManifest.Package.Identity.Publisher) {
+            throw "Store-identity testing requires the Store publisher's signing certificate."
+        }
+        Write-Host "  Preserving Store identity for local testing: $($storeManifest.Package.Identity.Name)"
+    }
     if ($manifestContent -match '<Identity[^>]+Publisher="([^"]+)"') {
         $manifestContent = $manifestContent.Replace("Publisher=`"$($Matches[1])`"", "Publisher=`"$($signCert.Subject)`"")
         Write-Host "  Stamped Publisher=$($signCert.Subject)"
     }
-    # Use the dev identity Name for sideload builds so they form a stable package family that updates
-    # in place. The real Store Name (from Partner Center) is only used for -NoSign (Store) builds.
-    if ($manifestContent -match '<Identity[^>]+Name="([^"]+)"') {
+    # Default sideload builds use the established dev family. Store-identity testing explicitly
+    # preserves the installed Store family, keeping settings during an in-place update.
+    if (-not $UseStoreIdentity -and $manifestContent -match '<Identity[^>]+Name="([^"]+)"') {
         $manifestContent = $manifestContent.Replace("Name=`"$($Matches[1])`"", "Name=`"ImmichDrive`"")
         Write-Host "  Stamped dev Name=ImmichDrive"
     }
@@ -212,6 +225,19 @@ if (-not (Test-Path $outputDir)) { New-Item $outputDir -ItemType Directory -Forc
 if (Test-Path $msixFile) { Remove-Item $msixFile -Force }
 & $makeappx pack /d $layoutDir /p $msixFile /o
 if ($LASTEXITCODE -ne 0) { Write-Error "makeappx pack failed"; exit 1 }
+
+# Store installs are bundles. Windows cannot update an installed bundle with a plain MSIX.
+# Keep the test bundle version explicit so MakeAppx does not assign a date-based version.
+if ($UseStoreIdentity) {
+    Write-Host "`n=== Bundling Store-identity test package ===" -ForegroundColor Cyan
+    $bundleInput = Join-Path $msixDir "bin\msix-bundle\$Platform"
+    if (Test-Path $bundleInput) { Remove-Item $bundleInput -Recurse -Force }
+    New-Item -ItemType Directory -Path $bundleInput -Force | Out-Null
+    Move-Item $msixFile (Join-Path $bundleInput (Split-Path $msixFile -Leaf))
+    $msixFile = Join-Path $outputDir "ImmichDrive-$version-$Platform.msixbundle"
+    & $makeappx bundle /d $bundleInput /p $msixFile /bv $msixVersion /o
+    if ($LASTEXITCODE -ne 0) { Write-Error "makeappx bundle failed"; exit 1 }
+}
 
 # -- Step 6: Sign -----------------------------------------------------------------
 if ($NoSign) {

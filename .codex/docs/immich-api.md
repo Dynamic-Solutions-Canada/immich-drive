@@ -10,9 +10,38 @@ under *Account Settings → API Keys*. Also send `Accept: application/json` for 
 Validate the key/URL with `GET /api/users/me` (200 + a user object) — `ImmichClient.ProbeAsync`,
 behind the "Test connection" button, the connect path, and the offline watchdog.
 (`GET /api/server/ping` returns `{ "res": "pong" }` but does not verify the key, so prefer
-`users/me`.) `ProbeAsync` maps the response to `Ok` / `Unauthorized` (401/403 — the user must fix
+`users/me`.) `ProbeAsync` maps the response to `Ok` / `Unauthorized` (401/403, including missing `user.read`; the user must fix
 the key) / `Unreachable` (anything else, including transport failures); `DriveManager` treats those
 as two very different states, so keep the distinction when adding callers.
+
+## API key permissions
+
+The minimum for browsing photos with thumbnails and opening originals is `user.read`,
+`asset.read`, `asset.view`, and `asset.download`. Add `album.read` for Albums,
+`partner.read` for Partners, and `asset.upload` for the Upload folder. All seven cover
+all app features; no delete, update, API key management, or admin permissions are used.
+
+| Endpoint | Permission |
+| --- | --- |
+| `GET /api/users/me` | `user.read` |
+| `GET /api/timeline/buckets`, `GET /api/timeline/bucket` | `asset.read` |
+| `GET /api/assets/{id}` | `asset.read` |
+| `GET /api/assets/{id}/thumbnail` | `asset.view` |
+| `GET /api/assets/{id}/original` | `asset.download` |
+| `GET /api/albums` | `album.read` |
+| `GET /api/partners` | `partner.read` |
+| `POST /api/assets` | `asset.upload` |
+
+Verified against [Immich's controllers](https://github.com/immich-app/immich/tree/main/server/src/controllers)
+and [permission enum](https://github.com/immich-app/immich/blob/main/server/src/enum.ts).
+Recheck these declarations when changing endpoints; timeline endpoints are internal APIs.
+
+`user.read` is required by every connection probe, even for a read-only library key.
+A 401/403 can mean an incorrect/revoked key or missing `user.read`. The Connection page
+uses `ProbeAsync` to distinguish that rejection from an unreachable server and shows the
+permission checklist beside the key. A successful Test connection checks only `/users/me`,
+not permission coverage for other features. Without `asset.upload`, upload failures leave
+local files in Upload for retry; omitting album/partner permissions prevents those mirrors.
 
 ## Timeline (the source of the date layout)
 

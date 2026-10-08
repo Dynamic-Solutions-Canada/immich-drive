@@ -1,0 +1,13 @@
+{
+  "project": "ImmichDrive/ImmichDrive.csproj",
+  "package_script": "ImmichDriveMSIX/build-msix.ps1",
+  "package_output": "ImmichDriveMSIX/bin/msix-output",
+  "certificate": ".windows-build/signing.pfx",
+  "version_file": "Directory.Build.props",
+  "dev_identity": "ImmichDrive",
+  "signing": "shared-dev",
+  "trusted_certificate": true,
+  "store_identity": "27766TechnicallyReal.ImmichDrive",
+  "store_publisher": "CN=C21E6CEF-D0D1-4497-93F9-3718D054DA0E",
+  "store_identity_switch": "-UseStoreIdentity"
+}

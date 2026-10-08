@@ -10,7 +10,7 @@ public enum ImmichReachability
 {
     /// <summary>The server answered and accepted the API key.</summary>
     Ok,
-    /// <summary>The server answered but rejected the credentials (revoked or mistyped API key).</summary>
+    /// <summary>The server answered but rejected the key (revoked, mistyped, or missing user.read).</summary>
     Unauthorized,
     /// <summary>No usable answer — server down, wrong URL, DNS/TLS failure, or a timeout.</summary>
     Unreachable,

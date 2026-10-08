@@ -18,6 +18,10 @@
 - Use built-in styles: `TitleTextBlockStyle`, `SubtitleTextBlockStyle`, `CaptionTextBlockStyle`,
   `BodyStrongTextBlockStyle`, `AccentButtonStyle`. Icons via `FontIcon Glyph="&#xExxx;"` (Segoe
   Fluent Icons) or `SymbolIcon`.
+- **Code identifiers** on ConnectionPage use shared page resources: `CodeTextBlockStyle`
+  (Consolas, 13px) and `CodeBlockBorderStyle` (theme-aware secondary fill, 4px corners).
+  Required API permissions appear one per line in a code block; optional permissions use
+  code badges beside wrapping feature descriptions. Keep prose in the normal UI font.
 - **In-app images** (title-bar icon, flyout, About) set their `Source` to the high-res PNG
   (`App.IconImagePath` → `Resources/ImmichDrive.png`), **not** the multi-frame `.ico`, so they
   downscale crisply to 16/22/32px. The `.ico` (`App.IconPath`) is used only for the OS window /

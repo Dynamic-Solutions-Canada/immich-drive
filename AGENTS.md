@@ -38,7 +38,7 @@ Reuses the LittleLauncher / Repilot (CopilotRekey) patterns: WinUI 3 settings wi
 `SettingsManager`/`UserSettings`, native `Shell_NotifyIcon` tray on an invisible host
 window, MSIX build script, single-source-of-truth versioning.
 
-Local reference checkouts: `D:\LittleLauncher` and `D:\CopilotRekey`. Consult them
+Local reference checkouts: `~/development/little-launcher` and `~/development/repilot`. Consult them
 when reusing the patterns above, if available and permitted by the current environment.
 
 ## Architecture — TWO components
@@ -105,17 +105,17 @@ into the thumbnail extension, so they must stay WinUI-free and trim-safe (no NLo
 - **PowerShell build scripts must be ASCII** (Windows PowerShell 5.1 reads BOM-less `.ps1`
   as ANSI; a UTF-8 em-dash inside a string breaks parsing).
 - MSIX blocks reinstalling the same version with different content — bump `<Version>` in
-  `Directory.Build.props` per build.
+  `Directory.Build.props` for releases only. Dev builds use a staging-only revision.
 - `global::` does not parse inside interpolated strings — assign to a local first.
 
 ## Building
 
-- Dev UI: `dotnet build ImmichDrive/ImmichDrive.csproj -c Debug` (auto-detects x64/ARM64).
+- Dev compile from WSL: `npm run verify:desktop` (Windows tools, including XAML).
 - Thumbnail extension: built as part of the solution / MSIX layout.
-- MSIX: `ImmichDriveMSIX/generate-msix-images.ps1` then `build-msix.ps1` (publishes the app
-  + the extension exe COM server; `-NoSign` for Store). The manifest holds the real Partner
-  Center `<Identity>`; signed sideload builds swap it for a dev identity so they update in
-  place, while `-NoSign` (Store) builds keep the real one.
+- Dev package/install from WSL: `npm run build:desktop` and `npm run install:desktop`.
+  These invoke the existing packaging script inside disposable C: TEMP.
+  Signed development packages retain their established dev package name and use the
+  common signer. Store packages retain the Partner Center identity.
 
 ## Distributing (no binaries leave this repo)
 
@@ -150,3 +150,13 @@ into the thumbnail extension, so they must stay WinUI-free and trim-safe (no NLo
 See `.codex/commands/add-setting.md` and `.codex/commands/add-settings-page.md`. In short: add an
 `[ObservableProperty]` to `UserSettings`, bind it `TwoWay` to `SettingsManager.Current`,
 and (if it has a side-effect) handle it in a partial `On<Name>Changed` guarded by `_initializing`.
+
+## Windows desktop workflow
+
+Source is authoritative in WSL. Read `.codex/docs/windows-development.md` and use
+`npm run build:desktop`, `npm run verify:desktop`, `npm run install:desktop`, and
+`npm run package:desktop` from the repository root. The common bridge builds in
+a disposable C: Windows TEMP directory and cleans it after use. Never use a D:
+checkout or build directly against WSL source with Windows tools. Dev install
+versions change only in the temporary copy; never uninstall to bypass an update
+error. Store releases keep their existing project-specific release workflow.

@@ -143,7 +143,7 @@ public sealed class DriveManager
             {
                 // The user has to fix this, so don't burn retries on it.
                 StopWatchdog();
-                Set(DriveStatus.Error, "Immich rejected the API key — update it in Settings");
+                Set(DriveStatus.Error, "Immich rejected the API key. Check the key and its user.read permission in Settings.");
                 return;
             }
             if (reachability != ImmichReachability.Ok)
@@ -268,7 +268,7 @@ public sealed class DriveManager
                     break;
                 case ImmichReachability.Unauthorized:
                     StopWatchdog();   // retrying won't help; the user has to replace the key
-                    Set(DriveStatus.Error, "Immich rejected the API key — update it in Settings");
+                    Set(DriveStatus.Error, "Immich rejected the API key. Check the key and its user.read permission in Settings.");
                     break;
                 default:
                     GoOffline();

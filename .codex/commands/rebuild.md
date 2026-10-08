@@ -1,12 +1,7 @@
-Rebuild and relaunch the app to test a change.
+# Rebuild Windows desktop
 
-1. Stop any running instance: `Stop-Process -Name ImmichDrive -Force -ErrorAction SilentlyContinue`.
-2. Build: `dotnet build ImmichDrive/ImmichDrive.csproj -c Debug` (auto-detects x64/ARM64 from
-   `Directory.Build.props`).
-3. If it builds, relaunch the produced exe from
-   `ImmichDrive/bin/<Platform>/Debug/net10.0-windows10.0.22000.0/ImmichDrive.exe`.
-4. Report build errors verbatim; do not "fix" by suppressing warnings.
+Read `.codex/docs/windows-development.md` first.
 
-Note: changes to the thumbnail extension or the cfapi sync-root registration only take full
-effect from an installed **MSIX** (the shell loads the registered COM server) — for those,
-use `ImmichDriveMSIX/build-msix.ps1` and reinstall.
+Run `npm run install:desktop` from WSL to build the current working tree, update in place and relaunch. For compile-only requests use `npm run verify:desktop`. Report build errors without suppressing warnings.
+
+Leave changes uncommitted. Do not bump tracked release versions, publish, or alter package identity.

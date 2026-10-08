@@ -1,0 +1,10 @@
+#!/usr/bin/env bash
+# Build the current working tree with Windows tools in disposable Windows TEMP.
+set -euo pipefail
+repo_root="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.." && pwd)"
+tools_root="${WINDOWS_BUILD_TOOLS:-$HOME/development/windows-build-tools}"
+if [[ ! -f "$tools_root/windows-build.py" ]]; then
+    printf 'Missing Windows build bridge: %s\n' "$tools_root" >&2
+    exit 1
+fi
+exec python3 "$tools_root/windows-build.py" --repo "$repo_root" "$@"

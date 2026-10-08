@@ -1,0 +1,10 @@
+{
+  "name": "immich-drive",
+  "private": true,
+  "scripts": {
+    "build:desktop": "scripts/windows-build --dev",
+    "verify:desktop": "scripts/windows-build --build-only --configuration Debug",
+    "install:desktop": "scripts/windows-build --install",
+    "package:desktop": "scripts/windows-build --no-sign"
+  }
+}

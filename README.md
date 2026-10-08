@@ -58,11 +58,41 @@ and freeing space dehydrates it back to a placeholder.
 1. Install **ImmichDrive** from the [Microsoft Store](https://apps.microsoft.com/detail/9MWC6165N7DH), where it is listed as **Drive for Immich**.
 2. Open **ImmichDrive** and enter:
    - your **Immich server URL** (e.g. `https://photos.example.com`)
-   - an **API key** (Immich → *Account Settings → API Keys → New API Key*).
+   - an **API key** (Immich → *Account Settings → API Keys → New API Key*) with the permissions below.
 3. Click **Test connection**, then **Connect**. Your drive appears in Explorer under
    *ImmichDrive* (a sync-root entry in the navigation pane, like OneDrive).
 
 That's it — browse by date and double-click (or attach) any photo.
+
+### API key permissions
+
+You do **not** need to select **All permissions**. For browsing your photos with thumbnails
+and opening or attaching originals, select these four permissions:
+
+| Permission | What it enables |
+| --- | --- |
+| `user.read` | Test connection, connecting the drive, and reconnecting after the server comes back. |
+| `asset.read` | List your photos and favorites, and read file names and sizes. |
+| `asset.view` | Display thumbnails in Explorer without downloading originals. |
+| `asset.download` | Open or attach original photos and videos. |
+
+Add these permissions for the features you use:
+
+| Permission | What it enables |
+| --- | --- |
+| `album.read` | Mirror your Albums folders. |
+| `partner.read` | Mirror libraries shared with you in Partners folders. |
+| `asset.upload` | Upload files dropped into the Upload folder. |
+
+Select all **seven** above to use every feature. Delete, update, API key management, and
+admin permissions are not needed. Without `asset.upload`, dropped files remain in Upload
+because the server rejects the upload.
+
+**If Test connection rejects your key:** check that it includes `user.read`. A key with
+only asset and album permissions cannot pass the connection check. A successful test checks
+the URL and `user.read`, not the permissions for thumbnails, downloads, or other features.
+
+These permissions match [Immich's endpoint declarations](https://github.com/immich-app/immich/tree/main/server/src/controllers).
 
 ## Requirements
 
