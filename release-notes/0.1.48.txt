@@ -1,0 +1,3 @@
+API key setup now lists the required permissions and explains which extra permissions enable Albums, Partners, and Upload. Connection errors point out when user.read may be missing.
+
+Check for Updates now opens the Microsoft Store updates page.
