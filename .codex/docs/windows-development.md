@@ -29,6 +29,12 @@ for publishing, and leave changes uncommitted unless explicitly requested.
 The repository skill `$desktop` supports the same build, verify and install
 requests. Start a new Codex task to discover newly added repository skills.
 
+## .NET security build floor
+
+`global.json` requires stable SDK 10.0.403 or later within .NET 10, and both packaging workflows install its baseline. Local builds can use later installed 10.0 SDKs. Self-contained builds for the app and thumbnail provider reject selected .NET runtime packs below 10.0.14 through `Directory.Build.targets`, including older explicit overrides, without pinning future builds to that runtime patch. See the [HTTP2Shell assessment](http2shell.md) for the verified older package provenance and the remaining Windows package checks.
+
+Run `pwsh -NoProfile -File .github/scripts/tests/runtime-build-floor.Tests.ps1` for build-floor regression checks. These resolve framework references for both real projects and architectures without restore or compilation. They check the SDK default, reject 10.0.13, and permit 10.0.14 and a synthetic later runtime version. They do not prove package contents or Windows behavior. The packaging-check workflow runs them before building the MSIX.
+
 ## Test over an existing Store installation
 
 Use `npm run install:desktop -- --store-identity` only when explicitly replacing the

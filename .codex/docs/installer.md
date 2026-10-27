@@ -25,6 +25,7 @@ declaratively (no manual HKCR writes).
   the SDK BuildTools (`makeappx`/`makepri`/`signtool`) via NuGet if they aren't already on the
   machine, and auto-generates a self-signed dev cert if `ImmichDrive.pfx` is missing.
   **ASCII only.** `-NoSign` for Store uploads.
+- Both publishes inherit the stable SDK floor from `global.json` and the .NET runtime pack floor (10.0.14) from `Directory.Build.targets`. A shared-runtime update alone cannot replace the runtime embedded in an existing MSIX; rebuild both architectures before distributing an update. See [HTTP2Shell](http2shell.md) for scope and verification limits.
 - `generate-msix-images.ps1` — renders **one** master icon (the "Photo Panes" mark: a dark
   slate rounded tile with a 2x2 grid — three tiny photo scenes plus a white cloud pane; an
   original design, deliberately NOT Immich's iris logo, which got the app rejected under

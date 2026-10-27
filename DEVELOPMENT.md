@@ -3,13 +3,15 @@
 ## Prerequisites
 
 - Windows 11 (build 22621+)
-- [.NET 10 SDK](https://dotnet.microsoft.com/download/dotnet/10.0)
+- [.NET 10 SDK](https://dotnet.microsoft.com/download/dotnet/10.0) 10.0.403 or a later stable 10.0 feature band/patch, selected by `global.json`.
 - Windows SDK packaging tools (`makeappx` / `makepri` / `signtool`) — `build-msix.ps1` auto-acquires
   them via the `Microsoft.Windows.SDK.BuildTools` NuGet package if they aren't already installed.
 
 `Directory.Build.props` is the single source of truth for the version and auto-detects the platform
 from `PROCESSOR_ARCHITECTURE` (ARM64 → ARM64, otherwise x64). Override with `-p:Platform=x64` or
 `-p:Platform=ARM64`.
+
+Both MSIX executables are self-contained. `Directory.Build.targets` rejects runtime packs older than 10.0.14, the fix for [CVE-2026-111497](https://github.com/dotnet/runtime/security/advisories/GHSA-p3jp-9v83-76w9), including explicit runtime overrides. Later SDK runtime patches remain eligible. Updating a machine's shared runtime does not update existing packages; they require rebuilding and redistribution. Brotli input reachability in this app remains unconfirmed; see the [project assessment](.codex/docs/http2shell.md).
 
 ## Build the app (dev)
 

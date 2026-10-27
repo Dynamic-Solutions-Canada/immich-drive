@@ -38,7 +38,11 @@ jobs:
       - name: Setup .NET
         uses: actions/setup-dotnet@v4
         with:
-          dotnet-version: '10.0.x'
+          global-json-file: global.json
+
+      - name: Check runtime build floor
+        shell: pwsh
+        run: ./.github/scripts/tests/runtime-build-floor.Tests.ps1
 
       # -- Extract version from Directory.Build.props --------------
       - name: Read version

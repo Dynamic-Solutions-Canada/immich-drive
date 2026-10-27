@@ -1,0 +1,10 @@
+<Project>
+  <!-- Both packaged executables embed the runtime. Check the selected pack rather than
+       pinning RuntimeFrameworkVersion, so newer SDKs can carry later security patches. -->
+  <Target Name="ValidatePackagedRuntimeVersion"
+          AfterTargets="ProcessFrameworkReferences"
+          Condition="'$(SelfContained)' == 'true' And '$(TargetFramework)' != ''">
+    <Error Condition="'%(RuntimePack.FrameworkName)' == 'Microsoft.NETCore.App' And $([MSBuild]::VersionLessThan('%(RuntimePack.NuGetPackageVersion)', '10.0.14'))"
+           Text="Self-contained packages require .NET runtime 10.0.14 or later for CVE-2026-111497. Selected %(RuntimePack.Identity) %(RuntimePack.NuGetPackageVersion). Use the SDK selected by global.json and remove older runtime overrides." />
+  </Target>
+</Project>
