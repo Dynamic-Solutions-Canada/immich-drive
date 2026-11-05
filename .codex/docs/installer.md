@@ -99,8 +99,9 @@ Future tag runs use the MSIX bundle format.
 The corrected [Store run](https://github.com/RyanEwen/ImmichDrive/actions/runs/35898180603)
 committed Submission 11 (`1152921505701961960`) with a 0.1.46.0 bundle covering
 x64 and ARM64. Partner Center shows US $0.99, with 36 of 240 regional prices changed
-from the published Base schedule. It is in certification and will publish automatically
-after passing.
+from the published Base schedule. At that verification it was in certification with automatic publication enabled.
+
+The [v0.1.50 Store run](https://github.com/Dynamic-Solutions-Canada/immich-drive/actions/runs/41944626406) replaced failed v0.1.49 submission `1152921505702318922` and committed submission `1152921505702319184`. The accepted `0.1.50.0` upload bundles x64 and ARM64, retains `Tier1012`, and reached `Certification` with publishing mode `Immediate`. The publisher display name is now `Dynamic Solutions (CA)`. Windows builds, layout checks, recovery tests, and packaging passed; Windows 10 end-to-end runtime validation remains pending. The [v0.1.50 GitHub release](https://github.com/Dynamic-Solutions-Canada/immich-drive/releases/tag/v0.1.50) contains notes and no binaries.
 
 For manual fallback, run `build-msix.ps1 -Platform x64 -NoSign` and
 `-Platform ARM64 -NoSign`, then upload both individual `.msix` files in Partner Center.
