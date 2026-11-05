@@ -19,7 +19,7 @@ when the user requests that task; they do not register slash commands or run aut
 
 ## Project overview
 
-ImmichDrive is a Windows 11 **native cloud drive** that surfaces a user's
+ImmichDrive is a Windows 10 22H2 / Windows 11 **native cloud drive** that surfaces a user's
 [Immich](https://immich.app) photo/video library in File Explorer **without storing the
 files on the device**. It uses the Windows **Cloud Files API** (`cldapi.dll`, "cfapi") to
 create on-demand *placeholder* files: they appear in Explorer like normal files, show

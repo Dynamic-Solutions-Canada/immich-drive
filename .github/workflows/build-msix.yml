@@ -40,6 +40,12 @@ jobs:
         with:
           dotnet-version: '10.0.x'
 
+      # This windows-2025 job is x64; it does not execute the ARM64 package.
+      - name: Check Cloud Files native layout
+        if: matrix.platform == 'x64'
+        shell: pwsh
+        run: dotnet run --project tests/CloudFilterLayout/CloudFilterLayout.csproj -c Release
+
       # -- Extract version from Directory.Build.props --------------
       - name: Read version
         id: version

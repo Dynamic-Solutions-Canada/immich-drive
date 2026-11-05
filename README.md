@@ -96,8 +96,10 @@ These permissions match [Immich's endpoint declarations](https://github.com/immi
 
 ## Requirements
 
-- **Windows 11** (build 22621 or newer): ImmichDrive relies on the Cloud Files API and modern shell thumbnails.
+- **Windows 10 22H2** (build 19045) or **Windows 11**, on x64 or ARM64. Windows 10 compatibility is enabled but still awaits end-to-end validation on Windows 10.
 - **An Immich server** you can reach (any reasonably recent version), and an **API key** from it.
+
+Windows 10 22H2 reached [Microsoft's end of standard support](https://learn.microsoft.com/en-us/windows/release-health/release-information) on October 14, 2025. App compatibility does not extend Microsoft's support; see [development notes](DEVELOPMENT.md#compatibility-verification) for runtime and edition limitations.
 
 ## Development
 

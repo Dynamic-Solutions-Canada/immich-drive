@@ -1,5 +1,7 @@
 Cut a release.
 
+Before releasing the Windows 10 compatibility change, complete the Windows build, packaging, and Windows 10/11 runtime checks in [DEVELOPMENT.md](../../DEVELOPMENT.md#compatibility-verification), unless Ryan explicitly authorizes an exception. Ryan authorized publishing v0.1.49 with these checks pending. That exception applies only to v0.1.49; a release tag starts Store submission independently of the GitHub packaging workflow.
+
 1. Bump `<Version>` in `Directory.Build.props` (single source of truth) — semver.
 2. Update the fallback `MaxVersionTested` / any hardcoded version notes if needed.
 3. Follow `.codex/commands/update-docs.md` to make sure docs match the code.

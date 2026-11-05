@@ -134,6 +134,7 @@ assembly version and offer **View Release** when newer.
 
 ## Notes
 
+- The MSIX minimum is Windows 10 22H2 (`10.0.19045.0`), on x64 or ARM64. Keep it aligned with `SupportedOSPlatformVersion` in both projects and `TargetPlatformMinVersion` in the WinUI project. The SDK target stays `net10.0-windows10.0.22000.0`; the packaging script's output paths still use that target. Windows 10 end-to-end validation is pending; see DEVELOPMENT.md for the acceptance checklist.
 - Bump tracked `<Version>` for releases only. Dev installs use a staging-only
   revision through `npm run install:desktop`; see `windows-development.md`.
 - The thumbnail handler + cloud-files shell integration register via the manifest

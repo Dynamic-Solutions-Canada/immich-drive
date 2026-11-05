@@ -146,6 +146,7 @@ root and may delete the local placeholder tree (no originals are stored, so noth
 
 ## Gotchas
 
+- `CF_OPERATION_INFO` must place `CorrelationVector` and `SyncStatus` before `RequestKey`, matching `cfapi.h`. On x64 and ARM64 the pointer offsets are 24 and 32, the request-key offset is 40, and the total size is 48 bytes. Putting the request key at offset 24 instead passes it as a pointer and sends a zero request key. `tests/CloudFilterLayout` checks the linked production declaration against these native offsets without invoking Cloud Files.
 - All cfapi structs must match `cfapi.h` packing exactly — verify on-device; a wrong offset
   silently corrupts hydration.
 - `CfCreatePlaceholders` `RelativeFileName` is relative to the `baseDirectoryPath` argument,

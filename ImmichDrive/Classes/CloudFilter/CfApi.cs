@@ -157,6 +157,8 @@ internal static partial class CfApi
     }
 
     // ── Operation (CfExecute) ───────────────────────────────────────
+    // cfapi.h places RequestKey after both pointers. Putting it before them passes
+    // a request identifier as CorrelationVector and loses the operation's request key.
     [StructLayout(LayoutKind.Sequential)]
     public struct CF_OPERATION_INFO
     {
@@ -164,9 +166,9 @@ internal static partial class CfApi
         public CF_OPERATION_TYPE Type;
         public long ConnectionKey;
         public long TransferKey;
-        public long RequestKey;
         public IntPtr CorrelationVector;  // CORRELATION_VECTOR*
         public IntPtr SyncStatus;         // CF_SYNC_STATUS*
+        public long RequestKey;
     }
 
     [StructLayout(LayoutKind.Sequential)]
