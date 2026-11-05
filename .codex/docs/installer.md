@@ -71,7 +71,7 @@ MakeAppx must receive `/bv` so the bundle does not get a date-based version that
 could outrank the next app release.
 Manual dispatch defaults `no_commit` to true for draft review; disable it to commit the submission.
 Certification and the submission's publishing settings determine when it becomes available.
-The read-only `inspect-store-submission.yml` action reports validation details for an exact submission ID without exposing signed upload URLs. For a confirmed `CommitFailed` package-validation error, correct the package and use `repair_draft` with that exact ID and `no_commit=true`, then `resume_draft` with `no_commit=false` to submit it. Both helpers reject submissions already in certification or publication and preserve the draft's listings, regional pricing, and publishing mode.
+The read-only `inspect-store-submission.yml` action reports validation details for an exact submission ID without exposing signed upload URLs. The API refuses updates to `CommitFailed` submissions. For a confirmed package-validation failure, correct the package and use `replace_failed_draft` with the exact failed ID, `failed_upload` with its exact upload filename, and `no_commit=false`. The workflow verifies the failed state and upload before deleting only that unpublished submission, then creates a corrected submission from the published app. `repair_draft` remains limited to editable `PendingCommit` drafts; it cannot repair `CommitFailed` or `Canceled` submissions.
 Each release includes `release-notes/<version>.txt`. The workflow stages the package upload,
 updates the English Store listings' What's new text with that file, verifies it was saved,
 and only then commits the submission. Other listing fields and publishing settings are preserved.

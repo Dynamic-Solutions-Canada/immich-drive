@@ -52,8 +52,8 @@ Run-Notes -Commit
 Check ($global:commits -eq 1) 'verified notes submitted once'
 Reset-Fixture
 $global:fixture.status = 'CommitFailed'
-Run-Notes -Commit
-Check ($global:puts -eq 1 -and $global:commits -eq 1) 'failed validation can be corrected and resubmitted'
+try { Run-Notes -Commit; throw 'Expected rejection' } catch { Check ($_.Exception.Message -like '*not editable*') 'failed submissions require replacement, not editing' }
+Check ($global:puts -eq 0 -and $global:commits -eq 0) 'failed submission is not modified'
 Reset-Fixture
 try {
     & $scriptPath -AppId 9MWC6165N7DH -ExpectedSubmissionId 999 -UploadFileName ImmichDrive-0.1.47.msixupload -NotesPath $notesPath -Commit

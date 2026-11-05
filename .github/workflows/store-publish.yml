@@ -26,6 +26,14 @@ on:
         description: 'Exact uploaded draft ID to submit after a release-note or commit failure'
         type: string
         default: ''
+      replace_failed_draft:
+        description: 'Exact CommitFailed submission ID to replace after correcting its package'
+        type: string
+        default: ''
+      failed_upload:
+        description: 'Exact upload filename in the failed submission being replaced'
+        type: string
+        default: ''
 
 permissions:
   contents: read
@@ -59,6 +67,18 @@ jobs:
         with:
           submodules: true
 
+      - name: Validate submission recovery options
+        shell: pwsh
+        env:
+          REPAIR_DRAFT: ${{ inputs.repair_draft }}
+          CANCELED_DRAFT: ${{ inputs.replace_canceled_draft }}
+          FAILED_DRAFT: ${{ inputs.replace_failed_draft }}
+          FAILED_UPLOAD: ${{ inputs.failed_upload }}
+        run: |
+          $selected = @(@($env:REPAIR_DRAFT, $env:CANCELED_DRAFT, $env:FAILED_DRAFT) | Where-Object { $_ })
+          if ($selected.Count -gt 1) { throw 'Choose exactly one submission recovery option.' }
+          if ($env:FAILED_UPLOAD -and -not $env:FAILED_DRAFT) { throw 'failed_upload requires replace_failed_draft.' }
+
       - name: Setup .NET
         uses: actions/setup-dotnet@v4
         with:
@@ -77,6 +97,7 @@ jobs:
           if ([string]::IsNullOrWhiteSpace($notes) -or $notes.Length -gt 1500) { throw 'Missing or invalid release notes.' }
           & ./.github/scripts/tests/set-store-release-notes.Tests.ps1
           & ./.github/scripts/tests/repair-store-draft.Tests.ps1
+          & ./.github/scripts/tests/replace-failed-store-draft.Tests.ps1
 
       - name: Generate images
         shell: pwsh
@@ -122,6 +143,24 @@ jobs:
           if ($env:REPAIR_DRAFT) { throw 'Choose repair_draft or replace_canceled_draft, not both.' }
           if ($env:NO_COMMIT -ne 'false') { throw 'Replacing a canceled release requires a committed submission.' }
           & ./.github/scripts/replace-canceled-store-draft.ps1 -AppId 9MWC6165N7DH -SubmissionId $env:SUBMISSION_ID -PriceId Tier1012
+
+      - name: Remove selected failed Store submission
+        if: inputs.replace_failed_draft != ''
+        shell: pwsh
+        env:
+          SUBMISSION_ID: ${{ inputs.replace_failed_draft }}
+          FAILED_UPLOAD: ${{ inputs.failed_upload }}
+          REPAIR_DRAFT: ${{ inputs.repair_draft }}
+          CANCELED_DRAFT: ${{ inputs.replace_canceled_draft }}
+          NO_COMMIT: ${{ inputs.no_commit }}
+          AZURE_AD_TENANT_ID: ${{ secrets.AZURE_AD_TENANT_ID }}
+          AZURE_AD_APPLICATION_CLIENT_ID: ${{ secrets.AZURE_AD_APPLICATION_CLIENT_ID }}
+          AZURE_AD_APPLICATION_SECRET: ${{ secrets.AZURE_AD_APPLICATION_SECRET }}
+        run: |
+          if ($env:REPAIR_DRAFT -or $env:CANCELED_DRAFT -or $env:NO_COMMIT -ne 'false') {
+            throw 'Replacing a failed submission requires no_commit=false without other repair options.'
+          }
+          & ./.github/scripts/replace-failed-store-draft.ps1 -AppId 9MWC6165N7DH -SubmissionId $env:SUBMISSION_ID -UploadFileName $env:FAILED_UPLOAD
 
       - name: Configure Store credentials
         if: inputs.repair_draft == ''
@@ -201,11 +240,12 @@ jobs:
           NO_COMMIT: ${{ inputs.no_commit }}
           REPAIR_DRAFT: ${{ inputs.repair_draft }}
           REPLACE_DRAFT: ${{ inputs.replace_canceled_draft }}
+          FAILED_DRAFT: ${{ inputs.replace_failed_draft }}
           AZURE_AD_TENANT_ID: ${{ secrets.AZURE_AD_TENANT_ID }}
           AZURE_AD_APPLICATION_CLIENT_ID: ${{ secrets.AZURE_AD_APPLICATION_CLIENT_ID }}
           AZURE_AD_APPLICATION_SECRET: ${{ secrets.AZURE_AD_APPLICATION_SECRET }}
         run: |
-          if ($env:NO_COMMIT -ne 'false' -or $env:REPAIR_DRAFT -or $env:REPLACE_DRAFT) {
+          if ($env:NO_COMMIT -ne 'false' -or $env:REPAIR_DRAFT -or $env:REPLACE_DRAFT -or $env:FAILED_DRAFT) {
             throw 'Resuming requires no_commit=false without other repair options.'
           }
           [xml]$props = Get-Content Directory.Build.props

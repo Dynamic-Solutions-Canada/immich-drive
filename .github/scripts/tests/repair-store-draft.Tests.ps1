@@ -45,7 +45,7 @@ try {
     $upload = "$temporary/test.msixupload"
     [IO.Compression.ZipFile]::CreateFromDirectory("$temporary/source", $upload)
 
-    foreach ($status in @('PendingCommit', 'CommitFailed')) {
+    foreach ($status in @('PendingCommit')) {
         Reset-RepairFixture $status
         & $scriptPath -AppId 9MWC6165N7DH -SubmissionId 123 -PriceId Tier1012 -UploadPath $upload
         Check-Repair ($global:repairPuts -eq 1 -and $global:repairUploads -eq 1) "$status replaces the selected draft's package once"
@@ -54,7 +54,7 @@ try {
         Check-Repair ($global:repairFixture.pricing.marketSpecificPricings.CA -eq 'keep' -and $global:repairFixture.targetPublishMode -eq 'Immediate') 'regional pricing and publishing mode are preserved'
     }
 
-    foreach ($status in @('Certification', 'Published')) {
+    foreach ($status in @('CommitFailed', 'Certification', 'Published')) {
         Reset-RepairFixture $status
         try {
             & $scriptPath -AppId 9MWC6165N7DH -SubmissionId 123 -PriceId Tier1012 -UploadPath $upload
