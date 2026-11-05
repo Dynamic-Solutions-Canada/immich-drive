@@ -1,0 +1,41 @@
+name: Inspect Microsoft Store submission
+
+on:
+  workflow_dispatch:
+    inputs:
+      submission_id:
+        description: 'Exact existing submission ID to inspect without changing it'
+        type: string
+        required: true
+
+permissions:
+  contents: read
+
+jobs:
+  inspect:
+    runs-on: windows-2025
+    steps:
+      - name: Read submission status and validation details
+        shell: pwsh
+        env:
+          SUBMISSION_ID: ${{ inputs.submission_id }}
+          AZURE_AD_TENANT_ID: ${{ secrets.AZURE_AD_TENANT_ID }}
+          AZURE_AD_APPLICATION_CLIENT_ID: ${{ secrets.AZURE_AD_APPLICATION_CLIENT_ID }}
+          AZURE_AD_APPLICATION_SECRET: ${{ secrets.AZURE_AD_APPLICATION_SECRET }}
+        run: |
+          if ($env:SUBMISSION_ID -notmatch '^[0-9]+$') { throw 'A numeric submission ID is required.' }
+          $token = Invoke-RestMethod -Method Post -Uri "https://login.microsoftonline.com/$env:AZURE_AD_TENANT_ID/oauth2/token" -Body @{
+            grant_type = 'client_credentials'
+            client_id = $env:AZURE_AD_APPLICATION_CLIENT_ID
+            client_secret = $env:AZURE_AD_APPLICATION_SECRET
+            resource = 'https://manage.devcenter.microsoft.com'
+          }
+          $headers = @{ Authorization = "Bearer $($token.access_token)" }
+          $uri = "https://manage.devcenter.microsoft.com/v1.0/my/applications/9MWC6165N7DH/submissions/$env:SUBMISSION_ID"
+          $status = Invoke-RestMethod -Uri "$uri/status" -Headers $headers
+          Write-Output "Submission $env:SUBMISSION_ID status: $($status.status)"
+          # Do not print the submission object: it can include signed upload URLs.
+          $details = $status.statusDetails | ConvertTo-Json -Depth 20
+          Write-Output ($details -replace 'https?://[^\s"<>]+', '[URL omitted]')
+          $submission = Invoke-RestMethod -Uri $uri -Headers $headers
+          $submission.applicationPackages | Select-Object fileName, version, architecture, fileStatus | Format-Table -AutoSize
