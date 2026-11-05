@@ -38,4 +38,5 @@ jobs:
           $details = $status.statusDetails | ConvertTo-Json -Depth 20
           Write-Output ($details -replace 'https?://[^\s"<>]+', '[URL omitted]')
           $submission = Invoke-RestMethod -Uri $uri -Headers $headers
+          Write-Output "Submission resource status: $($submission.status)"
           $submission.applicationPackages | Select-Object fileName, version, architecture, fileStatus | Format-Table -AutoSize

@@ -40,7 +40,7 @@ declaratively (no manual HKCR writes).
 
 The manifest's `<Identity>` holds the **real Partner Center** values — `Name`
 `27766TechnicallyReal.ImmichDrive`, `Publisher` `CN=C21E6CEF-D0D1-4497-93F9-3718D054DA0E`,
-`PublisherDisplayName` `Dynamic Solutions Canada`.
+`PublisherDisplayName` `Dynamic Solutions (CA)`. Partner Center validates this display name separately from the signing publisher; keep it aligned with the account's current display name. The v0.1.49 submission was rejected because the previous display name, `Dynamic Solutions Canada`, no longer matched the account.
 
 The Store listing is named **Drive for Immich**, while manifest `DisplayName` values identify
 the installed package, app, thumbnail server, and startup task as **ImmichDrive**. Keep that
