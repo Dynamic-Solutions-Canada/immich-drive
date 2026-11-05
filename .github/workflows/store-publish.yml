@@ -76,6 +76,7 @@ jobs:
           $notes = (Get-Content "release-notes/$version.txt" -Raw).Trim()
           if ([string]::IsNullOrWhiteSpace($notes) -or $notes.Length -gt 1500) { throw 'Missing or invalid release notes.' }
           & ./.github/scripts/tests/set-store-release-notes.Tests.ps1
+          & ./.github/scripts/tests/repair-store-draft.Tests.ps1
 
       - name: Generate images
         shell: pwsh

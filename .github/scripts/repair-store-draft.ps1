@@ -2,7 +2,7 @@
 .SYNOPSIS
 Replaces the packages in one explicitly selected Store draft without committing it.
 .DESCRIPTION
-Used after a submission is withdrawn for an incomplete architecture upload. It
+Used after an incomplete architecture upload or a failed package validation. It
 preserves the listing, availability, and publication settings in the draft.
 #>
 param(
@@ -28,7 +28,8 @@ if ([string]$app.pendingApplicationSubmission.id -ne $SubmissionId) {
 
 $uri = "$api/submissions/$SubmissionId"
 $draft = Invoke-RestMethod -Uri $uri -Headers $headers
-if ($draft.status -ne 'PendingCommit') { throw "Draft is not editable: $($draft.status)" }
+# Validation failures remain repairable; never replace packages during certification.
+if ($draft.status -notin @('PendingCommit', 'CommitFailed')) { throw "Draft is not editable: $($draft.status)" }
 
 # The upload must contain a single real bundle, validated by build-store-upload.ps1.
 Add-Type -AssemblyName System.IO.Compression.FileSystem

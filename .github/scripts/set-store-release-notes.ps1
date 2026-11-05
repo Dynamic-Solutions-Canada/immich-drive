@@ -36,7 +36,7 @@ if ($ExpectedSubmissionId -and $submissionId -ne $ExpectedSubmissionId) {
 
 $uri = "$api/submissions/$submissionId"
 $draft = Invoke-RestMethod -Uri $uri -Headers $headers
-if ($draft.status -ne 'PendingCommit') { throw "Draft is not editable: $($draft.status)" }
+if ($draft.status -notin @('PendingCommit', 'CommitFailed')) { throw "Draft is not editable: $($draft.status)" }
 if (@($draft.applicationPackages | Where-Object {
     $_.fileName -eq $UploadFileName -and $_.fileStatus -eq 'PendingUpload'
 }).Count -ne 1) {
