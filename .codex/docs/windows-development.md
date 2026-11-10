@@ -22,6 +22,8 @@ The policy and implementation are shared, not copied per project. Read the
 `$WINDOWS_BUILD_TOOLS/README.md` when using a custom tools location. The launcher is
 `scripts/windows-build` and the per-project manifest is `windows-build.json`.
 
+When this PC has no PowerShell 7 or .NET SDK, start the shared bridge's local Windows build VM; the same npm commands then build inside it automatically. It supports only `verify:desktop` and unsigned `package:desktop`, not `build:desktop` or `install:desktop`. Stop it afterwards, and never run it alongside the Android emulator VM. A worktree created without its submodules needs `git submodule update --init` before a Windows build. Setup and commands are in the [shared guide](../../../windows-build-tools/README.md#local-windows-dev-vm-when-this-pc-has-no-windows-build-tools).
+
 `.codex/commands/build.md`, `install.md`, and `rebuild.md` are Codex task guides,
 not automatically registered slash commands. Follow existing release workflows
 for publishing, and leave changes uncommitted unless explicitly requested.

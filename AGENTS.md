@@ -38,8 +38,7 @@ Reuses the LittleLauncher / Repilot (CopilotRekey) patterns: WinUI 3 settings wi
 `SettingsManager`/`UserSettings`, native `Shell_NotifyIcon` tray on an invisible host
 window, MSIX build script, single-source-of-truth versioning.
 
-Local reference checkouts: `~/development/little-launcher` and `~/development/repilot`. Consult them
-when reusing the patterns above, if available and permitted by the current environment.
+Local reference checkouts: the Little Launcher and Repilot repositories, when checked out beside this one. Consult them when reusing the patterns above, if available and permitted by the current environment.
 
 ## Architecture — TWO components
 
