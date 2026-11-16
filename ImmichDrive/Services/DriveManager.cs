@@ -97,7 +97,7 @@ public sealed class DriveManager
 
     public bool IsConfigured =>
         !string.IsNullOrWhiteSpace(SettingsManager.Current.ServerUrl) &&
-        !string.IsNullOrWhiteSpace(SettingsManager.Current.ApiKey);
+        !string.IsNullOrWhiteSpace(ApiKeyStore.ApiKey);
 
     /// <summary>Connects (or reconnects) the drive using the current settings.</summary>
     public Task ConnectAsync() => ConnectAsync(announce: true);
@@ -110,10 +110,17 @@ public sealed class DriveManager
     private async Task ConnectAsync(bool announce)
     {
         var s = SettingsManager.Current;
-        if (string.IsNullOrWhiteSpace(s.ServerUrl) || string.IsNullOrWhiteSpace(s.ApiKey))
+        string apiKey = ApiKeyStore.ApiKey;
+        if (string.IsNullOrWhiteSpace(s.ServerUrl) || string.IsNullOrWhiteSpace(apiKey))
         {
             StopWatchdog();
-            Set(DriveStatus.Disconnected, "Not configured");
+
+            // A saved key that no longer decrypts (restored profile, other Windows user) needs a
+            // different instruction from a drive that was simply never set up.
+            string detail = ApiKeyStore.StoredKeyUnreadable
+                ? "Your saved API key could not be read. Enter it again in Settings."
+                : "Not configured";
+            Set(DriveStatus.Disconnected, detail);
             return;
         }
 
@@ -137,7 +144,7 @@ public sealed class DriveManager
             _pins = null;
 
             _client?.Dispose();
-            _client = new ImmichClient(s.ServerUrl, s.ApiKey);
+            _client = new ImmichClient(s.ServerUrl, apiKey);
             var (reachability, who) = await _client.ProbeAsync();
             if (reachability == ImmichReachability.Unauthorized)
             {

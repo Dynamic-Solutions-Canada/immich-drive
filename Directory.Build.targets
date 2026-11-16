@@ -1,0 +1,16 @@
+<Project>
+  <!-- CVE-2026-111497: validate the SDK's resolved packs without pinning their
+       architecture or preventing newer servicing releases. Both MSIX executables
+       carry their own runtime, so updating the build machine alone is insufficient.
+       https://github.com/dotnet/runtime/security/advisories/GHSA-p3jp-9v83-76w9 -->
+  <Target Name="ValidateRuntimeSecurityBaseline"
+          AfterTargets="ProcessFrameworkReferences"
+          Condition="'$(TargetFrameworkIdentifier)' == '.NETCoreApp' And '$(TargetFrameworkVersion)' == 'v10.0'">
+    <Error Condition="('%(RuntimePack.FrameworkName)' == 'Microsoft.NETCore.App' Or
+                      '%(RuntimePack.FrameworkName)' == 'Microsoft.WindowsDesktop.App' Or
+                      '%(RuntimePack.FrameworkName)' == 'Microsoft.AspNetCore.App') And
+                      '%(RuntimePack.NuGetPackageVersion)' != '' And
+                      $([MSBuild]::VersionLessThan('%(RuntimePack.NuGetPackageVersion)', '10.0.14'))"
+           Text="CVE-2026-111497: runtime pack %(RuntimePack.Identity) resolved to %(RuntimePack.NuGetPackageVersion). Use .NET 10.0.14 or newer and remove any older runtime override, then restore and rebuild both Repilot executables." />
+  </Target>
+</Project>

@@ -1,2 +1,6 @@
+* text=auto eol=lf
 
-scripts/windows-build text eol=lf
+# Binary assets git should not diff or normalise.
+*.png binary
+*.ico binary
+*.pfx binary

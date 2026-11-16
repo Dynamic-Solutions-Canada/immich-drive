@@ -7,7 +7,7 @@ namespace ImmichDrive.Services;
 /// <summary>
 /// The live Cloud Files sync provider: connects the cfapi callback table to the sync root and
 /// hydrates placeholders on demand by streaming originals from Immich. Holds the connection
-/// for the lifetime of the resident app. See <c>.claude/docs/cloud-files.md</c>.
+/// for the lifetime of the resident app. See <c>docs/cloud-files.md</c>.
 /// </summary>
 public sealed class CloudProviderService : IDisposable
 {

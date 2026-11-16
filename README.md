@@ -5,69 +5,64 @@
 <h1 align="center">ImmichDrive</h1>
 
 <p align="center">
-  Your <a href="https://immich.app">Immich</a> photo library as a native cloud drive in File Explorer — on demand, without storing the photos on your PC.
+  Your <a href="https://immich.app">Immich</a> photo library as a native cloud drive in File Explorer, on demand, without storing the photos on your PC.
 </p>
 
 <p align="center">
   <a href="https://apps.microsoft.com/detail/9MWC6165N7DH">
-    <img src="https://get.microsoft.com/images/en-us%20dark.svg" alt="Download Drive for Immich from the Microsoft Store" height="56">
+    <img src="https://get.microsoft.com/images/en-us%20dark.svg" alt="Get ImmichDrive from the Microsoft Store" height="56">
   </a>
 </p>
 
 <p align="center">
-  <img src="docs/explorer-thumbnails.png" alt="Real thumbnails on demand inside a month folder" width="760">
+  <img src="store-assets/web/screenshots/00-explorer-thumbnails-dark.png" alt="Real thumbnails on demand inside a month folder" width="760">
 </p>
 
 <p align="center">
-  <img src="docs/explorer-library.png" alt="The library in File Explorer — by date, plus Albums, Favorites, Partners and Upload" width="760">
+  <img src="store-assets/web/screenshots/01-explorer-library-dark.png" alt="The library in File Explorer: date folders plus Albums, Favorites, Partners and Upload" width="760">
 </p>
 
 <p align="center">
-  <img src="docs/home.png" alt="ImmichDrive: connected and online" width="380">
-  &nbsp;&nbsp;
-  <img src="docs/tray-flyout.png" alt="System-tray flyout" width="380">
+  <img src="store-assets/web/screenshots/03-tray-flyout-dark.png" alt="The system tray flyout showing the drive is up to date" width="380">
 </p>
 
-Take a photo on your phone, let it auto-sync to Immich, and then grab it straight from your
-computer's file picker — no need to open the Immich web UI, download anything by hand, or
-fill up your disk. When you actually open or attach a photo, ImmichDrive fetches just that
-file on demand and hands it to whatever app asked for it (great for attaching a recent photo
-to a Craigslist listing, an email, or a form).
+Take a photo on your phone, let it sync to Immich, and then pick it straight from your computer's file picker, without opening the Immich web app, downloading anything by hand, or filling up your disk. When you open or attach a photo, ImmichDrive fetches just that file and hands it to the app that asked for it, which is ideal for attaching a recent photo to an email, a form or a listing.
 
-## How it works
+## Features
 
-ImmichDrive uses the same Windows mechanism as OneDrive and Dropbox, the **Cloud Files API**,
-to create *placeholder* files. They look and behave like normal files in Explorer (correct
-names, dates, and **thumbnails**) but take up **0 bytes** until you open one. Opening a file
-("hydrating" it) streams the original down from your Immich server in the background; closing
-and freeing space dehydrates it back to a placeholder.
+- **On demand:** every photo and video appears as a normal file in Explorer but takes no disk space until you open it.
+- **Organized the way you think about it:** `2026-06 June` date folders, newest first, plus **Albums**, **Favorites** and **Partners** folders that mirror Immich and stay in sync.
+- **Real thumbnails without downloading:** see your photos in Explorer before you open them, with nothing stored on disk.
+- **Upload folder:** drop files into `Upload` and ImmichDrive sends them to your Immich library.
+- **Lives in the tray:** one tray icon shows whether the drive is online or syncing, and opens settings or refreshes the drive.
+- **Quiet when your server isn't there:** if Immich can't be reached, the tray icon turns grey with an amber dot and the flyout says so. ImmichDrive keeps retrying on its own and reconnects when the server comes back, or you can select **Try again**. No pop-ups, no sounds.
 
-- **Organized the way you think about it** — `2026-06 June` date folders (newest first), plus
-  **Albums**, **Favorites**, and **Partners** folders that mirror Immich and stay in sync.
-- **Real thumbnails without downloading** — a lightweight shell extension fetches Immich's
-  small thumbnails so you can *see* your photos before opening them, with nothing on disk.
-- **Lives in the tray** — a single tray icon shows status (online / syncing) and lets you
-  open settings, refresh, or pause. No heavyweight background service.
-- **Quiet when your server isn't there** — if Immich can't be reached (it's down, you're off
-  the VPN, the laptop woke up early) the tray icon goes grey with an amber dot and the flyout
-  says so. It keeps retrying on its own and reconnects when the server comes back, or you can
-  hit **Try again**. No pop-ups, no sounds.
+## Get it
 
-## Setup (minimal)
+Install ImmichDrive from the [Microsoft Store](https://apps.microsoft.com/detail/9MWC6165N7DH), where it is currently listed as **Drive for Immich**.
 
-1. Install **ImmichDrive** from the [Microsoft Store](https://apps.microsoft.com/detail/9MWC6165N7DH), where it is listed as **Drive for Immich**.
-2. Open **ImmichDrive** and enter:
-   - your **Immich server URL** (e.g. `https://photos.example.com`)
-   - an **API key** (Immich → *Account Settings → API Keys → New API Key*) with the permissions below.
-3. Click **Test connection**, then **Connect**. Your drive appears in Explorer under
-   *ImmichDrive* (a sync-root entry in the navigation pane, like OneDrive).
+ImmichDrive collects no telemetry or crash reports. The app is in English only for now.
 
-That's it — browse by date and double-click (or attach) any photo.
+### Requirements
 
-### API key permissions
+- **Windows 10 22H2** (build 19045) or **Windows 11**, on x64 or ARM64. Windows 10 support is enabled but has not yet been fully tested on Windows 10.
+- **An Immich server** you can reach (any reasonably recent version), and an **API key** from it.
 
-You do **not** need to select **All permissions**. For browsing your photos with thumbnails
-and opening or attaching originals, select these four permissions:
+Windows 10 22H2 reached [Microsoft's end of standard support](https://learn.microsoft.com/en-us/windows/release-health/release-information) on October 14, 2025. ImmichDrive running there does not extend Microsoft's support; see the [developer notes](docs/development.md#compatibility-verification) for runtime and edition limits.
+
+### Setup
+
+1. Install ImmichDrive from the Microsoft Store.
+2. Open ImmichDrive and enter:
+   - your **Immich server URL** (for example `https://photos.example.com`)
+   - an **API key** (Immich, then *Account Settings*, *API Keys*, *New API Key*) with the permissions below.
+3. Select **Test connection**, then **Connect**. Your drive appears in Explorer's navigation pane as *ImmichDrive*, like OneDrive.
+
+That's it: browse by date and open or attach any photo.
+
+#### API key permissions
+
+You do **not** need **All permissions**. To browse your photos with thumbnails and open or attach originals, select these four:
 
 | Permission | What it enables |
 | --- | --- |
@@ -76,7 +71,7 @@ and opening or attaching originals, select these four permissions:
 | `asset.view` | Display thumbnails in Explorer without downloading originals. |
 | `asset.download` | Open or attach original photos and videos. |
 
-Add these permissions for the features you use:
+Add these for the features you use:
 
 | Permission | What it enables |
 | --- | --- |
@@ -84,37 +79,24 @@ Add these permissions for the features you use:
 | `partner.read` | Mirror libraries shared with you in Partners folders. |
 | `asset.upload` | Upload files dropped into the Upload folder. |
 
-Select all **seven** above to use every feature. Delete, update, API key management, and
-admin permissions are not needed. Without `asset.upload`, dropped files remain in Upload
-because the server rejects the upload.
+Select all **seven** to use every feature. Delete, update, API key management and admin permissions are not needed. Without `asset.upload`, dropped files stay in Upload because the server rejects them.
 
-**If Test connection rejects your key:** check that it includes `user.read`. A key with
-only asset and album permissions cannot pass the connection check. A successful test checks
-the URL and `user.read`, not the permissions for thumbnails, downloads, or other features.
+**If Test connection rejects your key:** check that it includes `user.read`. A key with only asset and album permissions cannot pass the connection check. A successful test checks the URL and `user.read`, not the permissions for thumbnails, downloads or other features.
 
 These permissions match [Immich's endpoint declarations](https://github.com/immich-app/immich/tree/main/server/src/controllers).
 
-## Requirements
+## How it works
 
-- **Windows 10 22H2** (build 19045) or **Windows 11**, on x64 or ARM64. Windows 10 compatibility is enabled but still awaits end-to-end validation on Windows 10.
-- **An Immich server** you can reach (any reasonably recent version), and an **API key** from it.
+ImmichDrive uses the same Windows mechanism as OneDrive and Dropbox, the **Cloud Files API**, to create *placeholder* files. They look and behave like normal files in Explorer, with correct names, dates and **thumbnails**, but take up **0 bytes** until you open one. Opening a file streams the original from your Immich server in the background; freeing up space turns it back into a placeholder.
 
-Windows 10 22H2 reached [Microsoft's end of standard support](https://learn.microsoft.com/en-us/windows/release-health/release-information) on October 14, 2025. App compatibility does not extend Microsoft's support; see [development notes](DEVELOPMENT.md#compatibility-verification) for runtime and edition limitations.
+Your API key is stored encrypted for your Windows account, never in plain text.
 
-## Development
+## Developers
 
-Building from source, the MSIX packaging pipeline, and how the pieces fit together — the resident
-app, the thumbnail shell extension, the Cloud Files provider, and the on-disk index — are
-documented in **[DEVELOPMENT.md](DEVELOPMENT.md)**.
-
-The [Microsoft Store](https://apps.microsoft.com/detail/9MWC6165N7DH) is the install route.
-Releases in this repository carry notes and a tag only, with no files attached: ImmichDrive
-registers its Cloud Files sync root and its thumbnail handler from the package manifest, so it
-needs package identity (MSIX) to work at all and an unpackaged build is not a usable app. If you
-want to run your own copy from source, build it with the steps in DEVELOPMENT.md.
+- [Development guide](docs/development.md): build, test, versioning, release and compatibility checks.
+- [Architecture](ARCHITECTURE.md): the two processes, the Cloud Files flow, thumbnails, and where data is stored.
+- [Packaging](docs/packaging.md): the MSIX, package identities, and the CI and Store workflows.
 
 ## License
 
-Licensed under the [PolyForm Noncommercial License 1.0.0](LICENSE.md): free for any
-**personal and other noncommercial use**, including modifying and redistributing it.
-**Commercial use is not permitted.** Copyright © 2026 Ryan Ewen.
+Licensed under the [PolyForm Noncommercial License 1.0.0](LICENSE): free for any **personal and other noncommercial use**, including modifying and redistributing it. **Commercial use is not permitted.** Copyright © 2026 Dynamic Solutions.

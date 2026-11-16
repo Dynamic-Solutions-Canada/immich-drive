@@ -1,0 +1,29 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <!-- Portable harness for the API key migration and ApiKeyStore's save rules: plain net10.0,
+       so it runs on Linux. The real DPAPI call is replaced with a fake through
+       ProtectedStore.Protector. -->
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <!-- ProtectedStore.cs also declares the DPAPI implementation, which is Windows-only. It is
+         compiled here but never called, so the platform analyzer warning does not apply. -->
+    <NoWarn>$(NoWarn);CA1416</NoWarn>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!-- Supplies ProtectedData off Windows so the linked ProtectedStore compiles; on Windows the app
+         gets it from Microsoft.WindowsDesktop.App. 10.x matches the net10.0 target. -->
+    <PackageReference Include="System.Security.Cryptography.ProtectedData" Version="10.0.15" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Include="../../ImmichDrive/Models/StoredApiKey.cs" Link="Linked/StoredApiKey.cs" />
+    <Compile Include="../../ImmichDrive/Services/AtomicFile.cs" Link="Linked/AtomicFile.cs" />
+    <Compile Include="../../ImmichDrive/Services/ProtectedStore.cs" Link="Linked/ProtectedStore.cs" />
+    <Compile Include="../../ImmichDrive/Services/SharedPaths.cs" Link="Linked/SharedPaths.cs" />
+    <Compile Include="../../ImmichDrive/Services/ApiKeyMigration.cs" Link="Linked/ApiKeyMigration.cs" />
+    <Compile Include="../../ImmichDrive/Services/ApiKeyStore.cs" Link="Linked/ApiKeyStore.cs" />
+  </ItemGroup>
+</Project>

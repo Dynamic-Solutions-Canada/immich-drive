@@ -86,7 +86,7 @@ jobs:
 
       - name: Check Cloud Files native layout
         shell: pwsh
-        run: dotnet run --project tests/CloudFilterLayout/CloudFilterLayout.csproj -c Release
+        run: dotnet run --project tests/ImmichDrive.CloudFilterLayout.Tests/ImmichDrive.CloudFilterLayout.Tests.csproj -c Release
 
       - name: Check release notes
         shell: pwsh

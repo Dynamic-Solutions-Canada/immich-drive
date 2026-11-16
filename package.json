@@ -1,10 +1,14 @@
 {
   "name": "immich-drive",
   "private": true,
+  "license": "PolyForm-Noncommercial-1.0.0",
   "scripts": {
-    "build:desktop": "scripts/windows-build --dev",
+    "package:desktop:dev": "scripts/windows-build --dev",
     "verify:desktop": "scripts/windows-build --build-only --configuration Debug",
     "install:desktop": "scripts/windows-build --install",
-    "package:desktop": "scripts/windows-build --no-sign"
+    "package:desktop": "scripts/windows-build --no-sign",
+    "test": "scripts/run-tests",
+    "test:scripts": "scripts/run-tests scripts",
+    "validate": "npm test"
   }
 }

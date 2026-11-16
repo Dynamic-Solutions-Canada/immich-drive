@@ -9,7 +9,7 @@ namespace ImmichDrive.Services;
 /// Registers/unregisters the Cloud Files sync root via WinRT
 /// <see cref="StorageProviderSyncRootManager"/> — the folder that shows up in Explorer's
 /// navigation pane (like OneDrive). Placeholder creation + hydration callbacks are handled
-/// separately by <see cref="CloudProviderService"/>. See <c>.claude/docs/cloud-files.md</c>.
+/// separately by <see cref="CloudProviderService"/>. See <c>docs/cloud-files.md</c>.
 /// </summary>
 public static class SyncRootService
 {

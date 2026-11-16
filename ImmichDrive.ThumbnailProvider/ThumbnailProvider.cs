@@ -10,7 +10,7 @@ namespace ImmichDrive.ThumbnailProvider;
 /// In-process COM thumbnail handler for ImmichDrive placeholder files. Resolves the file path
 /// → Immich asset id via the shared SQLite index and fetches Immich's small thumbnail over HTTP
 /// — without ever opening (hydrating) the file. Runs inside the shell, so it stays lean and
-/// fails fast/quiet. See <c>.claude/docs/thumbnails.md</c>.
+/// fails fast/quiet. See <c>docs/thumbnails.md</c>.
 /// </summary>
 [ComVisible(true)]
 [Guid(ComGuids.ThumbnailProviderClsid)]

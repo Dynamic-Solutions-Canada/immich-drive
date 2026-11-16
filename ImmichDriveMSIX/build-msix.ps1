@@ -9,15 +9,17 @@
     4. Assembles the MSIX layout (app + extension + compiled XAML + stamped manifest + Images)
     5. Generates resources.pri via makepri
     6. Packages with makeappx.exe
-    7. Signs with signtool.exe (dev self-signed cert, or a CA-trusted PFX)
+    7. Signs with signtool.exe using the PFX passed in -TrustedPfxPath/-TrustedPfxPassword
 
-    Use -NoSign for Microsoft Store uploads (the Store re-signs during ingestion).
+    Signing material is always a parameter; the script never creates a certificate or holds a
+    password. Normally run through the shared bridge (npm run package:desktop:dev / install:desktop),
+    which passes the shared dev certificate. Use -NoSign for Microsoft Store uploads (the Store
+    re-signs during ingestion) or for an unsigned compile check.
     ASCII only (Windows PowerShell 5.1 reads BOM-less .ps1 as ANSI).
 
 .EXAMPLE
-    .\build-msix.ps1
-    .\build-msix.ps1 -Platform x64
-    .\build-msix.ps1 -NoSign
+    .\build-msix.ps1 -TrustedPfxPath C:\path\to\signing.pfx -TrustedPfxPassword <password>
+    .\build-msix.ps1 -Platform x64 -NoSign
 #>
 param(
     [ValidateSet("x64", "ARM64")]
@@ -47,7 +49,6 @@ $mainProj    = Join-Path $repoRoot "ImmichDrive\ImmichDrive.csproj"
 $thumbProj   = Join-Path $repoRoot "ImmichDrive.ThumbnailProvider\ImmichDrive.ThumbnailProvider.csproj"
 $manifestSrc = Join-Path $msixDir  "Package.appxmanifest"
 $imagesDir   = Join-Path $msixDir  "Images"
-$pfxFile     = Join-Path $msixDir  "ImmichDrive.pfx"
 
 $rid        = if ($Platform -eq "ARM64") { "win-arm64" } else { "win-x64" }
 $tfm        = "net10.0-windows10.0.22000.0"
@@ -122,21 +123,16 @@ Write-Host "Version: $msixVersion" -ForegroundColor Cyan
 # the human picking the file cannot get it wrong.
 $msixFile = Join-Path $outputDir "ImmichDrive-$version-$Platform.msix"
 
-# -- Signing certificate (auto-generate dev cert if missing) ----------------------
+# -- Signing certificate ----------------------------------------------------------
+# Signed builds need -TrustedPfxPath/-TrustedPfxPassword. The shared bridge passes the shared dev
+# certificate it stages at .windows-build\signing.pfx (windows-build.json: trusted_certificate).
+# There is deliberately no fallback: an earlier version generated its own certificate protected by
+# a password written in this script, which is in git history and must never be used again.
 if ($NoSign) {
     Write-Host "Skipping signing (Store upload mode)" -ForegroundColor Yellow
-} elseif (-not (Test-Path $pfxFile)) {
-    Write-Host "Signing cert not found - generating self-signed dev cert..." -ForegroundColor Yellow
-    $cert = New-SelfSignedCertificate -Type Custom -Subject "CN=ImmichDrive-Dev" `
-        -KeyUsage DigitalSignature -FriendlyName "ImmichDrive Dev" `
-        -CertStoreLocation "Cert:\CurrentUser\My" `
-        -TextExtension @("2.5.29.37={text}1.3.6.1.5.5.7.3.3")
-    $pwd = ConvertTo-SecureString -String "ImmichDrive" -Force -AsPlainText
-    Export-PfxCertificate -Cert $cert -FilePath $pfxFile -Password $pwd | Out-Null
-    Export-Certificate -Cert $cert -FilePath (Join-Path $msixDir "ImmichDrive.cer") | Out-Null
-    Write-Host "  Created $pfxFile"
-    Write-Host "  Trust it (admin) before installing the MSIX:" -ForegroundColor Cyan
-    Write-Host "    Import-Certificate -FilePath '$($msixDir)\ImmichDrive.cer' -CertStoreLocation Cert:\LocalMachine\TrustedPeople" -ForegroundColor DarkCyan
+} elseif ([string]::IsNullOrEmpty($TrustedPfxPath) -or -not (Test-Path $TrustedPfxPath)) {
+    Write-Error "No signing certificate. Build through the shared bridge (npm run package:desktop:dev), pass -TrustedPfxPath/-TrustedPfxPassword, or use -NoSign."
+    exit 1
 }
 
 # -- Step 1: Publish app (self-contained) -----------------------------------------
@@ -182,9 +178,7 @@ $manifestContent = (Get-Content $manifestSrc -Raw) `
     -replace 'VERSION_PLACEHOLDER', $msixVersion
 
 if (-not $NoSign) {
-    $signingPfx = if ([string]::IsNullOrEmpty($TrustedPfxPath)) { $pfxFile } else { $TrustedPfxPath }
-    $signingPwd = if ([string]::IsNullOrEmpty($TrustedPfxPath)) { "ImmichDrive" } else { $TrustedPfxPassword }
-    $signCert = New-Object System.Security.Cryptography.X509Certificates.X509Certificate2($signingPfx, $signingPwd)
+    $signCert = New-Object System.Security.Cryptography.X509Certificates.X509Certificate2($TrustedPfxPath, $TrustedPfxPassword)
     if ($UseStoreIdentity) {
         [xml]$storeManifest = $manifestContent
         if ($signCert.Subject -ne $storeManifest.Package.Identity.Publisher) {
@@ -244,11 +238,7 @@ if ($NoSign) {
     Write-Host "`n=== Skipping MSIX signing (Store upload) ===" -ForegroundColor Yellow
 } else {
     Write-Host "`n=== Signing MSIX ===" -ForegroundColor Cyan
-    if (-not [string]::IsNullOrEmpty($TrustedPfxPath)) {
-        & $signtool sign /fd SHA256 /f $TrustedPfxPath /p $TrustedPfxPassword /tr http://timestamp.digicert.com /td SHA256 $msixFile
-    } else {
-        & $signtool sign /fd SHA256 /a /f $pfxFile /p "ImmichDrive" $msixFile
-    }
+    & $signtool sign /fd SHA256 /f $TrustedPfxPath /p $TrustedPfxPassword /tr http://timestamp.digicert.com /td SHA256 $msixFile
     if ($LASTEXITCODE -ne 0) { Write-Error "signtool sign failed"; exit 1 }
 }
 

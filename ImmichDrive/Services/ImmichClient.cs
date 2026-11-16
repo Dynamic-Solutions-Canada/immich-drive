@@ -20,7 +20,7 @@ public enum ImmichReachability
 /// Thin Immich REST client: <c>x-api-key</c> auth, timeline enumeration, per-asset metadata,
 /// thumbnails, and ranged original downloads. Deliberately WinUI-free and reflection-light
 /// (uses <see cref="JsonDocument"/>, not typed deserialization) so it can be linked into the
-/// thumbnail shell extension and stay trim-safe. See <c>.claude/docs/immich-api.md</c>.
+/// thumbnail shell extension and stay trim-safe. See <c>docs/immich-api.md</c>.
 /// </summary>
 public sealed class ImmichClient : IDisposable
 {

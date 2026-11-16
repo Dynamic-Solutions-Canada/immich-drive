@@ -11,7 +11,7 @@ namespace ImmichDrive.Services;
 /// edit / delete / rename), while the cloud-files provider keeps working — cfapi placeholder and
 /// hydration operations are performed by the cldflt filter and bypass the user's deny ACE (the same
 /// way OneDrive's read-only folders behave). The <c>Upload</c> folder is excluded so the user can
-/// drop files there. See <c>.claude/docs/read-only.md</c>.
+/// drop files there. See <c>docs/read-only.md</c>.
 /// </summary>
 public static partial class DriveSecurity
 {

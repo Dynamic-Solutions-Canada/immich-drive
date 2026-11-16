@@ -9,7 +9,7 @@ namespace ImmichDrive.ViewModels;
 /// All user settings. Every <c>[ObservableProperty]</c> auto-serializes to settings.json via
 /// <see cref="ImmichDrive.Classes.Settings.SettingsManager"/>. Side-effects live in partial
 /// <c>On…Changed</c> methods guarded by <see cref="_initializing"/>. See
-/// <c>.claude/docs/user-settings.md</c>.
+/// <c>.agents/guides/user-settings.md</c>.
 /// </summary>
 public partial class UserSettings : ObservableObject
 {
@@ -20,8 +20,8 @@ public partial class UserSettings : ObservableObject
     /// <summary>Immich base URL (without the trailing /api).</summary>
     [ObservableProperty] public partial string ServerUrl { get; set; } = "";
 
-    /// <summary>Immich API key (sent as x-api-key). Stored locally in plaintext JSON.</summary>
-    [ObservableProperty] public partial string ApiKey { get; set; } = "";
+    // The API key is deliberately not a setting: it lives encrypted in ProtectedStore via
+    // Services.ApiKeyStore, so it never reaches settings.json (SEC-1, CONF-5).
 
     /// <summary>Whether the drive should be connected/registered.</summary>
     [ObservableProperty] public partial bool Connected { get; set; }
@@ -79,7 +79,6 @@ public partial class UserSettings : ObservableObject
     public void CompleteInitialization()
     {
         ServerUrl ??= "";
-        ApiKey ??= "";
         SyncRootPath ??= "";
         _initializing = false;
     }

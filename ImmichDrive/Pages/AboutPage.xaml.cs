@@ -17,6 +17,7 @@ public sealed partial class AboutPage : Page
         InitializeComponent();
         var v = Assembly.GetExecutingAssembly().GetName().Version;
         VersionText.Text = v != null ? $"Version {v.Major}.{v.Minor}.{v.Build}" : "";
+        SourceLink.NavigateUri = SourceRepository.WebUri;
         if (File.Exists(App.IconImagePath))
         {
             try { AppIcon.Source = new BitmapImage(new Uri(App.IconImagePath)); } catch { }

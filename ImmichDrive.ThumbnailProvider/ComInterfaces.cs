@@ -2,7 +2,7 @@ using System.Runtime.InteropServices;
 
 namespace ImmichDrive.ThumbnailProvider;
 
-/// <summary>Shell COM interop for the thumbnail handler. See <c>.claude/docs/thumbnails.md</c>.</summary>
+/// <summary>Shell COM interop for the thumbnail handler. See <c>docs/thumbnails.md</c>.</summary>
 internal static class ComGuids
 {
     /// <summary>Our thumbnail provider CLSID — must match the MSIX manifest registration.</summary>

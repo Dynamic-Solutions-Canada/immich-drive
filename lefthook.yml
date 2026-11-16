@@ -1,0 +1,35 @@
+# Git hooks (HYG-10): block what must never be committed. Hooks check staged files only and stay
+# fast; tests belong to CI. Install lefthook, then run `lefthook install` once per clone.
+min_version: 2.2.2
+
+pre-commit:
+  parallel: true
+  jobs:
+    - name: no signing material
+      # Signing certificates and keys never live in a repo (SEC-11); the shared dev certificate
+      # comes from the build tools.
+      glob: "*.{pfx,cer,der,keystore,jks,snk}"
+      run: 'echo "Signing material must not be committed: {staged_files}" && exit 1'
+
+    - name: no credential folders or env files
+      glob: "{.secrets/**,.aws/**,.windows-build/**,.env,.env.*,**/.env,**/.env.*}"
+      exclude:
+        - "**.example"
+      run: 'echo "Credentials and env files must not be committed: {staged_files}" && exit 1'
+
+    - name: no settings or protected key files
+      # A user's settings.json or protected API key file must never be committed (SEC-1, CONF-5).
+      glob: "{**/settings.json,**/protected-*.dat}"
+      exclude:
+        - ".claude/settings.json"
+        - ".vscode/settings.json"
+      run: 'echo "App data files must not be committed: {staged_files}" && exit 1'
+
+    - name: no large files
+      run: |
+        for f in {staged_files}; do
+          if [ -f "$f" ] && [ "$(wc -c < "$f")" -gt 5242880 ]; then
+            echo "$f is over 5 MB; large files belong in a release asset, not the repo."
+            exit 1
+          fi
+        done

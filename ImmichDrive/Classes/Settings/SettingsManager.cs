@@ -60,17 +60,25 @@ public static class SettingsManager
         return _current;
     }
 
+    /// <summary>
+    /// Writes the current settings atomically (temporary file, then rename), so the thumbnail
+    /// extension never reads a half-written file. The API key is not part of <see cref="UserSettings"/>
+    /// and is only carried here while <see cref="ApiKeyStore.PendingLegacyKey"/> says the protected
+    /// store refused it, so this save cannot erase the user's only copy.
+    /// </summary>
     public static void SaveSettings(string? filePath = null)
     {
         filePath ??= SettingsFilePath;
         try
         {
-            string? directory = Path.GetDirectoryName(filePath);
-            if (directory != null && !Directory.Exists(directory))
-                Directory.CreateDirectory(directory);
-
             string json = JsonSerializer.Serialize(_current, JsonOptions);
-            File.WriteAllText(filePath, json);
+
+            if (ApiKeyStore.PendingLegacyKey is { } pendingKey)
+            {
+                json = ApiKeyMigration.CarryLegacyKey(json, pendingKey);
+            }
+
+            AtomicFile.WriteAllText(filePath, json);
         }
         catch (Exception ex)
         {

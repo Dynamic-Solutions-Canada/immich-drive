@@ -16,9 +16,42 @@ public sealed partial class ConnectionPage : Page
         InitializeComponent();
         var s = SettingsManager.Current;
         ServerBox.Text = s.ServerUrl;
-        ApiKeyBox.Password = s.ApiKey;
+        ApiKeyBox.Password = ApiKeyStore.ApiKey;
         FolderBox.Text = s.EffectiveSyncRootPath;
         UpdateButtons();
+        ShowUnreadableKeyNotice();
+    }
+
+    /// <summary>
+    /// Explains an empty key box when a saved key exists but no longer decrypts (for example after
+    /// restoring a profile on another machine), so the user knows to re-enter it.
+    /// </summary>
+    private void ShowUnreadableKeyNotice()
+    {
+        if (!ApiKeyStore.StoredKeyUnreadable)
+        {
+            return;
+        }
+
+        ResultBar.IsOpen = true;
+        ResultBar.Severity = InfoBarSeverity.Warning;
+        ResultBar.Title = "Enter your API key again";
+        ResultBar.Message = "Your saved API key could not be read on this Windows account.";
+    }
+
+    /// <summary>
+    /// Adds a warning to the result just shown when the API key could not be saved securely. The key
+    /// still works until ImmichDrive closes; it is deliberately not written anywhere less safe.
+    /// </summary>
+    private void NoteKeyNotSaved()
+    {
+        ResultBar.IsOpen = true;
+        if (ResultBar.Severity == InfoBarSeverity.Success)
+        {
+            ResultBar.Severity = InfoBarSeverity.Warning;
+        }
+
+        ResultBar.Message = $"{ResultBar.Message} Your API key could not be saved, so you will need to enter it again after ImmichDrive restarts.".Trim();
     }
 
     private void UpdateButtons()
@@ -27,14 +60,19 @@ public sealed partial class ConnectionPage : Page
         DisconnectButton.Visibility = online ? Microsoft.UI.Xaml.Visibility.Visible : Microsoft.UI.Xaml.Visibility.Collapsed;
     }
 
-    private void SaveFields()
+    /// <summary>
+    /// Saves the server URL to settings and the API key to the protected store. Returns false when
+    /// the key could not be saved securely; callers report that with <see cref="NoteKeyNotSaved"/>.
+    /// </summary>
+    private bool SaveFields()
     {
         var s = SettingsManager.Current;
         s.ServerUrl = ServerBox.Text.Trim();
-        s.ApiKey = ApiKeyBox.Password;
+        bool keySaved = ApiKeyStore.TrySet(ApiKeyBox.Password);
         // Note: the drive folder is NOT written from here — it's read-only in the UI and only ever
         // changed via ChangeFolder_Click (which also moves the drive when it's live).
         SettingsManager.SaveSettings();
+        return keySaved;
     }
 
     // ── Drive folder: read-only, changed via a preset/Browse dialog ──────────────────────
@@ -158,12 +196,12 @@ public sealed partial class ConnectionPage : Page
 
     private async void TestButton_Click(object sender, RoutedEventArgs e)
     {
-        SaveFields();
+        bool keySaved = SaveFields();
         Busy.IsActive = true;
         TestButton.IsEnabled = false;
         try
         {
-            using var client = new ImmichClient(SettingsManager.Current.ServerUrl, SettingsManager.Current.ApiKey,
+            using var client = new ImmichClient(SettingsManager.Current.ServerUrl, ApiKeyStore.ApiKey,
                 TimeSpan.FromSeconds(15));
             var (reachability, who) = await client.ProbeAsync();
             ResultBar.IsOpen = true;
@@ -187,6 +225,11 @@ public sealed partial class ConnectionPage : Page
                 ResultBar.Title = "Could not connect";
                 ResultBar.Message = "Check the server URL and that your Immich server is reachable.";
             }
+
+            if (!keySaved)
+            {
+                NoteKeyNotSaved();
+            }
         }
         finally
         {
@@ -197,7 +240,7 @@ public sealed partial class ConnectionPage : Page
 
     private async void ConnectButton_Click(object sender, RoutedEventArgs e)
     {
-        SaveFields();
+        bool keySaved = SaveFields();
         Busy.IsActive = true;
         ConnectButton.IsEnabled = false;
         try
@@ -208,6 +251,11 @@ public sealed partial class ConnectionPage : Page
             ResultBar.Severity = dm.Status == DriveStatus.Online ? InfoBarSeverity.Success : InfoBarSeverity.Error;
             ResultBar.Title = dm.Status == DriveStatus.Online ? "Drive connected" : "Connection failed";
             ResultBar.Message = dm.StatusDetail ?? "";
+
+            if (!keySaved)
+            {
+                NoteKeyNotSaved();
+            }
         }
         finally
         {

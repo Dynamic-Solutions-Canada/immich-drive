@@ -1,161 +1,91 @@
-# ImmichDrive — Codex Instructions
+# ImmichDrive: Agent Instructions
 
-## Using this guidance
+ImmichDrive is a paid Windows 10 22H2 and Windows 11 app that shows a user's [Immich](https://immich.app) photo and video library in File Explorer as a cloud drive, without storing the files on the device. It uses the Windows Cloud Files API to create placeholder files that show real thumbnails and download only when opened. It ships only through the Microsoft Store as one MSIX built from WSL through the shared Windows build bridge. The "Our other apps" page comes from the apps-promo submodule at `external/promo`.
 
-Read the relevant topic documents below before changing that area, and update them
-alongside behavior changes. Paths in this file are relative to the repository root.
+## Standards
 
-The files under `.codex/commands/` are task guides. Read and follow the matching guide
-when the user requests that task; they do not register slash commands or run automatically.
+This repo follows the shared standards at https://github.com/Dynamic-Solutions-Canada/app-standards. Read the index for this stack, https://github.com/Dynamic-Solutions-Canada/app-standards/blob/main/stacks/windows.md, then the topic file for the area you are changing. If `external/standards/` exists, it is the same content pinned for offline use. Where this file differs from the standards, this file wins and says why.
 
-| Task | Guide |
-|---|---|
-| Add a user setting | `.codex/commands/add-setting.md` |
-| Add a settings page | `.codex/commands/add-settings-page.md` |
-| Review and commit changes | `.codex/commands/commit.md` |
-| Rebuild and relaunch | `.codex/commands/rebuild.md` |
-| Cut a release | `.codex/commands/release.md` |
-| Audit and update documentation | `.codex/commands/update-docs.md` |
+## Architecture
 
-## Project overview
+- **`ImmichDrive/`** is the resident app: the WinUI 3 settings window, the tray icon on an invisible host window, and the Cloud Files sync provider. It registers the sync root, lays down placeholders from the Immich timeline, and serves hydration callbacks for as long as it runs.
+- **`ImmichDrive.ThumbnailProvider/`** is an out-of-process COM thumbnail server (an exe, because the in-process DLL failed to activate in the shell surrogate). The shell launches it to draw thumbnails for placeholders without hydrating them.
+- **Shared files are linked, not copied:** the thumbnail provider compiles the asset model, `ImmichClient`, `AssetIndex`, `SharedPaths`, `SettingsFile`, `ProtectedStore`, `AtomicFile` and `StoredApiKey` from `ImmichDrive/` (see its `.csproj`).
+- **`ImmichDriveMSIX/`** packages both, and the manifest is the only place the sync root integration and the COM server are registered.
+- Full design, data flow and storage locations: [ARCHITECTURE.md](ARCHITECTURE.md).
 
-ImmichDrive is a Windows 10 22H2 / Windows 11 **native cloud drive** that surfaces a user's
-[Immich](https://immich.app) photo/video library in File Explorer **without storing the
-files on the device**. It uses the Windows **Cloud Files API** (`cldapi.dll`, "cfapi") to
-create on-demand *placeholder* files: they appear in Explorer like normal files, show
-real thumbnails, and are only downloaded ("hydrated") from the Immich server when actually
-opened. The point: take a photo on your phone → it auto-syncs to Immich → you grab it from
-your PC's file picker (e.g. attaching to a Craigslist listing) without opening the WebUI.
+## Behaviour
 
-**Naming:** the Microsoft Store listing is **"Drive for Immich"** (the Store rejected
-"ImmichDrive" under policy 10.1.1.1 because the name contains another product's title).
-The installed app is **"ImmichDrive"** in the package manifest, Windows shell surfaces,
-window titles, tray tooltip, README, and internal identifiers. Keep the Store listing name
-only where it specifically identifies the Store listing or Store download link. Preserve
-the Partner Center package identity so existing installations continue to update.
+- The drive is read-only except `Upload\`; see [docs/read-only.md](docs/read-only.md).
+- Status is passive: tray icon, tooltip and flyout only. No toast, balloon or sound, including when the server is unreachable; the app retries quietly on a backoff.
+- The Immich API key is never written to `settings.json` or a log. It lives in `ApiKeyStore` and `ProtectedStore`, as described in ARCHITECTURE.md.
+- No build output is ever published: no MSIX on a GitHub release, no Actions artifact, no portable build. CI still builds the MSIX on every run as the packaging check; keep it. See [docs/packaging.md](docs/packaging.md).
+- Permanent identifiers never change, because installed copies depend on them: the Partner Center package identity, the startup task id `ImmichDriveAutoStart`, the mutex `ImmichDrive.Instance`, the data folder name `ImmichDrive`, the sync root id format and provider id, the thumbnail provider CLSID, and the protected key file name `protected-immich-api-key.dat`.
 
-Reuses the LittleLauncher / Repilot (CopilotRekey) patterns: WinUI 3 settings window,
-`SettingsManager`/`UserSettings`, native `Shell_NotifyIcon` tray on an invisible host
-window, MSIX build script, single-source-of-truth versioning.
+## Conventions and gotchas
 
-Local reference checkouts: the Little Launcher and Repilot repositories, when checked out beside this one. Consult them when reusing the patterns above, if available and permitted by the current environment.
+- Files linked into the thumbnail provider stay WinUI-free and NLog-free; failures there are reported through hooks the app wires to NLog. Check its `.csproj` before adding a dependency to a shared file.
+- The sync root must be registered before callbacks connect, and the process must stay alive while the drive is online; that is why the app is resident.
+- Packaged AppData is redirected per package. Both processes find the data folder through the breadcrumb `SharedPaths` writes to `C:\ProgramData\ImmichDrive`.
+- cfapi structs must match `cfapi.h` exactly; a wrong offset silently corrupts hydration. See [.agents/guides/pinvoke.md](.agents/guides/pinvoke.md).
+- PowerShell build scripts are ASCII only: Windows PowerShell 5.1 reads a BOM-less `.ps1` as ANSI.
+- `global::` does not parse inside an interpolated string; assign to a local first.
 
-## Architecture — TWO components
+## Shared helpers (do not duplicate)
 
-- **`ImmichDrive.exe`** (project `ImmichDrive/`) — the resident app. A WinUI 3 settings UI
-  **and** the cloud sync provider. An invisible `MainWindow` owns the tray icon and hosts
-  the cfapi callback connection for the lifetime of the process; `SettingsWindow` is shown
-  on demand. On launch it registers the sync root, populates the placeholder tree from the
-  Immich timeline, and connects the hydration callbacks. Single-instance via a named mutex.
-  When the server can't be reached it sits in `DriveStatus.Offline` and retries quietly on a
-  backoff — muted tray icon, no notification, no sound. See ARCHITECTURE §8.
-- **`ImmichDrive.ThumbnailProvider.exe`** (project `ImmichDrive.ThumbnailProvider/`) — an
-  **out-of-process** COM **`IThumbnailProvider`** server (an `exe`, not a DLL — an in-proc
-  comhost failed to activate in the shell surrogate, `0x80008093`). The shell launches it on
-  demand to render thumbnails for placeholder files **without hydrating** them: it maps the
-  file path → Immich asset id via the shared on-disk index and fetches Immich's small
-  thumbnail over HTTP. Must stay dependency-light and WinUI-free. Registered via the MSIX
-  manifest (`com:ExeServer` + the `desktop3:CloudFiles` handlers, scoped to the sync root).
+- For replacing a file atomically, use `AtomicFile` (`ImmichDrive/Services/AtomicFile.cs`).
+- For any credential, use `ProtectedStore`; for the API key specifically, `ApiKeyStore`.
+- For the data folder, settings path or index path, use `SharedPaths`.
+- For the GitHub owner and repository, use `SourceRepository`.
 
-Both ship in one MSIX (`ImmichDriveMSIX/`). MSIX is required so the COM thumbnail handler
-and the sync-provider shell integration register cleanly (declared, not poked into HKCR).
+## Commands
 
-## How a photo flows
+| Command | Proves | Does not prove |
+| --- | --- | --- |
+| `npm run verify:desktop` | The main app compiles on Windows, XAML included | The thumbnail provider compiles; that the app runs |
+| `npm run package:desktop` | Both projects compile and an unsigned Store-identity MSIX packages | Signing; that the app runs |
+| `npm run package:desktop:dev` | A signed dev package builds | That it installs or runs |
+| `npm run install:desktop` | The dev package updates in place and launches | Behaviour; check it in the running app |
+| `npm test` | Every portable harness under `tests/` and every Store workflow script test pass, on Linux (host .NET SDK or Docker; run as a non-root user) | Windows data protection, the shell, the installed app; each harness README says what it leaves out |
+| `npm run validate` | The whole Linux gate passes (today, `npm test`) | A Windows compile; also run `verify:desktop` |
 
-1. **Populate** — `PlaceholderPopulator` walks the Immich timeline
-   (`GET /api/timeline/buckets` → `GET /api/timeline/bucket`, newest first) and calls
-   `CfCreatePlaceholders` to lay down 0-byte placeholders under the sync root in month
-   folders named `2026-06 June` (from the bucket's own month — **not** a local-time
-   conversion), each file keeping its clean original Immich name (`" (2)"` on collision; the
-   capture time is set on the placeholder so Explorer's sort-by-date shows newest first). It
-   also mirrors `Albums\`, `Favorites\`, and `Partners\<name>\`, and creates a writable
-   `Upload\` folder. The Immich **asset id** is stored both as the placeholder's
-   `FileIdentity` blob and in the SQLite index (`AssetIndex`).
-2. **Thumbnail** — the shell asks `ImmichDrive.ThumbnailProvider` for a thumbnail; it
-   resolves path→assetId (index) and GETs `/api/assets/{id}/thumbnail`. No hydration.
-3. **Hydrate** — when the user opens/attaches a file, Windows raises a cfapi `FETCH_DATA`
-   callback; `CloudProviderService` streams `/api/assets/{id}/original` back via
-   `CfExecute(TRANSFER_DATA)`. The file is now real on disk until dehydrated.
+Before finishing a change, run `npm run validate` and `npm run verify:desktop`, plus `npm run package:desktop:dev` when the thumbnail provider or a file linked into it changed. Use the `desktop` skill for build and install requests.
 
-## Shared types / index (keep the thumbnail extension lean)
+## Release
 
-| File | Role |
-|---|---|
-| `Models/ImmichAsset.cs` | Plain POCO: asset id, type, fileCreatedAt, originalFileName, size. |
-| `Services/AssetIndex.cs` | SQLite map relativePath ⇄ assetId (built during populate). Read-only reader is linked into the thumbnail extension. |
-| `Services/ImmichClient.cs` | `HttpClient` wrapper: `x-api-key` auth, timeline, albums, favorites, partners, original, thumbnail, upload, and the `ProbeAsync` reachability check (Ok / Unauthorized / Unreachable). WinUI-free. |
+Releases are tag-driven: a `v*` tag makes `build-msix.yml` create a notes-only GitHub release and `store-publish.yml` submit to the Microsoft Store. Use the `release` skill.
 
-`ImmichClient` and the `AssetIndex` reader are **linked** (`<Compile Include="..\ImmichDrive\...">`)
-into the thumbnail extension, so they must stay WinUI-free and trim-safe (no NLog there).
+## Guidance map
 
-## Conventions / gotchas
+| Guide, doc, or skill | Read or use when | Governs |
+| --- | --- | --- |
+| [ARCHITECTURE.md](ARCHITECTURE.md) | Changing how the processes, sync provider, thumbnails or storage fit together | Whole app |
+| [docs/development.md](docs/development.md) | Building, versioning, compatibility checks | Build and release setup |
+| [docs/cloud-files.md](docs/cloud-files.md) | Touching sync-root registration, placeholders, populate or hydration | `ImmichDrive/Classes/CloudFilter/**`, sync and populate services |
+| [docs/immich-api.md](docs/immich-api.md) | Calling or changing an Immich endpoint | `ImmichDrive/Services/ImmichClient.cs` |
+| [docs/thumbnails.md](docs/thumbnails.md) | Changing the thumbnail provider or a file it links | `ImmichDrive.ThumbnailProvider/**` |
+| [docs/read-only.md](docs/read-only.md) | Changing folder permissions or the Upload flow | `DriveSecurity.cs`, `UploadService.cs` |
+| [docs/packaging.md](docs/packaging.md) | Changing the manifest, packaging script or release workflows | `ImmichDriveMSIX/**`, `.github/workflows/**` |
+| [.agents/guides/user-settings.md](.agents/guides/user-settings.md) | Adding or changing a setting | `UserSettings.cs`, `Classes/Settings/**` |
+| [.agents/guides/ui-conventions.md](.agents/guides/ui-conventions.md) | Any window, page, flyout or card | `ImmichDrive/**/*.xaml(.cs)` |
+| [.agents/guides/pinvoke.md](.agents/guides/pinvoke.md) | Any native declaration, cfapi struct, or tray and icon code | `NativeMethods.cs`, `CfApi.cs` |
+| `add-setting` skill | Adding a persisted setting | `UserSettings.cs` and its page |
+| `add-settings-page` skill | Adding a settings window page | `Pages/**`, `SettingsWindow.xaml(.cs)` |
+| `desktop` skill | Building, verifying or installing locally | Local Windows builds |
+| `commit` skill | Committing changes | Commits |
+| `release` skill | Cutting a release | `Directory.Build.props`, `release-notes/**`, tags |
+| `audit-docs` skill | Before a release or after a significant change | Every file in this table |
 
-- Settings at `%AppData%\ImmichDrive\settings.json`; SQLite index at
-  `%AppData%\ImmichDrive\index.db`. When packaged these redirect to package-local AppData —
-  both the app and the (out-of-process) shell extension must resolve the **same physical**
-  path. Prefer `Environment.GetFolderPath(ApplicationData)`; if Explorer can't see the
-  package-redirected path, fall back to a fixed `%LocalAppData%\ImmichDrive` location.
-- **The cfapi sync root must be registered before connecting callbacks**, and the process
-  must stay alive while the drive is "online" — that is why the tray app is resident.
-- Use `[ObservableProperty]` (partial-property form) for every bindable setting; it
-  auto-serializes. Suppress side-effects during deserialization with the `_initializing` flag.
-- P/Invoke lives in `Classes/NativeMethods.cs` (tray + window) and `Classes/CloudFilter/CfApi.cs`
-  (cfapi). Use `[LibraryImport]` for new declarations.
-- **PowerShell build scripts must be ASCII** (Windows PowerShell 5.1 reads BOM-less `.ps1`
-  as ANSI; a UTF-8 em-dash inside a string breaks parsing).
-- MSIX blocks reinstalling the same version with different content — bump `<Version>` in
-  `Directory.Build.props` for releases only. Dev builds use a staging-only revision.
-- `global::` does not parse inside interpolated strings — assign to a local first.
+## Keeping docs current
 
-## Building
-
-- Dev compile from WSL: `npm run verify:desktop` (Windows tools, including XAML).
-- Thumbnail extension: built as part of the solution / MSIX layout.
-- Dev package/install from WSL: `npm run build:desktop` and `npm run install:desktop`.
-  These invoke the existing packaging script inside disposable C: TEMP.
-  Signed development packages retain their established dev package name and use the
-  common signer. Store packages retain the Partner Center identity.
-
-## Distributing (no binaries leave this repo)
-
-- **The Microsoft Store is the install route** (`9MWC6165N7DH`), and the Store package is built
-  by `store-publish.yml` on release tags and submitted directly to Partner Center with
-  `Tier1012` for the US $0.99 base price. Manual dispatch defaults to draft review.
-- **A GitHub release carries notes and the tag only**, and CI uploads no Actions artifact. This
-  is a paid app in a public repo, where an Actions artifact needs only read access to download.
-  There is also nothing usable to publish: the sync root and the thumbnail COM server register
-  only from `Package.appxmanifest`, so an unpackaged build is not the product. Do not add a
-  portable build or public binary artifact. Store submission runs entirely on one runner.
-- **CI does still build the MSIX on every run, and must keep doing so** (both platforms). It is
-  the only check that manifest stamping, `makepri`, `makeappx` and signing survive a change;
-  the alternative is finding out during a Store submission. See `.github/workflows/build-msix.yml`.
-
-## Topic-specific guidance
-
-| Topic | File |
-|---|---|
-| Cloud Files API / placeholders / hydration | `.codex/docs/cloud-files.md` |
-| Immich REST API surface used | `.codex/docs/immich-api.md` |
-| Thumbnail shell extension (COM) | `.codex/docs/thumbnails.md` |
-| Read-only drive + Upload folder | `.codex/docs/read-only.md` |
-| Settings persistence conventions | `.codex/docs/user-settings.md` |
-| WinUI 3 XAML conventions | `.codex/docs/xaml.md` |
-| P/Invoke conventions | `.codex/docs/pinvoke.md` |
-| Versioning / release | `.codex/docs/versioning.md` |
-| MSIX packaging | `.codex/docs/installer.md` |
-
-## Adding a setting / page
-
-See `.codex/commands/add-setting.md` and `.codex/commands/add-settings-page.md`. In short: add an
-`[ObservableProperty]` to `UserSettings`, bind it `TwoWay` to `SettingsManager.Current`,
-and (if it has a side-effect) handle it in a partial `On<Name>Changed` guarded by `_initializing`.
-
-## Windows desktop workflow
-
-Source is authoritative in WSL. Read `.codex/docs/windows-development.md` and use
-`npm run build:desktop`, `npm run verify:desktop`, `npm run install:desktop`, and
-`npm run package:desktop` from the repository root. The common bridge builds in
-a disposable C: Windows TEMP directory and cleans it after use. Never use a D:
-checkout or build directly against WSL source with Windows tools. Dev install
-versions change only in the temporary copy; never uninstall to bypass an update
-error. Store releases keep their existing project-specific release workflow.
+| What changed | Update |
+| --- | --- |
+| A setting added, renamed or removed | `.agents/guides/user-settings.md` |
+| An Immich endpoint, parameter or permission | `docs/immich-api.md`, and the permission list on the Connection page and in `README.md` |
+| Placeholder layout, naming or populate behaviour | `docs/cloud-files.md`, `ARCHITECTURE.md` |
+| A file linked into the thumbnail provider | `docs/thumbnails.md`, the Architecture section above |
+| Where the app writes data, or the credential store | `ARCHITECTURE.md` |
+| Manifest, packaging script or workflows | `docs/packaging.md`, the `release` skill |
+| An npm command | This file's Commands table, the `desktop` skill, `docs/development.md`, `paseo.json` |
+| A test harness added or changed | Its README; `npm test` finds it by itself |
+| A file, guide or skill moved or removed | The guidance map above and every skill that names it |

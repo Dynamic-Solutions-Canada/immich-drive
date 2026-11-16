@@ -5,7 +5,7 @@ namespace ImmichDrive.Classes;
 /// <summary>
 /// Win32 P/Invoke for the settings window (icon, DPI, monitor centering) and the tray icon
 /// (Shell_NotifyIcon + context menu). cfapi declarations live in
-/// <c>Classes/CloudFilter/CfApi.cs</c>. See <c>.claude/docs/pinvoke.md</c>.
+/// <c>Classes/CloudFilter/CfApi.cs</c>. See <c>.agents/guides/pinvoke.md</c>.
 /// </summary>
 internal static class NativeMethods
 {

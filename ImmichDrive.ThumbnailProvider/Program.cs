@@ -5,7 +5,7 @@ namespace ImmichDrive.ThumbnailProvider;
 /// <summary>
 /// Out-of-process COM server host. Registers a class factory for the thumbnail provider CLSID,
 /// pumps messages while the shell uses it, and exits after a short idle. The shell re-launches it
-/// on demand. See <c>.claude/docs/thumbnails.md</c>.
+/// on demand. See <c>docs/thumbnails.md</c>.
 /// </summary>
 internal static class Program
 {

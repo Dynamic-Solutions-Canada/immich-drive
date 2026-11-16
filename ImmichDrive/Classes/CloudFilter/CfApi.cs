@@ -6,7 +6,7 @@ namespace ImmichDrive.Classes.CloudFilter;
 /// <summary>
 /// P/Invoke surface for the Windows Cloud Files API (<c>cldapi.dll</c>, <c>cfapi.h</c>).
 /// Struct layouts mirror <c>cfapi.h</c> and must be verified on-device (a wrong offset
-/// silently corrupts hydration). See <c>.claude/docs/cloud-files.md</c>.
+/// silently corrupts hydration). See <c>docs/cloud-files.md</c>.
 /// </summary>
 internal static partial class CfApi
 {

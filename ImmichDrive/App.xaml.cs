@@ -1,4 +1,5 @@
 using ImmichDrive.Classes.Settings;
+using ImmichDrive.Services;
 using Microsoft.UI.Dispatching;
 using Microsoft.UI.Xaml;
 using System.IO;
@@ -62,11 +63,29 @@ public partial class App : Application
 
         SettingsManager.RestoreSettings();
 
+        InitializeApiKey();
+
         // The invisible host owns the tray icon and the sync provider. It shows the
         // settings window itself on first run (when no server is configured yet).
         _host = new MainWindow();
         _host.Activate();
         _host.HideHost(); // Activate() shows the window; immediately re-hide the invisible host.
+    }
+
+    /// <summary>
+    /// Loads the API key, moving it out of settings.json on the first launch of a version that keeps
+    /// it in the protected store. Must run after settings are restored and before anything saves them.
+    /// The key services are NLog-free (they are linked into the thumbnail extension and the test
+    /// harness), so their log hooks are wired to NLog here.
+    /// </summary>
+    private static void InitializeApiKey()
+    {
+        var keyLogger = NLog.LogManager.GetLogger(nameof(ApiKeyStore));
+        ProtectedStore.LogError = (message, ex) => keyLogger.Warn(ex, message);
+        ApiKeyStore.LogInfo = message => keyLogger.Info(message);
+        ApiKeyStore.LogWarning = message => keyLogger.Warn(message);
+
+        ApiKeyStore.Initialize(SharedPaths.SettingsFilePath);
     }
 
     private MainWindow? _host;

@@ -1,0 +1,28 @@
+version: 2
+
+updates:
+  - package-ecosystem: nuget
+    directories:
+      - "/ImmichDrive"
+      - "/ImmichDrive.ThumbnailProvider"
+      - "/tests/ImmichDrive.CloudFilterLayout.Tests"
+      - "/tests/ImmichDrive.ApiKeyMigration.Tests"
+      - "/tests/ImmichDrive.UploadStatus.Tests"
+    schedule:
+      interval: weekly
+    groups:
+      nuget:
+        patterns: ["*"]
+    ignore:
+      # The app ships with a Package.appxmanifest dependency on Microsoft.WindowsAppRuntime.1.8;
+      # moving off the 1.8 line means updating that dependency and retesting the Store package.
+      - dependency-name: Microsoft.WindowsAppSDK
+        update-types: ["version-update:semver-major", "version-update:semver-minor"]
+
+  - package-ecosystem: github-actions
+    directory: "/"
+    schedule:
+      interval: weekly
+    groups:
+      github-actions:
+        patterns: ["*"]

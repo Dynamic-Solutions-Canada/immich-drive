@@ -27,7 +27,7 @@
     <NuGetAuditSuppress Include="https://github.com/advisories/GHSA-2m69-gcr7-jv3q" />
   </ItemGroup>
 
-  <!-- Share the Immich client + index reader + path/settings helpers with the app
+  <!-- Share the Immich client + index reader + path/settings/protected-store helpers with the app
        (linked, not duplicated). These files must stay WinUI-free and trim-safe. -->
   <ItemGroup>
     <Compile Include="..\ImmichDrive\Models\ImmichAsset.cs" Link="Shared\ImmichAsset.cs" />
@@ -35,5 +35,8 @@
     <Compile Include="..\ImmichDrive\Services\AssetIndex.cs" Link="Shared\AssetIndex.cs" />
     <Compile Include="..\ImmichDrive\Services\SharedPaths.cs" Link="Shared\SharedPaths.cs" />
     <Compile Include="..\ImmichDrive\Services\SettingsFile.cs" Link="Shared\SettingsFile.cs" />
+    <Compile Include="..\ImmichDrive\Services\ProtectedStore.cs" Link="Shared\ProtectedStore.cs" />
+    <Compile Include="..\ImmichDrive\Services\AtomicFile.cs" Link="Shared\AtomicFile.cs" />
+    <Compile Include="..\ImmichDrive\Models\StoredApiKey.cs" Link="Shared\StoredApiKey.cs" />
   </ItemGroup>
 </Project>

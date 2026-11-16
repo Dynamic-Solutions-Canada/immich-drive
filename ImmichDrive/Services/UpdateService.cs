@@ -16,10 +16,7 @@ public static class UpdateService
     private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
     private const string StoreUpdatesUri = "ms-windows-store://downloadsandupdates";
 
-    private const string Owner = "RyanEwen";
-    private const string Repo = "ImmichDrive";
-
-    private static readonly Uri LatestReleaseUri = new($"https://api.github.com/repos/{Owner}/{Repo}/releases/latest");
+    private static readonly Uri LatestReleaseUri = SourceRepository.LatestReleaseApiUri;
 
     private static readonly HttpClient Http = CreateHttpClient();
 

@@ -14,7 +14,7 @@ namespace ImmichDrive.Services;
 /// flat <c>Recent</c> folder pinned to the top. Populate is <b>self-healing and incremental</b>:
 /// already-indexed assets are skipped (only re-created if their placeholder went missing, using
 /// the stored size — no network), so restarts are fast and a torn-down folder repairs itself.
-/// See <c>.claude/docs/cloud-files.md</c>.
+/// See <c>docs/cloud-files.md</c>.
 /// </summary>
 public sealed class PlaceholderPopulator
 {

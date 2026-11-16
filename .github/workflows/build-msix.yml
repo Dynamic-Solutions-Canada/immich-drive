@@ -44,7 +44,7 @@ jobs:
       - name: Check Cloud Files native layout
         if: matrix.platform == 'x64'
         shell: pwsh
-        run: dotnet run --project tests/CloudFilterLayout/CloudFilterLayout.csproj -c Release
+        run: dotnet run --project tests/ImmichDrive.CloudFilterLayout.Tests/ImmichDrive.CloudFilterLayout.Tests.csproj -c Release
 
       # -- Extract version from Directory.Build.props --------------
       - name: Read version
@@ -67,27 +67,27 @@ jobs:
       # signing all still work. Delete it and the next break in the packaging pipeline surfaces
       # during a Store submission instead of on the commit that caused it. Keep it.
       #
-      # Signs with a CA-trusted certificate when these repository secrets exist:
-      #   CODESIGN_PFX_BASE64   - base64-encoded PFX certificate file
-      #   CODESIGN_PFX_PASSWORD - password for the PFX certificate
-      # Otherwise a self-signed dev certificate is used (install requires trusting it).
+      # Signs with a throwaway self-signed certificate created for this run, with a random
+      # password that is never stored. Nothing from this build is published, so no real
+      # code-signing certificate is needed; signing still runs so the Publisher stamp and
+      # signtool step are checked. The script itself never creates a certificate or holds a
+      # password (FIX-060).
       - name: Build MSIX
         shell: pwsh
-        env:
-          CODESIGN_PFX_BASE64: ${{ secrets.CODESIGN_PFX_BASE64 }}
-          CODESIGN_PFX_PASSWORD: ${{ secrets.CODESIGN_PFX_PASSWORD }}
         run: |
-          $script = "ImmichDriveMSIX/build-msix.ps1"
-          if (-not [string]::IsNullOrEmpty($env:CODESIGN_PFX_BASE64)) {
-            $pfx = Join-Path $env:RUNNER_TEMP "codesign.pfx"
-            [IO.File]::WriteAllBytes($pfx, [Convert]::FromBase64String($env:CODESIGN_PFX_BASE64))
-            & $script -Platform $env:PLATFORM -TrustedPfxPath $pfx -TrustedPfxPassword $env:CODESIGN_PFX_PASSWORD
-            Remove-Item $pfx -Force
-          } else {
-            Write-Host "No CODESIGN_PFX_BASE64 secret - using a self-signed dev certificate." -ForegroundColor Yellow
-            & $script -Platform $env:PLATFORM
-          }
-          if ($LASTEXITCODE -ne 0) { Write-Error "build-msix failed"; exit 1 }
+          $password = [Convert]::ToBase64String([Security.Cryptography.RandomNumberGenerator]::GetBytes(32))
+          Write-Host "::add-mask::$password"
+          $cert = New-SelfSignedCertificate -Type Custom -Subject "CN=ImmichDrive-CI" `
+            -KeyUsage DigitalSignature -CertStoreLocation "Cert:\CurrentUser\My" `
+            -TextExtension @("2.5.29.37={text}1.3.6.1.5.5.7.3.3")
+          $pfx = Join-Path $env:RUNNER_TEMP "ci-signing.pfx"
+          Export-PfxCertificate -Cert $cert -FilePath $pfx `
+            -Password (ConvertTo-SecureString -String $password -Force -AsPlainText) | Out-Null
+          Remove-Item "Cert:\CurrentUser\My\$($cert.Thumbprint)" -DeleteKey
+          & "ImmichDriveMSIX/build-msix.ps1" -Platform $env:PLATFORM -TrustedPfxPath $pfx -TrustedPfxPassword $password
+          $buildExit = $LASTEXITCODE
+          Remove-Item $pfx -Force
+          if ($buildExit -ne 0) { Write-Error "build-msix failed"; exit 1 }
 
   release:
     if: startsWith(github.ref, 'refs/tags/v')
