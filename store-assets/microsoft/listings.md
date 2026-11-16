@@ -1,0 +1,59 @@
+# Microsoft Store listing
+
+`listings.json` is the source of every field a user can read on the ImmichDrive Store listing (LIST-1): title, short and full description, features, keywords and screenshot captions, in the shared `schemaVersion: 1` / `locales` shape. Partner Center is an output; change the wording here first. Field names are semantic, not Partner Center import IDs. Release notes are not in this file: they come from `release-notes/<version>.md` (REL-6).
+
+The file holds `en-US` only, because the app is English only (LIST-7, LOC-11). The other eight locales are added in the same change that localizes the app (package 10), and not before.
+
+`npm run check:listings` validates the file, and `npm run validate` runs it.
+
+## Where this text came from
+
+It starts from the live listing as published on 2026-11-16, read from the public Store product data, with these corrections:
+
+- "Drive for Immich" becomes "ImmichDrive" everywhere (D-012, BRAND-1). The listing title already shows "ImmichDrive"; the full description still said "Drive for Immich".
+- The live description and one feature say the app follows the Windows display language and offers nine languages in Settings. The app is English only and has no language picker, so that paragraph and feature are removed. They looked written for a localization change that never shipped.
+- The live requirements say Windows 11. The app also runs on Windows 10 22H2 (build 19045), so the requirements now say so.
+- "Screenshots show the English interface." is dropped, since the app has only one language.
+- One sentence is added: the API key is stored encrypted for the Windows account. That is true from the release that ships the protected key store; do not publish this text with an older build.
+
+The corrected text has not been published yet. It goes live with the next Store submission.
+
+## Limits
+
+| Field | Limit | Current |
+| --- | --- | --- |
+| `title` | Must be the reserved product name | "ImmichDrive" |
+| `shortDescription` | 270 characters | 150 |
+| `fullDescription` | 4,000 characters | 1,174 |
+| `features` | Up to 20, each up to 200 characters | 12, longest 77 |
+| `keywords` | Up to 7, each up to 40 characters, 21 words combined | 0 (see open questions) |
+| `screenshotCaptions` | One per screenshot, each up to 200 characters | 5, longest 81 |
+| Release notes ("What's new") | 1,500 characters | From `release-notes/` |
+
+## Claims to keep true
+
+- **Name:** "ImmichDrive", one word, in every field (D-012).
+- **Tagline:** the first sentence of `shortDescription` is the README header tagline (LIST-12). Change both together.
+- **Requirements:** Windows 10 22H2 (build 19045) or Windows 11, matching the manifest's minimum version (D-018, PLAT-6). An Immich server and an API key are needed and not included.
+- **Language:** English only until the app is localized; then this file gains all nine locales in the same change.
+- **Read-only mirror:** only `Upload` is writable; the rest of the drive cannot change or delete server content.
+- **On demand:** files download only when opened; thumbnails never download the original.
+- **Privacy:** the library stays on the user's server; the API key is stored encrypted for the Windows account and never written to the settings file or logs; no telemetry or crash reporting. Network requests go to the configured Immich server, the public "Our other apps" catalog, and, in development builds only, GitHub's release check.
+- **Independence:** an independent third-party client, not affiliated with or endorsed by the Immich project.
+
+## Console-only fields
+
+| Field | Value |
+| --- | --- |
+| Category | Photo & video |
+| Price | US $0.99 base price, submitted as `Tier1012` by `store-publish.yml`; regional prices follow the tier |
+| Privacy policy URL | https://www.dynamic-solutions.ca/privacy-policy |
+| Support | contact@dynamic-solutions.ca and https://dynamic-solutions.ca |
+| Website | https://dynamic-solutions.ca |
+| Age rating | Set in Partner Center; not readable from the public data |
+
+## Open questions before the next submission
+
+- **Keywords:** the live keywords are not in the public Store data. Copy them from Partner Center into `keywords`, or write new ones; the field is optional.
+- **Screenshots:** the live listing has five screenshots, with the captions in `listings.json`. Their image files are not in the repo, and the README set in `store-assets/web/screenshots/` shows personal details (LIST-8). Recapturing both sets with synthetic data, plus `store-assets/manifest.json`, is still to do; the caption count must then match the manifest.
+- **Publishing:** nothing yet pushes this file to Partner Center. The corrected text goes in by hand, or with a listing-sync step added to `store-publish.yml` later (LIST-6).

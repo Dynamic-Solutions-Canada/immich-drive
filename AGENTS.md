@@ -47,7 +47,7 @@ This repo follows the shared standards at https://github.com/Dynamic-Solutions-C
 | `npm run package:desktop:dev` | A signed dev package builds | That it installs or runs |
 | `npm run install:desktop` | The dev package updates in place and launches | Behaviour; check it in the running app |
 | `npm test` | Every portable harness under `tests/` and every Store workflow script test pass, on Linux (host .NET SDK or Docker; run as a non-root user) | Windows data protection, the shell, the installed app; each harness README says what it leaves out |
-| `npm run validate` | The whole Linux gate passes: `format:check`, then `npm test` | A Windows compile; also run `verify:desktop` |
+| `npm run validate` | The whole Linux gate passes: `format:check`, `check:listings`, then `npm test` | A Windows compile; also run `verify:desktop` |
 | `npm run format` | Rewrites every C# project (not `external/`) to the root `.editorconfig`, which is winui-app-kit's copied unchanged | Behaviour; review the diff |
 
 Before finishing a change, run `npm run validate` and `npm run verify:desktop`, plus `npm run package:desktop:dev` when the thumbnail provider or a file linked into it changed. Use the `desktop` skill for build and install requests.
@@ -67,6 +67,7 @@ Releases are tag-driven: a `v*` tag makes `build-msix.yml` create a notes-only G
 | [docs/thumbnails.md](docs/thumbnails.md) | Changing the thumbnail provider or a file it links | `ImmichDrive.ThumbnailProvider/**` |
 | [docs/read-only.md](docs/read-only.md) | Changing folder permissions or the Upload flow | `DriveSecurity.cs`, `UploadService.cs` |
 | [docs/packaging.md](docs/packaging.md) | Changing the manifest, packaging script or release workflows | `ImmichDriveMSIX/**`, `.github/workflows/**` |
+| [store-assets/microsoft/listings.md](store-assets/microsoft/listings.md) | Changing Store listing text or anything a listing claim depends on | `store-assets/microsoft/**` |
 | [.agents/guides/user-settings.md](.agents/guides/user-settings.md) | Adding or changing a setting | `UserSettings.cs`, `Classes/Settings/**` |
 | [.agents/guides/ui-conventions.md](.agents/guides/ui-conventions.md) | Any window, page, flyout or card | `ImmichDrive/**/*.xaml(.cs)` |
 | [.agents/guides/pinvoke.md](.agents/guides/pinvoke.md) | Any native declaration, cfapi struct, or tray and icon code | `NativeMethods.cs`, `CfApi.cs` |
@@ -89,5 +90,6 @@ Releases are tag-driven: a `v*` tag makes `build-msix.yml` create a notes-only G
 | Manifest, packaging script or workflows | `docs/packaging.md`, the `release` skill |
 | An npm command | This file's Commands table, the `desktop` skill, `docs/development.md`, `paseo.json` |
 | A test harness added or changed | Its README; `npm test` finds it by itself |
+| A feature, requirement, language or privacy behaviour users can see | `store-assets/microsoft/listings.json` and the claims in `listings.md`; the README header tagline must stay the first sentence of the short description |
 | winui-app-kit pin bumped | Copy the kit's `.editorconfig` at that tag unchanged, then `npm run format` |
 | A file, guide or skill moved or removed | The guidance map above and every skill that names it |

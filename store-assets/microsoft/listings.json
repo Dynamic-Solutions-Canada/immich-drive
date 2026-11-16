@@ -1,0 +1,32 @@
+{
+  "schemaVersion": 1,
+  "locales": {
+    "en-US": {
+      "title": "ImmichDrive",
+      "shortDescription": "Browse your Immich photos and videos in File Explorer, with thumbnails and files that download on demand. Requires your own Immich server and API key.",
+      "fullDescription": "ImmichDrive brings your Immich photo and video library into Windows File Explorer as a native cloud drive. Browse your timeline, preview thumbnails, and attach photos from an app's file picker without manually exporting your library. Full files download on demand when you open them.\n\nBrowse by date, or use the Albums, Favorites, and Partners folders to find your photos. Background sync keeps the drive in step with changes on your server.\n\nTo add photos and videos, drop them into the Upload folder. The rest of the drive is a read-only mirror that protects your server library from local changes and deletions.\n\nImmichDrive runs in the system tray and connects to the Immich server you choose using your API key. Your library stays on your own server; no additional photo hosting service is required. Your API key is stored encrypted for your Windows account.\n\nThe app is in English.\n\nRequirements: Windows 10 22H2 (build 19045) or Windows 11, access to an Immich server, and an Immich API key with the required permissions. An Immich server is not included. ImmichDrive is an independent, third-party client and is not affiliated with or endorsed by the Immich project.",
+      "features": [
+        "Browse your Immich library in File Explorer without opening the web interface",
+        "Full files download on demand when you open them",
+        "Photo and video thumbnails without downloading the full file",
+        "Browse your timeline in date-based folders",
+        "Albums, Favorites, and Partners folders mirror your Immich library",
+        "Attach photos directly from an app's file picker",
+        "Automatic background sync keeps up with changes on your server",
+        "Add photos and videos by dropping them into the Upload folder",
+        "Read-only library mirror protects against local changes and deletions",
+        "System-tray app with sync status and quick actions",
+        "Run at sign-in to keep your drive available",
+        "Connect to your chosen Immich server using your own API key"
+      ],
+      "keywords": [],
+      "screenshotCaptions": [
+        "App settings",
+        "App settings",
+        "Thumbnails in Explorer without downloading full photos or videos",
+        "Tray icon and flyout",
+        "Browse by date, album, favorites, or partner shares, and add files through Upload"
+      ]
+    }
+  }
+}

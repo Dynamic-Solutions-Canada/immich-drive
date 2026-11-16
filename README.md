@@ -5,7 +5,7 @@
 <h1 align="center">ImmichDrive</h1>
 
 <p align="center">
-  Your <a href="https://immich.app">Immich</a> photo library as a native cloud drive in File Explorer, on demand, without storing the photos on your PC.
+  Browse your <a href="https://immich.app">Immich</a> photos and videos in File Explorer, with thumbnails and files that download on demand.
 </p>
 
 <p align="center">

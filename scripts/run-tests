@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 # Run every portable test (TEST-2, TEST-5), found by walking the folders, never a hand-kept list:
 #   - each harness project under tests/, through scripts/dotnet (`dotnet run`, non-zero on failure);
+#   - each *.test.mjs beside a script in scripts/, with node --test;
 #   - each *.Tests.ps1 beside the workflow helpers in .github/scripts/tests/, through scripts/pwsh.
 # Pass `harnesses` or `scripts` to run only one kind. The same command works on Linux and in CI.
 set -euo pipefail
@@ -21,7 +22,16 @@ if [[ "$only" == "all" || "$only" == "harnesses" ]]; then
     done
 fi
 
-# Phase 2: PowerShell script tests. Each throws on its first failed check, so pwsh exits non-zero.
+# Phase 2: Node tests for the repo's own scripts (*.test.mjs beside the script they test).
+if [[ "$only" == "all" || "$only" == "scripts" ]]; then
+    mapfile -t node_tests < <(find scripts -name '*.test.mjs' 2>/dev/null | sort)
+    if [[ ${#node_tests[@]} -gt 0 ]]; then
+        printf 'run-tests: node --test %s\n' "${node_tests[*]}"
+        node --test "${node_tests[@]}" || failures=$((failures + 1))
+    fi
+fi
+
+# Phase 3: PowerShell script tests. Each throws on its first failed check, so pwsh exits non-zero.
 if [[ "$only" == "all" || "$only" == "scripts" ]]; then
     mapfile -t scripts < <(find .github/scripts -name '*.Tests.ps1' 2>/dev/null | sort)
     for script in "${scripts[@]}"; do
