@@ -11,9 +11,15 @@ on:
 permissions:
   contents: read
 
+# Read-only inspection; a newer request for the same submission replaces an older one.
+concurrency:
+  group: inspect-store-submission-${{ inputs.submission_id }}
+  cancel-in-progress: true
+
 jobs:
   inspect:
     runs-on: windows-2025
+    timeout-minutes: 10
     steps:
       - name: Read submission status and validation details
         shell: pwsh

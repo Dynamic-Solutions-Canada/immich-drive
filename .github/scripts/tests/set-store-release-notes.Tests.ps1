@@ -1,6 +1,6 @@
 $ErrorActionPreference = 'Stop'
 $scriptPath = Join-Path $PSScriptRoot '../set-store-release-notes.ps1'
-$notesPath = Join-Path $PSScriptRoot '../../../release-notes/0.1.47.txt'
+$notesPath = Join-Path $PSScriptRoot '../../../release-notes/0.1.47.md'
 $parseErrors = $null
 $tokens = $null
 [Management.Automation.Language.Parser]::ParseFile((Resolve-Path $scriptPath), [ref]$tokens, [ref]$parseErrors) | Out-Null

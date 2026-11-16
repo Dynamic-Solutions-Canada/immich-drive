@@ -49,6 +49,7 @@ npm run package:desktop     # Store build (unsigned; the Store re-signs)
 - **A GitHub release carries notes and the tag, nothing else.** No MSIX is attached, and the CI
   run publishes no Actions artifact either: this is a paid app in a public repo, and an Actions
   artifact is downloadable by anyone with read access, which on a public repo means anyone.
+- **`ci.yml` is the push and pull request gate:** it runs `npm run validate` on Linux every time, and compiles both projects for x64 and ARM64 on Windows when app source, packaging or build configuration changed. `credential-expiry.yml` fails weekly from 60 days before the Store credential expires, using the `STORE_SECRET_EXPIRES` repository variable.
 - **CI still builds the MSIX on every run** (`.github/workflows/build-msix.yml`, x64 and ARM64)
   even though it publishes nothing. That build is the only automated check that manifest
   stamping, `makepri`, `makeappx` and signing still work; without it, a break in packaging would

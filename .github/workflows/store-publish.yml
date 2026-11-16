@@ -46,6 +46,8 @@ jobs:
   publish:
     if: inputs.resume_draft == ''
     runs-on: windows-2025
+    # Two self-contained builds, bundling, the upload and the release-note verification.
+    timeout-minutes: 60
 
     steps:
       - name: Check publishing credentials
@@ -63,7 +65,7 @@ jobs:
           }
 
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
         with:
           submodules: true
 
@@ -80,9 +82,9 @@ jobs:
           if ($env:FAILED_UPLOAD -and -not $env:FAILED_DRAFT) { throw 'failed_upload requires replace_failed_draft.' }
 
       - name: Setup .NET
-        uses: actions/setup-dotnet@v4
+        uses: actions/setup-dotnet@v6
         with:
-          dotnet-version: '10.0.x'
+          global-json-file: global.json
 
       - name: Check Cloud Files native layout
         shell: pwsh
@@ -93,7 +95,7 @@ jobs:
         run: |
           [xml]$props = Get-Content Directory.Build.props
           $version = $props.SelectSingleNode('//Version').InnerText
-          $notes = (Get-Content "release-notes/$version.txt" -Raw).Trim()
+          $notes = (Get-Content "release-notes/$version.md" -Raw).Trim()
           if ([string]::IsNullOrWhiteSpace($notes) -or $notes.Length -gt 1500) { throw 'Missing or invalid release notes.' }
           & ./.github/scripts/tests/set-store-release-notes.Tests.ps1
           & ./.github/scripts/tests/repair-store-draft.Tests.ps1
@@ -125,7 +127,7 @@ jobs:
           & "$env:GITHUB_WORKSPACE/.github/scripts/build-store-upload.ps1" -AppName ImmichDrive -OutputDirectory $out -Version $version
 
       - name: Setup Microsoft Store CLI
-        uses: microsoft/microsoft-store-apppublisher@v1.1
+        uses: microsoft/microsoft-store-apppublisher@15abd1c50fcc164b19cb240fb04ef3c49bf715a2 # v1.1
         with:
           version: 'v0.4.3'
 
@@ -205,7 +207,7 @@ jobs:
           if ($LASTEXITCODE -ne 0) {
             throw "Store publishing failed (exit $LASTEXITCODE). Review the submission in Partner Center."
           }
-          & ./.github/scripts/set-store-release-notes.ps1 -AppId 9MWC6165N7DH -UploadFileName "ImmichDrive-$version.msixupload" -NotesPath "release-notes/$version.txt" -Commit:($env:NO_COMMIT -ne 'true')
+          & ./.github/scripts/set-store-release-notes.ps1 -AppId 9MWC6165N7DH -UploadFileName "ImmichDrive-$version.msixupload" -NotesPath "release-notes/$version.md" -Commit:($env:NO_COMMIT -ne 'true')
           if ($env:NO_COMMIT -eq 'true') {
             'Store draft uploaded. Review pricing and packages in Partner Center before committing.' >> $env:GITHUB_STEP_SUMMARY
           } else {
@@ -230,9 +232,10 @@ jobs:
   resume:
     if: inputs.resume_draft != ''
     runs-on: windows-2025
+    timeout-minutes: 15
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
       - name: Verify and submit the selected uploaded draft
         shell: pwsh
         env:
@@ -250,4 +253,4 @@ jobs:
           }
           [xml]$props = Get-Content Directory.Build.props
           $version = $props.SelectSingleNode('//Version').InnerText
-          & ./.github/scripts/set-store-release-notes.ps1 -AppId 9MWC6165N7DH -ExpectedSubmissionId $env:SUBMISSION_ID -UploadFileName "ImmichDrive-$version.msixupload" -NotesPath "release-notes/$version.txt" -Commit
+          & ./.github/scripts/set-store-release-notes.ps1 -AppId 9MWC6165N7DH -ExpectedSubmissionId $env:SUBMISSION_ID -UploadFileName "ImmichDrive-$version.msixupload" -NotesPath "release-notes/$version.md" -Commit
