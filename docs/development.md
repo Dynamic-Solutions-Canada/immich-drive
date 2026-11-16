@@ -131,7 +131,7 @@ dotnet run --project tests/ImmichDrive.CloudFilterLayout.Tests/ImmichDrive.Cloud
 
 Run it natively on x64 and ARM64 to check the ABI on both shipping architectures. It compares the linked production declaration against the offsets in Microsoft's `cfapi.h`, including the request key after both pointers. It does not call Cloud Files or alter a sync root.
 
-Windows 10 22H2 end-to-end verification is still pending. A compile or package build does not establish compatibility. Before releasing this compatibility change, complete these checks on Windows 10 22H2 and Windows 11:
+Windows 10 22H2 status: a user reported the Store release 0.1.50 working on Windows 10 22H2 (reported 2026-11-16). The winui-app-kit migration that followed (tray, flyout, startup, settings store) was accepted on Windows 11 only, on the maintainer's decision; the kit documents its Windows 10 differences (square flyout corners, acrylic only where supported). A compile or package build does not establish compatibility. Before releasing this compatibility change, complete these checks on Windows 10 22H2 and Windows 11:
 
 - Build both shipping architectures on Windows, including XAML and MSIX packaging. Investigate platform-compatibility warnings introduced by lowering the runtime minimum, and confirm the XAML compiler accepts `TargetPlatformMinVersion=10.0.19045.0`.
 - Verify package installation and update, startup and sign-in launch, settings and tray flyout in light/dark themes, readable backgrounds and icons, and multi-monitor/DPI behavior. On Windows 10, include top and side taskbars: the flyout currently anchors to the bottom-right of the work area regardless of the tray position.
