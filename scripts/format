@@ -1,0 +1,31 @@
+#!/usr/bin/env bash
+# Format every C# project in the repo with the root .editorconfig (STYLE-1, STYLE-2).
+#   scripts/format          rewrite files
+#   scripts/format --check  fail on any difference (used by `npm run validate`)
+# Projects are found by walking the tree, never listed by hand. Submodules under external/ are
+# never formatted here (KIT-8): they are checked in their own repos. Runs through scripts/dotnet,
+# so it works on Linux with either the pinned SDK or Docker.
+set -euo pipefail
+
+repo_root="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.." && pwd)"
+cd "$repo_root"
+
+verify=()
+if [[ "${1:-}" == "--check" ]]; then
+    verify=(--verify-no-changes)
+fi
+
+mapfile -t projects < <(
+    find . -name '*.csproj' -not -path './external/*' -not -path '*/bin/*' -not -path '*/obj/*' | sort
+)
+
+failures=0
+for project in "${projects[@]}"; do
+    printf 'format: %s\n' "$project"
+    scripts/dotnet format "$project" --exclude external/ "${verify[@]}" || failures=$((failures + 1))
+done
+
+if [[ $failures -gt 0 ]]; then
+    printf 'format: %d project(s) need formatting; run `npm run format`.\n' "$failures" >&2
+    exit 1
+fi

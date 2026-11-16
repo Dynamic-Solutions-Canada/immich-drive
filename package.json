@@ -9,6 +9,8 @@
     "package:desktop": "scripts/windows-build --no-sign",
     "test": "scripts/run-tests",
     "test:scripts": "scripts/run-tests scripts",
-    "validate": "npm test"
+    "validate": "npm run format:check && npm test",
+    "format": "scripts/format",
+    "format:check": "scripts/format --check"
   }
 }

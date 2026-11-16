@@ -1,0 +1,83 @@
+# Canonical .editorconfig for the Windows app family (STYLE-1, STYLE-5).
+# Apps copy this file unchanged from the winui-app-kit tag they pin; do not hand-edit a copy.
+# Change it here, in the kit, so every app takes the same edit with its next pin bump.
+root = true
+
+# Basics for every file.
+[*]
+charset = utf-8
+end_of_line = lf
+insert_final_newline = true
+trim_trailing_whitespace = true
+indent_style = space
+indent_size = 4
+
+# Two-space languages.
+[*.{ts,tsx,js,mjs,cjs,json,jsonc,yml,yaml,css,scss,md}]
+indent_size = 2
+
+# MSBuild and packaging XML keep the two-space indentation Visual Studio writes and the family already uses.
+[*.{csproj,props,targets,projitems,shproj,slnx,appxmanifest,resw,config,nuspec}]
+indent_size = 2
+
+# Formats that require tabs or CRLF.
+[*.sln]
+indent_style = tab
+
+[*.{cmd,bat}]
+end_of_line = crlf
+
+# C# (STYLE-5). Severities are set with dotnet_diagnostic so the build reports them (EnforceCodeStyleInBuild).
+[*.cs]
+
+# File-scoped namespaces.
+csharp_style_namespace_declarations = file_scoped
+dotnet_diagnostic.IDE0161.severity = warning
+
+# Braces on every block.
+csharp_prefer_braces = true
+dotnet_diagnostic.IDE0011.severity = warning
+
+# Namespaces match the project name and folder path.
+dotnet_style_namespace_match_folder = true
+dotnet_diagnostic.IDE0130.severity = warning
+
+# Naming: private static readonly fields and constants are PascalCase (Logger); every other private
+# field, static or not, is _camelCase, with no s_ prefix; types and members are PascalCase.
+dotnet_diagnostic.IDE1006.severity = warning
+
+dotnet_naming_symbols.private_fields.applicable_kinds = field
+dotnet_naming_symbols.private_fields.applicable_accessibilities = private
+
+dotnet_naming_symbols.private_static_readonly_fields.applicable_kinds = field
+dotnet_naming_symbols.private_static_readonly_fields.applicable_accessibilities = private
+dotnet_naming_symbols.private_static_readonly_fields.required_modifiers = static, readonly
+
+dotnet_naming_symbols.constants.applicable_kinds = field
+dotnet_naming_symbols.constants.applicable_accessibilities = *
+dotnet_naming_symbols.constants.required_modifiers = const
+
+dotnet_naming_symbols.types_and_members.applicable_kinds = namespace, class, struct, interface, enum, delegate, method, property, event
+dotnet_naming_symbols.types_and_members.applicable_accessibilities = *
+
+dotnet_naming_style.underscore_camel_case.capitalization = camel_case
+dotnet_naming_style.underscore_camel_case.required_prefix = _
+
+dotnet_naming_style.pascal_case.capitalization = pascal_case
+
+# Rules are matched most specific first: constants, then private static readonly fields, then other private fields.
+dotnet_naming_rule.constants_are_pascal_case.symbols = constants
+dotnet_naming_rule.constants_are_pascal_case.style = pascal_case
+dotnet_naming_rule.constants_are_pascal_case.severity = warning
+
+dotnet_naming_rule.private_static_readonly_fields_are_pascal_case.symbols = private_static_readonly_fields
+dotnet_naming_rule.private_static_readonly_fields_are_pascal_case.style = pascal_case
+dotnet_naming_rule.private_static_readonly_fields_are_pascal_case.severity = warning
+
+dotnet_naming_rule.private_fields_are_underscore_camel_case.symbols = private_fields
+dotnet_naming_rule.private_fields_are_underscore_camel_case.style = underscore_camel_case
+dotnet_naming_rule.private_fields_are_underscore_camel_case.severity = warning
+
+dotnet_naming_rule.types_and_members_are_pascal_case.symbols = types_and_members
+dotnet_naming_rule.types_and_members_are_pascal_case.style = pascal_case
+dotnet_naming_rule.types_and_members_are_pascal_case.severity = warning

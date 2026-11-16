@@ -106,7 +106,7 @@ The SDK target remains Windows build 22000; it does not set the runtime minimum.
 
 ## Tests
 
-`npm test` runs every portable test and `npm run validate` runs the whole Linux gate (today, the same tests). Both work on Linux with either the .NET SDK pinned in `global.json` or Docker; `scripts/dotnet` and `scripts/pwsh` pick whichever is present, and Docker runs are capped at 3 GB (`KIT_DOTNET_MEMORY`). Run them as a non-root user. `npm run test:scripts` runs only the PowerShell script tests.
+`npm test` runs every portable test and `npm run validate` runs the whole Linux gate: `npm run format:check`, then the tests. `npm run format` rewrites every C# project outside `external/` to the root `.editorconfig`, which is winui-app-kit's file copied unchanged from the tag the app pins; never hand-edit it. Both work on Linux with either the .NET SDK pinned in `global.json` or Docker; `scripts/dotnet` and `scripts/pwsh` pick whichever is present, and Docker runs are capped at 3 GB (`KIT_DOTNET_MEMORY`). Run them as a non-root user. `npm run test:scripts` runs only the PowerShell script tests.
 
 `scripts/run-tests` finds the tests itself, so a new harness needs no registration:
 
