@@ -63,7 +63,7 @@ jobs:
           }
 
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
         with:
           submodules: true
 
@@ -80,7 +80,7 @@ jobs:
           if ($env:FAILED_UPLOAD -and -not $env:FAILED_DRAFT) { throw 'failed_upload requires replace_failed_draft.' }
 
       - name: Setup .NET
-        uses: actions/setup-dotnet@v4
+        uses: actions/setup-dotnet@v6
         with:
           dotnet-version: '10.0.x'
 
@@ -125,7 +125,7 @@ jobs:
           & "$env:GITHUB_WORKSPACE/.github/scripts/build-store-upload.ps1" -AppName ImmichDrive -OutputDirectory $out -Version $version
 
       - name: Setup Microsoft Store CLI
-        uses: microsoft/microsoft-store-apppublisher@v1.1
+        uses: microsoft/microsoft-store-apppublisher@v1.4
         with:
           version: 'v0.4.3'
 
@@ -232,7 +232,7 @@ jobs:
     runs-on: windows-2025
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
       - name: Verify and submit the selected uploaded draft
         shell: pwsh
         env:
