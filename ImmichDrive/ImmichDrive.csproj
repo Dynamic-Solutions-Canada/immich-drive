@@ -25,13 +25,13 @@
     <FrameworkReference Include="Microsoft.WindowsDesktop.App" />
 
     <!-- WinUI 3 (Windows App SDK) — Fluent Design, Mica, NavigationView -->
-    <PackageReference Include="Microsoft.WindowsAppSDK" Version="1.8.260209005" />
+    <PackageReference Include="Microsoft.WindowsAppSDK" Version="1.8.260921001" />
 
     <!-- MVVM source generators (ObservableProperty, RelayCommand) -->
-    <PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.0" />
+    <PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.2" />
 
     <!-- Local asset index (relativePath <-> Immich assetId) -->
-    <PackageReference Include="Microsoft.Data.Sqlite" Version="10.0.9" />
+    <PackageReference Include="Microsoft.Data.Sqlite" Version="11.0.0" />
 
     <!-- CVE-2025-6965 (SQLite < 3.50.2 aggregate-term memory corruption). The advisory
          covers SQLitePCLRaw.lib.e_sqlite3 <= 2.1.11 with NO patched release yet, so it
@@ -42,7 +42,7 @@
     <NuGetAuditSuppress Include="https://github.com/advisories/GHSA-2m69-gcr7-jv3q" />
 
     <!-- Structured logging -->
-    <PackageReference Include="NLog" Version="6.1.1" />
+    <PackageReference Include="NLog" Version="6.2.2" />
   </ItemGroup>
 
   <!-- Content files to copy to output ────────────────────────────── -->

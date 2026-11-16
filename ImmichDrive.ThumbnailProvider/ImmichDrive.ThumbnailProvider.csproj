@@ -19,7 +19,7 @@
 
   <ItemGroup>
     <FrameworkReference Include="Microsoft.WindowsDesktop.App" />
-    <PackageReference Include="Microsoft.Data.Sqlite" Version="10.0.9" />
+    <PackageReference Include="Microsoft.Data.Sqlite" Version="11.0.0" />
 
     <!-- CVE-2025-6965 (SQLite < 3.50.2). No patched SQLitePCLRaw exists yet (advisory covers
          <= 2.1.11, first_patched_version null); not reachable here (local index, parameterized

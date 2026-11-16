@@ -15,7 +15,7 @@
   <ItemGroup>
     <!-- Supplies ProtectedData off Windows so the linked ProtectedStore compiles; on Windows the app
          gets it from Microsoft.WindowsDesktop.App. 10.x matches the net10.0 target. -->
-    <PackageReference Include="System.Security.Cryptography.ProtectedData" Version="10.0.15" />
+    <PackageReference Include="System.Security.Cryptography.ProtectedData" Version="11.0.0" />
   </ItemGroup>
 
   <ItemGroup>
