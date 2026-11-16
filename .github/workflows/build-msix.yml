@@ -157,7 +157,7 @@ jobs:
       # Notes and the tag, no assets. See the comment at the top of this file for why nothing
       # binary is published from here.
       - name: Create GitHub Release
-        uses: softprops/action-gh-release@3bb12739c298aeb8a4eeaf626c5b8d85266b0e65 # v2
+        uses: softprops/action-gh-release@8a0cd651e5b2365bd640854a3fa5dfc70e4875f3 # v3.0.4
         with:
           body: ${{ steps.notes.outputs.RELEASE_BODY }}
           generate_release_notes: false
