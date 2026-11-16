@@ -26,7 +26,7 @@ This repo follows the shared standards at https://github.com/Dynamic-Solutions-C
 
 - Files linked into the thumbnail provider stay WinUI-free and NLog-free; failures there are reported through hooks the app wires to NLog. Check its `.csproj` before adding a dependency to a shared file.
 - Startup order matters: single instance, then the API key migration, then the settings load (`App.RestoreSettings`). The kit's settings store rewrites `settings.json` as it loads, so the key must be moved out first.
-- `WinUIAppKitWarningsAsErrors` is set before the kit's props import in `Directory.Build.props`; the kit reads it during the import.
+- Release builds treat warnings as errors (kit default). A kit switch such as `WinUIAppKitWarningsAsErrors`, if ever needed, goes before the kit's props import in `Directory.Build.props`, with a comment saying why.
 - The sync root must be registered before callbacks connect, and the process must stay alive while the drive is online; that is why the app is resident.
 - Packaged AppData is redirected per package. Both processes find the data folder through the breadcrumb `SharedPaths` writes to `C:\ProgramData\ImmichDrive`.
 - cfapi structs must match `cfapi.h` exactly; a wrong offset silently corrupts hydration. See [.agents/guides/pinvoke.md](.agents/guides/pinvoke.md).

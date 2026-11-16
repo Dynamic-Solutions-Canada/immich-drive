@@ -1,14 +1,4 @@
 <Project>
-  <!--
-    Warnings stay warnings in Release for now: the pinned apps-promo code (external/promo) does not
-    yet follow the shared brace rule (IDE0011), and apps-promo has no tag to move to. This app's own
-    code builds warning-free. Remove this once external/promo is pinned to a formatted tag.
-    Set before the import below, which reads it.
-  -->
-  <PropertyGroup>
-    <WinUIAppKitWarningsAsErrors>false</WinUIAppKitWarningsAsErrors>
-  </PropertyGroup>
-
   <!-- Shared build properties from winui-app-kit (KIT-9), then what is this app's own. -->
   <Import Project="$(MSBuildThisFileDirectory)external/winui-app-kit/build/WinUIAppKit.props" />
 

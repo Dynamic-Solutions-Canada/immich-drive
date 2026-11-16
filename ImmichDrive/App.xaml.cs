@@ -71,6 +71,11 @@ public partial class App : Application
 
         InitializeApiKey();
         SettingsLoad = SettingsManager.RestoreSettings();
+
+        // The app is English only, so the shared "Our other apps" page is too (PROMO-7), rather than
+        // following a Windows language the rest of the app does not speak. Package 10 points this at
+        // the app's own language once the app is localized.
+        TechnicallyReal.Promo.PromoLocalization.LocaleProvider = static () => "en-US";
         AppTheme.Set((AppThemeChoice)SettingsManager.Current.AppTheme);
     }
 
