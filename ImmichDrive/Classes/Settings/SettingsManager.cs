@@ -1,84 +1,89 @@
 using ImmichDrive.Services;
 using ImmichDrive.ViewModels;
-using System.IO;
-using System.Text.Json;
-using System.Text.Json.Serialization;
+using System.Text.Json.Nodes;
+using WinUIAppKit.Settings;
 
 namespace ImmichDrive.Classes.Settings;
 
 /// <summary>
-/// Manages app settings, serialized as JSON to <c>%AppData%\ImmichDrive\settings.json</c>.
-/// The out-of-process thumbnail extension reads the same file via <see cref="SettingsFile"/>.
+/// Loads and saves <see cref="UserSettings"/> through the kit's versioned
+/// <see cref="JsonSettingsStore{T}"/> at <c>%AppData%\ImmichDrive\settings.json</c> (CONF-1 to CONF-4).
+/// The out-of-process thumbnail extension reads the same file via <see cref="SettingsFile"/>, so
+/// property names stay PascalCase and the file is replaced atomically.
 /// </summary>
 public static class SettingsManager
 {
     private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
 
-    private static string SettingsFilePath => SharedPaths.SettingsFilePath;
+    /// <summary>
+    /// One step per schema version, never removed or reordered once shipped. A file written before
+    /// versions existed is version 0.
+    /// </summary>
+    private static readonly IReadOnlyList<Action<JsonObject>> Migrations = SettingsMigrations.Steps;
 
-    internal static readonly JsonSerializerOptions JsonOptions = new()
-    {
-        WriteIndented = true,
-        DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingDefault,
-        PropertyNamingPolicy = null, // PascalCase to match property names (and SettingsFile reader)
-    };
+    private static JsonSettingsStore<UserSettings>? _store;
 
     private static UserSettings _current = new();
 
+    /// <summary>The settings in use. Valid after <see cref="RestoreSettings"/>.</summary>
     public static UserSettings Current
     {
         get => _current ??= new UserSettings();
         set => _current = value;
     }
 
-    public static UserSettings RestoreSettings(string? filePath = null)
+    private static JsonSettingsStore<UserSettings> Store =>
+        _store ??= new JsonSettingsStore<UserSettings>(SharedPaths.SettingsFilePath, Migrations);
+
+    /// <summary>
+    /// Loads settings (never throws) and says what happened, so the caller can open settings on first
+    /// run or explain a reset. Must run after <see cref="ApiKeyStore.Initialize"/>: the store rewrites
+    /// the file as it loads, and the API key migration has to read the old file first.
+    /// </summary>
+    public static SettingsLoadResult<UserSettings> RestoreSettings()
     {
-        filePath ??= SettingsFilePath;
-        try
+        var result = Store.Load();
+        _current = result.Settings;
+        _current.CompleteInitialization();
+
+        switch (result.Outcome)
         {
-            if (File.Exists(filePath))
-            {
-                string json = File.ReadAllText(filePath);
-                var deserialized = JsonSerializer.Deserialize<UserSettings>(json, JsonOptions);
-                if (deserialized != null)
-                {
-                    _current = deserialized;
-                    _current.CompleteInitialization();
-                    Logger.Info("Settings restored");
-                    return _current;
-                }
-            }
-        }
-        catch (Exception ex)
-        {
-            Logger.Error(ex, "Error restoring settings");
+            case SettingsLoadOutcome.Migrated:
+                Logger.Info("Settings upgraded from schema version {From}; previous file kept at {Backup}", result.FileSchemaVersion, result.BackupPath);
+                break;
+            case SettingsLoadOutcome.Unreadable:
+                Logger.Warn("Settings could not be read and were reset; the old file is kept at {Backup}", result.BackupPath);
+                break;
+            case SettingsLoadOutcome.NewerVersion:
+                Logger.Warn("Settings were written by a newer version; loaded what this version understands");
+                break;
+            default:
+                Logger.Info("Settings restored ({Outcome})", result.Outcome);
+                break;
         }
 
-        Logger.Warn("Settings not found or unreadable — loading defaults");
-        _current = new UserSettings();
-        _current.CompleteInitialization();
-        return _current;
+        // The load kept whatever "ApiKey" field the file had. Make it match the key store: carried only
+        // while the protected store refuses the key, dropped as soon as the key is safely stored.
+        if (_current.PendingLegacyApiKey != ApiKeyStore.PendingLegacyKey)
+        {
+            SaveSettings();
+        }
+
+        return result;
     }
 
     /// <summary>
-    /// Writes the current settings atomically (temporary file, then rename), so the thumbnail
-    /// extension never reads a half-written file. The API key is not part of <see cref="UserSettings"/>
-    /// and is only carried here while <see cref="ApiKeyStore.PendingLegacyKey"/> says the protected
-    /// store refused it, so this save cannot erase the user's only copy.
+    /// Writes the current settings atomically. The API key is not a setting; its legacy field is
+    /// written only while <see cref="ApiKeyStore.PendingLegacyKey"/> is set, so a save can never erase
+    /// the user's only persisted copy. Failures are logged, never thrown.
     /// </summary>
-    public static void SaveSettings(string? filePath = null)
+    public static void SaveSettings()
     {
-        filePath ??= SettingsFilePath;
+        _current.PendingLegacyApiKey = ApiKeyStore.PendingLegacyKey;
+
         try
         {
-            string json = JsonSerializer.Serialize(_current, JsonOptions);
-
-            if (ApiKeyStore.PendingLegacyKey is { } pendingKey)
-            {
-                json = ApiKeyMigration.CarryLegacyKey(json, pendingKey);
-            }
-
-            AtomicFile.WriteAllText(filePath, json);
+            Store.Save(_current);
         }
         catch (Exception ex)
         {

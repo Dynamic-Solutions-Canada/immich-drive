@@ -2,6 +2,7 @@ using System.Text;
 using System.Text.Json;
 using ImmichDrive.Models;
 using ImmichDrive.Services;
+using WinUIAppKit.Settings;
 
 namespace ImmichDrive.ApiKeyMigration.Tests;
 
@@ -30,13 +31,15 @@ internal static class Program
         Run("settings rewrite fails: key safe in store, no temp files", SettingsRewriteFails);
         Run("store exists but will not decrypt: reported, not deleted", StoreUnreadable);
         Run("running twice is a no-op the second time", Idempotent);
-        Run("carrying a pending key keeps every other field", CarryLegacyKey);
         Run("pending key, same key, store still failing: keeps carrying it", PendingSameKeyStillFailing);
         Run("pending key, new key, store still failing: carries the new key", PendingNewKeyStillFailing);
         Run("pending key, store recovers: pending cleared", PendingStoreRecovers);
         Run("no pending key, store failing: not carried, reported", NoPendingStoreFailing);
         Run("empty key: store and pending state cleared", EmptyKeyClears);
         Run("unreadable store, new key saved: unreadable flag cleared", UnreadableThenNewKey);
+        Run("settings store keeps the key while the protected store refuses it", SettingsStoreCarriesPendingKey);
+        Run("settings store drops the key once it is safely stored", SettingsStoreDropsKeyAfterSave);
+        Run("version 1 migration moves window placement and keeps the key", MigrationToVersion1);
 
         Console.WriteLine(_failures == 0 ? "ApiKeyMigration: PASS" : $"ApiKeyMigration: FAIL ({_failures})");
         return _failures == 0 ? 0 : 1;
@@ -46,7 +49,7 @@ internal static class Program
 
     private static void NoSettingsNoStore(Sandbox box)
     {
-        var result = ImmichDrive.Services.ApiKeyMigration.Run(box.SettingsPath);
+        var result = ImmichDrive.Services.ApiKeyMigration.Run(box.SettingsPath, box.Store);
         Check(result.Outcome == ApiKeyMigrationOutcome.NoKey, $"outcome {result.Outcome}");
         Check(result.ApiKey == "", "no key returned");
         Check(!File.Exists(box.SettingsPath), "settings.json not created");
@@ -57,7 +60,7 @@ internal static class Program
     {
         box.WriteSettings(SettingsWithKey(Key));
 
-        var result = ImmichDrive.Services.ApiKeyMigration.Run(box.SettingsPath);
+        var result = ImmichDrive.Services.ApiKeyMigration.Run(box.SettingsPath, box.Store);
 
         Check(result.Outcome == ApiKeyMigrationOutcome.Migrated, $"outcome {result.Outcome}");
         Check(result.ApiKey == Key, "key returned for this session");
@@ -75,7 +78,7 @@ internal static class Program
         box.SeedStore(Key);
         string before = File.ReadAllText(box.SettingsPath);
 
-        var result = ImmichDrive.Services.ApiKeyMigration.Run(box.SettingsPath);
+        var result = ImmichDrive.Services.ApiKeyMigration.Run(box.SettingsPath, box.Store);
 
         Check(result.Outcome == ApiKeyMigrationOutcome.AlreadyMigrated, $"outcome {result.Outcome}");
         Check(result.ApiKey == Key, "stored key returned");
@@ -87,7 +90,7 @@ internal static class Program
         box.WriteSettings(SettingsWithKey(Key));
         box.SeedStore(OtherKey);
 
-        var result = ImmichDrive.Services.ApiKeyMigration.Run(box.SettingsPath);
+        var result = ImmichDrive.Services.ApiKeyMigration.Run(box.SettingsPath, box.Store);
 
         Check(result.Outcome == ApiKeyMigrationOutcome.Migrated, $"outcome {result.Outcome}");
         Check(result.ApiKey == Key, "settings key wins");
@@ -99,7 +102,7 @@ internal static class Program
     {
         box.WriteSettings(SettingsWithKey(""));
 
-        var result = ImmichDrive.Services.ApiKeyMigration.Run(box.SettingsPath);
+        var result = ImmichDrive.Services.ApiKeyMigration.Run(box.SettingsPath, box.Store);
 
         Check(result.Outcome == ApiKeyMigrationOutcome.NoKey, $"outcome {result.Outcome}");
         Check(!box.StoreFileExists, "no empty key stored");
@@ -110,7 +113,7 @@ internal static class Program
         const string broken = "{ \"ApiKey\": \"" + Key + "\", ";
         box.WriteSettings(broken);
 
-        var result = ImmichDrive.Services.ApiKeyMigration.Run(box.SettingsPath);
+        var result = ImmichDrive.Services.ApiKeyMigration.Run(box.SettingsPath, box.Store);
 
         Check(result.Outcome == ApiKeyMigrationOutcome.NoKey, $"outcome {result.Outcome}");
         Check(File.ReadAllText(box.SettingsPath) == broken, "broken file left as it was");
@@ -122,7 +125,7 @@ internal static class Program
         string before = File.ReadAllText(box.SettingsPath);
         box.Protector.FailProtect = true;
 
-        var result = ImmichDrive.Services.ApiKeyMigration.Run(box.SettingsPath);
+        var result = ImmichDrive.Services.ApiKeyMigration.Run(box.SettingsPath, box.Store);
 
         Check(result.Outcome == ApiKeyMigrationOutcome.StoreWriteFailed, $"outcome {result.Outcome}");
         Check(result.ApiKey == Key, "key still returned, so the drive stays connected");
@@ -136,7 +139,7 @@ internal static class Program
         string before = File.ReadAllText(box.SettingsPath);
         box.Protector.CorruptOnUnprotect = true;
 
-        var result = ImmichDrive.Services.ApiKeyMigration.Run(box.SettingsPath);
+        var result = ImmichDrive.Services.ApiKeyMigration.Run(box.SettingsPath, box.Store);
 
         Check(result.Outcome == ApiKeyMigrationOutcome.StoreWriteFailed, $"outcome {result.Outcome}");
         Check(File.ReadAllText(box.SettingsPath) == before, "settings.json unchanged");
@@ -153,7 +156,7 @@ internal static class Program
             return;
         }
 
-        var result = ImmichDrive.Services.ApiKeyMigration.Run(box.SettingsPath);
+        var result = ImmichDrive.Services.ApiKeyMigration.Run(box.SettingsPath, box.Store);
 
         Check(result.Outcome == ApiKeyMigrationOutcome.SettingsRewriteFailed, $"outcome {result.Outcome}");
         Check(result.ApiKey == Key, "key returned");
@@ -168,7 +171,7 @@ internal static class Program
         box.SeedStore(Key);
         box.Protector.FailUnprotect = true;
 
-        var result = ImmichDrive.Services.ApiKeyMigration.Run(box.SettingsPath);
+        var result = ImmichDrive.Services.ApiKeyMigration.Run(box.SettingsPath, box.Store);
 
         Check(result.Outcome == ApiKeyMigrationOutcome.StoredKeyUnreadable, $"outcome {result.Outcome}");
         Check(result.ApiKey == "", "no key returned");
@@ -178,24 +181,14 @@ internal static class Program
     private static void Idempotent(Sandbox box)
     {
         box.WriteSettings(SettingsWithKey(Key));
-        ImmichDrive.Services.ApiKeyMigration.Run(box.SettingsPath);
+        ImmichDrive.Services.ApiKeyMigration.Run(box.SettingsPath, box.Store);
         string afterFirst = File.ReadAllText(box.SettingsPath);
 
-        var second = ImmichDrive.Services.ApiKeyMigration.Run(box.SettingsPath);
+        var second = ImmichDrive.Services.ApiKeyMigration.Run(box.SettingsPath, box.Store);
 
         Check(second.Outcome == ApiKeyMigrationOutcome.AlreadyMigrated, $"outcome {second.Outcome}");
         Check(second.ApiKey == Key, "key still returned");
         Check(File.ReadAllText(box.SettingsPath) == afterFirst, "settings.json not touched again");
-    }
-
-    private static void CarryLegacyKey(Sandbox box)
-    {
-        string carried = ImmichDrive.Services.ApiKeyMigration.CarryLegacyKey(SettingsWithoutKey(), Key);
-        box.WriteSettings(carried);
-
-        Check(ImmichDrive.Services.ApiKeyMigration.ReadLegacyKey(box.SettingsPath) == Key, "key field present");
-        Check(box.SettingsString("ServerUrl") == "https://photos.example.com", "other fields kept");
-        Check(box.SettingsInt("LayoutVersion") == 3, "numeric fields kept");
     }
 
     // ── ApiKeyStore save rules ───────────────────────────────────────
@@ -205,7 +198,7 @@ internal static class Program
     {
         box.WriteSettings(SettingsWithKey(Key));
         box.Protector.FailProtect = true;
-        ApiKeyStore.Initialize(box.SettingsPath);
+        ApiKeyStore.Initialize(box.SettingsPath, box.Store);
         Check(ApiKeyStore.PendingLegacyKey == Key, "setup: key pending after failed migration");
     }
 
@@ -245,7 +238,7 @@ internal static class Program
     private static void NoPendingStoreFailing(Sandbox box)
     {
         box.WriteSettings(SettingsWithoutKey());
-        ApiKeyStore.Initialize(box.SettingsPath);
+        ApiKeyStore.Initialize(box.SettingsPath, box.Store);
         box.Protector.FailProtect = true;
 
         bool saved = ApiKeyStore.TrySet(Key);
@@ -275,7 +268,7 @@ internal static class Program
         box.WriteSettings(SettingsWithoutKey());
         box.SeedStore(Key);
         box.Protector.FailUnprotect = true;
-        ApiKeyStore.Initialize(box.SettingsPath);
+        ApiKeyStore.Initialize(box.SettingsPath, box.Store);
         Check(ApiKeyStore.StoredKeyUnreadable, "setup: unreadable");
         box.Protector.FailUnprotect = false;
 
@@ -284,6 +277,83 @@ internal static class Program
         Check(saved, "saved");
         Check(!ApiKeyStore.StoredKeyUnreadable, "flag cleared");
         Check(box.StoredKey() == OtherKey, "store replaced");
+    }
+
+    // ── The kit's settings store around the key (SettingsManager's sequence) ──
+
+    /// <summary>
+    /// Mirrors the fields of UserSettings this sequence touches: the server URL and the nullable legacy
+    /// key field. SettingsManager itself needs WinUI, so the harness drives the same store and steps.
+    /// </summary>
+    internal sealed class MiniSettings
+    {
+        public string ServerUrl { get; set; } = "";
+
+        [System.Text.Json.Serialization.JsonPropertyName(StoredApiKey.LegacySettingsField)]
+        public string? PendingLegacyApiKey { get; set; }
+    }
+
+    /// <summary>The startup order: key migration on the raw file, then the store load, then the reconcile save.</summary>
+    private static MiniSettings LaunchLikeTheApp(Sandbox box)
+    {
+        ApiKeyStore.Initialize(box.SettingsPath, box.Store);
+        var store = new JsonSettingsStore<MiniSettings>(box.SettingsPath, ImmichDrive.Classes.Settings.SettingsMigrations.Steps);
+        var settings = store.Load().Settings;
+        if (settings.PendingLegacyApiKey != ApiKeyStore.PendingLegacyKey)
+        {
+            settings.PendingLegacyApiKey = ApiKeyStore.PendingLegacyKey;
+            store.Save(settings);
+        }
+
+        return settings;
+    }
+
+    private static void SettingsStoreCarriesPendingKey(Sandbox box)
+    {
+        box.WriteSettings(SettingsWithKey(Key));
+        box.Protector.FailProtect = true;
+
+        LaunchLikeTheApp(box);
+
+        Check(ImmichDrive.Services.ApiKeyMigration.ReadLegacyKey(box.SettingsPath) == Key, "key still in settings.json after the store rewrote it");
+        Check(box.SettingsInt("SchemaVersion") == 1, "file upgraded to version 1");
+
+        // Next launch, the store works again: the key moves and leaves settings.json.
+        box.Protector.FailProtect = false;
+        LaunchLikeTheApp(box);
+        Check(box.StoredKey() == Key, "key in the store on the next launch");
+        Check(!box.SettingsHasKeyField(), "key gone from settings.json");
+    }
+
+    private static void SettingsStoreDropsKeyAfterSave(Sandbox box)
+    {
+        box.WriteSettings(SettingsWithKey(Key));
+        box.Protector.FailProtect = true;
+        LaunchLikeTheApp(box);
+
+        // The user saves the key while the store works again; the next settings save drops the field.
+        box.Protector.FailProtect = false;
+        Check(ApiKeyStore.TrySet(Key), "saved");
+        var store = new JsonSettingsStore<MiniSettings>(box.SettingsPath, ImmichDrive.Classes.Settings.SettingsMigrations.Steps);
+        var settings = store.Load().Settings;
+        settings.PendingLegacyApiKey = ApiKeyStore.PendingLegacyKey;
+        store.Save(settings);
+
+        Check(!box.SettingsHasKeyField(), "key gone from settings.json");
+        Check(box.SettingsString("ServerUrl") == "https://photos.example.com", "other fields kept");
+    }
+
+    private static void MigrationToVersion1(Sandbox box)
+    {
+        box.WriteSettings("""{"ServerUrl":"https://photos.example.com","ApiKey":"k","Startup":false,"SettingsWindowX":10,"SettingsWindowY":20,"SettingsWindowWidth":800,"SettingsWindowHeight":600}""");
+        var root = System.Text.Json.Nodes.JsonNode.Parse(File.ReadAllText(box.SettingsPath))!.AsObject();
+
+        ImmichDrive.Classes.Settings.SettingsMigrations.Steps[0](root);
+
+        Check(root["SettingsWindowPlacement"]?["Width"]?.GetValue<int>() == 800, "placement width");
+        Check(root["SettingsWindowPlacement"]?["Y"]?.GetValue<int>() == 20, "placement y");
+        Check(!root.ContainsKey("SettingsWindowX") && !root.ContainsKey("Startup"), "old fields removed");
+        Check(root["ApiKey"]?.GetValue<string>() == "k", "legacy key kept for the key migration");
     }
 
     // ── Fixtures ─────────────────────────────────────────────────────
@@ -350,6 +420,9 @@ internal sealed class Sandbox : IDisposable
 
     public FakeProtector Protector { get; } = new();
 
+    /// <summary>The protected store under test, created by the constructor.</summary>
+    public ProtectedStore Store { get; }
+
     public int LoggedErrors { get; private set; }
 
     public int LoggedWarnings { get; private set; }
@@ -361,16 +434,16 @@ internal sealed class Sandbox : IDisposable
         Directory.CreateDirectory(_settingsDir);
         Directory.CreateDirectory(_storeDir);
 
-        ProtectedStore.Protector = Protector;
-        ProtectedStore.DirectoryResolver = () => _storeDir;
-        ProtectedStore.LogError = (_, _) => LoggedErrors++;
+        // The app's own store settings (file name and entropy), over a temporary folder and a fake
+        // protector, so the harness exercises the real CredentialStore and the kit's ProtectedStore.
+        Store = CredentialStore.Create(() => _storeDir, Protector, (_, _) => LoggedErrors++);
         ApiKeyStore.LogInfo = null;
         ApiKeyStore.LogWarning = _ => LoggedWarnings++;
     }
 
     public string SettingsPath => Path.Combine(_settingsDir, "settings.json");
 
-    public bool StoreFileExists => ProtectedStore.Exists(StoredApiKey.StoreName);
+    public bool StoreFileExists => Store.Exists(StoredApiKey.StoreName);
 
     public void WriteSettings(string json) => File.WriteAllText(SettingsPath, json);
 
@@ -379,11 +452,11 @@ internal sealed class Sandbox : IDisposable
     {
         bool failUnprotect = Protector.FailUnprotect;
         Protector.FailUnprotect = false;
-        ProtectedStore.Save(StoredApiKey.StoreName, new StoredApiKey { ApiKey = key });
+        Store.Save(StoredApiKey.StoreName, new StoredApiKey { ApiKey = key });
         Protector.FailUnprotect = failUnprotect;
     }
 
-    public string? StoredKey() => ProtectedStore.Load<StoredApiKey>(StoredApiKey.StoreName)?.ApiKey;
+    public string? StoredKey() => Store.Load<StoredApiKey>(StoredApiKey.StoreName)?.ApiKey;
 
     public bool SettingsHasKeyField()
     {

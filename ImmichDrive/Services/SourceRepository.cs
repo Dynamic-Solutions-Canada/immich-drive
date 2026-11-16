@@ -2,7 +2,7 @@ namespace ImmichDrive.Services;
 
 /// <summary>
 /// The app's GitHub repository, defined once so the About page link and the update checker cannot
-/// drift apart again (FIX-016: both still named the owner from before the repository moved).
+/// drift apart again (FIX-016, BRAND-5).
 /// </summary>
 public static class SourceRepository
 {
@@ -15,6 +15,6 @@ public static class SourceRepository
     /// <summary>The repository's web page, for "view source" links.</summary>
     public static Uri WebUri { get; } = new($"https://github.com/{Owner}/{Name}");
 
-    /// <summary>GitHub API endpoint for the newest published release.</summary>
-    public static Uri LatestReleaseApiUri { get; } = new($"https://api.github.com/repos/{Owner}/{Name}/releases/latest");
+    /// <summary>The About page's update check (kit): the Store when packaged, this repo's releases when not.</summary>
+    public static WinUIAppKit.Updates.UpdateService Updates { get; } = new(Owner, Name);
 }

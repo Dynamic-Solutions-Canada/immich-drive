@@ -1,6 +1,6 @@
 # ImmichDrive: Agent Instructions
 
-ImmichDrive is a paid Windows 10 22H2 and Windows 11 app that shows a user's [Immich](https://immich.app) photo and video library in File Explorer as a cloud drive, without storing the files on the device. It uses the Windows Cloud Files API to create placeholder files that show real thumbnails and download only when opened. It ships only through the Microsoft Store as one MSIX built from WSL through the shared Windows build bridge. The "Our other apps" page comes from the apps-promo submodule at `external/promo`.
+ImmichDrive is a paid Windows 10 22H2 and Windows 11 app that shows a user's [Immich](https://immich.app) photo and video library in File Explorer as a cloud drive, without storing the files on the device. It uses the Windows Cloud Files API to create placeholder files that show real thumbnails and download only when opened. It ships only through the Microsoft Store as one MSIX built from WSL through the shared Windows build bridge. The tray, flyout, settings store, protected store, startup, theme, window chrome, update check, logging and build configuration come from the winui-app-kit submodule at `external/winui-app-kit` (read its README's "Gotchas" before changing that plumbing), and the "Our other apps" page from the apps-promo submodule at `external/promo`. Neither submodule is edited here; a change goes into the kit or promo repo and arrives with a pin bump to a release tag.
 
 ## Standards
 
@@ -20,11 +20,13 @@ This repo follows the shared standards at https://github.com/Dynamic-Solutions-C
 - Status is passive: tray icon, tooltip and flyout only. No toast, balloon or sound, including when the server is unreachable; the app retries quietly on a backoff.
 - The Immich API key is never written to `settings.json` or a log. It lives in `ApiKeyStore` and `ProtectedStore`, as described in ARCHITECTURE.md.
 - No build output is ever published: no MSIX on a GitHub release, no Actions artifact, no portable build. CI still builds the MSIX on every run as the packaging check; keep it. See [docs/packaging.md](docs/packaging.md).
-- Permanent identifiers never change, because installed copies depend on them: the Partner Center package identity, the startup task id `ImmichDriveAutoStart`, the mutex `ImmichDrive.Instance`, the data folder name `ImmichDrive`, the sync root id format and provider id, the thumbnail provider CLSID, and the protected key file name `protected-immich-api-key.dat`.
+- Permanent identifiers never change, because installed copies and Windows depend on them: the Partner Center package identity, the startup task id `ImmichDriveAutoStart` and Run value `ImmichDrive`, the mutex `ImmichDrive.Instance`, the host title `ImmichDrive Host` and its `ImmichDrive_ShowSettings` message, the tray GUID in `MainWindow`, the data folder name `ImmichDrive`, the sync root id format and provider id, the thumbnail provider CLSID, and the protected store's file pattern and entropy in `CredentialStore`.
 
 ## Conventions and gotchas
 
 - Files linked into the thumbnail provider stay WinUI-free and NLog-free; failures there are reported through hooks the app wires to NLog. Check its `.csproj` before adding a dependency to a shared file.
+- Startup order matters: single instance, then the API key migration, then the settings load (`App.RestoreSettings`). The kit's settings store rewrites `settings.json` as it loads, so the key must be moved out first.
+- `WinUIAppKitWarningsAsErrors` is set before the kit's props import in `Directory.Build.props`; the kit reads it during the import.
 - The sync root must be registered before callbacks connect, and the process must stay alive while the drive is online; that is why the app is resident.
 - Packaged AppData is redirected per package. Both processes find the data folder through the breadcrumb `SharedPaths` writes to `C:\ProgramData\ImmichDrive`.
 - cfapi structs must match `cfapi.h` exactly; a wrong offset silently corrupts hydration. See [.agents/guides/pinvoke.md](.agents/guides/pinvoke.md).
@@ -33,8 +35,10 @@ This repo follows the shared standards at https://github.com/Dynamic-Solutions-C
 
 ## Shared helpers (do not duplicate)
 
-- For replacing a file atomically, use `AtomicFile` (`ImmichDrive/Services/AtomicFile.cs`).
-- For any credential, use `ProtectedStore`; for the API key specifically, `ApiKeyStore`.
+- For tray, flyout, window, theme, startup, single-instance, update and settings-file plumbing, use the kit; never re-add an app copy.
+- For replacing a file atomically, use the kit's `AtomicFile`.
+- For any credential, use the store from `CredentialStore.Create`; for the API key specifically, `ApiKeyStore`.
+- For a settings schema change, add a step to `SettingsMigrations`.
 - For the data folder, settings path or index path, use `SharedPaths`.
 - For the GitHub owner and repository, use `SourceRepository`.
 
@@ -70,7 +74,7 @@ Releases are tag-driven: a `v*` tag makes `build-msix.yml` create a notes-only G
 | [store-assets/microsoft/listings.md](store-assets/microsoft/listings.md) | Changing Store listing text or anything a listing claim depends on | `store-assets/microsoft/**` |
 | [.agents/guides/user-settings.md](.agents/guides/user-settings.md) | Adding or changing a setting | `UserSettings.cs`, `Classes/Settings/**` |
 | [.agents/guides/ui-conventions.md](.agents/guides/ui-conventions.md) | Any window, page, flyout or card | `ImmichDrive/**/*.xaml(.cs)` |
-| [.agents/guides/pinvoke.md](.agents/guides/pinvoke.md) | Any native declaration, cfapi struct, or tray and icon code | `NativeMethods.cs`, `CfApi.cs` |
+| [.agents/guides/pinvoke.md](.agents/guides/pinvoke.md) | Any native declaration or cfapi struct | `CfApi.cs`, `DriveSecurity.cs` |
 | `add-setting` skill | Adding a persisted setting | `UserSettings.cs` and its page |
 | `add-settings-page` skill | Adding a settings window page | `Pages/**`, `SettingsWindow.xaml(.cs)` |
 | `desktop` skill | Building, verifying or installing locally | Local Windows builds |
@@ -91,5 +95,5 @@ Releases are tag-driven: a `v*` tag makes `build-msix.yml` create a notes-only G
 | An npm command | This file's Commands table, the `desktop` skill, `docs/development.md`, `paseo.json` |
 | A test harness added or changed | Its README; `npm test` finds it by itself |
 | A feature, requirement, language or privacy behaviour users can see | `store-assets/microsoft/listings.json` and the claims in `listings.md`; the README header tagline must stay the first sentence of the short description |
-| winui-app-kit pin bumped | Copy the kit's `.editorconfig` at that tag unchanged, then `npm run format` |
+| winui-app-kit pin bumped | Copy the kit's `.editorconfig` at that tag unchanged, run `npm run format`, follow the tag's release notes, and check `.gitignore` with `npm run check:gitignore` |
 | A file, guide or skill moved or removed | The guidance map above and every skill that names it |

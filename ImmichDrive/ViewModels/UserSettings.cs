@@ -2,6 +2,8 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using ImmichDrive.Services;
 using System.IO;
 using System.Text.Json.Serialization;
+using WinUIAppKit.Theming;
+using WinUIAppKit.Windowing;
 
 namespace ImmichDrive.ViewModels;
 
@@ -20,8 +22,18 @@ public partial class UserSettings : ObservableObject
     /// <summary>Immich base URL (without the trailing /api).</summary>
     [ObservableProperty] public partial string ServerUrl { get; set; } = "";
 
-    // The API key is deliberately not a setting: it lives encrypted in ProtectedStore via
-    // Services.ApiKeyStore, so it never reaches settings.json (SEC-1, CONF-5).
+    // The API key is deliberately not a setting: it lives encrypted in the protected store via
+    // Services.ApiKeyStore, so it never reaches settings.json (SEC-1, CONF-5). The one exception is
+    // PendingLegacyApiKey below.
+
+    /// <summary>
+    /// Null in every normal state, and then not written. Set only while the protected store refuses the
+    /// key during the one-time migration out of settings.json (<see cref="ApiKeyStore.PendingLegacyKey"/>),
+    /// so the user's only persisted copy survives the settings store rewriting the file. It keeps the
+    /// pre-migration field name so the migration and the thumbnail provider read it unchanged.
+    /// </summary>
+    [JsonPropertyName(Models.StoredApiKey.LegacySettingsField)]
+    public string? PendingLegacyApiKey { get; set; }
 
     /// <summary>Whether the drive should be connected/registered.</summary>
     [ObservableProperty] public partial bool Connected { get; set; }
@@ -40,20 +52,17 @@ public partial class UserSettings : ObservableObject
     [ObservableProperty] public partial string RegisteredVersion { get; set; } = "";
 
     // ── App ──────────────────────────────────────────────────────────
-    /// <summary>0 = system, 1 = light, 2 = dark.</summary>
+    /// <summary>0 = system, 1 = light, 2 = dark: the values of WinUIAppKit's AppThemeChoice.</summary>
     [ObservableProperty] public partial int AppTheme { get; set; }
 
-    /// <summary>Launch ImmichDrive at sign-in (keeps the drive online). On by default — matches the
-    /// MSIX startup task, which is enabled by default, so the drive is ready and syncing after a boot.</summary>
-    [ObservableProperty] public partial bool Startup { get; set; } = true;
+    // Start at sign-in is not stored here: Windows owns it (the startup task, or the Run key when
+    // unpackaged), and the Settings page reads the real state through the kit's StartupRegistration.
 
     [ObservableProperty] public partial string LastKnownVersion { get; set; } = "";
 
     // ── Settings window geometry ─────────────────────────────────────
-    [ObservableProperty] public partial int SettingsWindowX { get; set; }
-    [ObservableProperty] public partial int SettingsWindowY { get; set; }
-    [ObservableProperty] public partial int SettingsWindowWidth { get; set; }
-    [ObservableProperty] public partial int SettingsWindowHeight { get; set; }
+    /// <summary>The settings window's last normal size and position, or null to centre it.</summary>
+    [ObservableProperty] public partial WindowPlacement? SettingsWindowPlacement { get; set; }
 
     /// <summary>The resolved sync-root folder (default if unset).</summary>
     [JsonIgnore]
@@ -65,14 +74,13 @@ public partial class UserSettings : ObservableObject
     // ── Side-effects ─────────────────────────────────────────────────
     partial void OnAppThemeChanged(int value)
     {
-        if (_initializing) return;
-        Classes.ThemeManager.ApplyAndSaveTheme(value);
-    }
+        if (_initializing)
+        {
+            return;
+        }
 
-    partial void OnStartupChanged(bool value)
-    {
-        if (_initializing) return;
-        Classes.StartupManager.SetRunAtStartup(value);
+        // Every open window follows the change (kit); the caller saves the settings.
+        WinUIAppKit.Theming.AppTheme.Set((AppThemeChoice)value);
     }
 
     /// <summary>Repairs nulls from older/partial files and ends the initializing window.</summary>

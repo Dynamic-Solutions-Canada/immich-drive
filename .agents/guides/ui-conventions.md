@@ -30,15 +30,17 @@ This app's own interface conventions. The shared family rules are in the standar
 - **In-app images** (title-bar icon, flyout, About) set their `Source` to the high-res PNG
   (`App.IconImagePath` → `Resources/ImmichDrive.png`), **not** the multi-frame `.ico`, so they
   downscale crisply to 16/22/32px. The `.ico` (`App.IconPath`) is used only for the OS window /
-  taskbar / alt-tab icon via `WM_SETICON` + `AppWindow.SetIcon`.
-- **Tray status flyout** (`Windows/StatusFlyout.xaml`) is a borderless `Window`:
-  `OverlappedPresenter.CreateForContextMenu()` (top-most, light-dismiss), `ExtendsContentIntoTitleBar`,
-  a `DesktopAcrylicBackdrop`, and OS rounded corners via the `DWMWA_WINDOW_CORNER_PREFERENCE`
-  (`DWMWCP_ROUND`) attribute only, with no manual `DWMWA_BORDER_COLOR`. It closes on deactivation.
-  It re-fits itself to its content as rows appear/disappear (`Place()`), pinned to the tray corner
-  captured on first show; the refit is skipped when the measured size is unchanged, because
-  `UpdateUi` runs once per synced asset. Guard post-close dispatcher callbacks with the `_closed`
-  flag: a queued status update would otherwise touch a torn-down window.
+  taskbar / alt-tab icon, applied with the kit's `WindowIcon.Apply`, and for the tray artwork.
+- **Tray status flyout** (`Windows/StatusFlyout.xaml`) only builds content. The kit's
+  `FlyoutController` owns the window: placement by the taskbar, desktop acrylic, rounded corners on
+  Windows 11 (square on Windows 10), dismissal on focus loss or Esc, and parking it off-screen so it
+  reopens instantly. Never hide or close it yourself; call its `Dismiss`. The host creates it once.
+  It refreshes only while open, and calls `UpdateSize` only when the measured content size changes,
+  because `UpdateUi` runs once per synced asset.
+- **Theme:** `AppTheme.Track(window)` for every window; the `AppTheme` setting's side-effect calls
+  the kit's `AppTheme.Set`, which every tracked window follows.
+- **Settings window placement** is restored and captured with the kit's `WindowChrome`
+  (`RestorePlacement`, `CapturePlacement`) into `SettingsWindowPlacement`.
 - **Status colours** come from a small local `<Grid.Resources>` palette of `SolidColorBrush`es over
   `{ThemeResource}` **Color** keys (`SystemFillColorSuccess`, `SystemFillColorCaution`,
   `SystemFillColorCritical`, `TextFillColorSecondary`, `TextFillColorDisabled`), looked up by key in

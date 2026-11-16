@@ -6,20 +6,20 @@
     <OutputType>WinExe</OutputType>
     <TargetFramework>net10.0-windows10.0.22000.0</TargetFramework>
     <SupportedOSPlatformVersion>10.0.19045.0</SupportedOSPlatformVersion>
-    <Nullable>enable</Nullable>
-    <ImplicitUsings>enable</ImplicitUsings>
     <RootNamespace>ImmichDrive.ThumbnailProvider</RootNamespace>
     <AssemblyName>ImmichDrive.ThumbnailProvider</AssemblyName>
     <Platforms>x64;ARM64</Platforms>
     <RuntimeIdentifiers>win-x64;win-arm64</RuntimeIdentifiers>
-    <LangVersion>preview</LangVersion>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <BuiltInComInteropSupport>true</BuiltInComInteropSupport>
+    <!-- The shell-launched provider logs to thumb.log itself and must stay NLog-free, so it does
+         not ship the shared NLog config. -->
+    <WinUIAppKitIncludeNLogConfig>false</WinUIAppKitIncludeNLogConfig>
   </PropertyGroup>
 
   <ItemGroup>
     <FrameworkReference Include="Microsoft.WindowsDesktop.App" />
-    <PackageReference Include="Microsoft.Data.Sqlite" Version="10.0.9" />
+    <PackageReference Include="Microsoft.Data.Sqlite" />
 
     <!-- CVE-2025-6965 (SQLite < 3.50.2). No patched SQLitePCLRaw exists yet (advisory covers
          <= 2.1.11, first_patched_version null); not reachable here (local index, parameterized
@@ -35,8 +35,10 @@
     <Compile Include="..\ImmichDrive\Services\AssetIndex.cs" Link="Shared\AssetIndex.cs" />
     <Compile Include="..\ImmichDrive\Services\SharedPaths.cs" Link="Shared\SharedPaths.cs" />
     <Compile Include="..\ImmichDrive\Services\SettingsFile.cs" Link="Shared\SettingsFile.cs" />
-    <Compile Include="..\ImmichDrive\Services\ProtectedStore.cs" Link="Shared\ProtectedStore.cs" />
-    <Compile Include="..\ImmichDrive\Services\AtomicFile.cs" Link="Shared\AtomicFile.cs" />
+    <Compile Include="..\ImmichDrive\Services\CredentialStore.cs" Link="Shared\CredentialStore.cs" />
+    <!-- The kit's protected store, linked as source: it depends on nothing else in the kit (KIT-9). -->
+    <Compile Include="..\external\winui-app-kit\WinUIAppKit\Settings\ProtectedStore.cs" Link="Shared\ProtectedStore.cs" />
+    <Compile Include="..\external\winui-app-kit\WinUIAppKit\Settings\AtomicFile.cs" Link="Shared\AtomicFile.cs" />
     <Compile Include="..\ImmichDrive\Models\StoredApiKey.cs" Link="Shared\StoredApiKey.cs" />
   </ItemGroup>
 </Project>

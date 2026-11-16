@@ -9,10 +9,13 @@
 - [.NET 10 SDK](https://dotnet.microsoft.com/download/dotnet/10.0)
 - Windows SDK packaging tools (`makeappx` / `makepri` / `signtool`); `build-msix.ps1` auto-acquires
   them via the `Microsoft.Windows.SDK.BuildTools` NuGet package if they aren't already installed.
+- [lefthook](https://lefthook.dev) for the git hooks in `lefthook.yml` (they block committing signing material, credentials, app data files and files over 5 MB). Install it once per machine, then run `lefthook install` once per clone; the Paseo worktree setup runs it for you.
+- The `external/` submodules (`git submodule update --init`): winui-app-kit supplies the shared build
+  configuration, and apps-promo the "Our other apps" page.
 
-`Directory.Build.props` is the single source of truth for the version and auto-detects the platform
-from `PROCESSOR_ARCHITECTURE` (ARM64 → ARM64, otherwise x64). Override with `-p:Platform=x64` or
-`-p:Platform=ARM64`.
+`Directory.Build.props` holds the app version, the single source of truth, after importing
+winui-app-kit's shared build properties, which also pick the platform from the build machine's
+architecture. Override with `-p:Platform=x64` or `-p:Platform=ARM64`.
 
 ## Build the app (dev)
 
@@ -90,7 +93,7 @@ npm run package:desktop     # Store build (unsigned; the Store re-signs)
   old index metadata carried forward so the library is not re-enriched over the network.
 - **In-app update check:** for packaged copies, the About page's **Check for Updates** opens the
   Microsoft Store's updates page, and the Store handles the rest. For unpackaged development
-  builds, `Services/UpdateService.cs` checks GitHub Releases when clicked and offers **View
+  builds, the kit's `UpdateService` checks GitHub Releases when clicked and offers **View
   Release** for a newer tag. The app makes no automatic update check.
 - Releases follow the `release` skill in `.agents/skills/release/`.
 
@@ -98,9 +101,11 @@ npm run package:desktop     # Store build (unsigned; the Store re-signs)
 
 - .NET 10, target `net10.0-windows10.0.22000.0`, platforms `x64` and `ARM64`
 - WinUI 3 / Windows App SDK 1.8
-- CommunityToolkit.Mvvm (`[ObservableProperty]`), `System.Text.Json` settings,
-  Microsoft.Data.Sqlite index, NLog
-- Native tray via `Shell_NotifyIcon`; Cloud Files API via P/Invoke (`cldapi.dll`)
+- CommunityToolkit.Mvvm (`[ObservableProperty]`), Microsoft.Data.Sqlite index, NLog
+- [winui-app-kit](https://github.com/Dynamic-Solutions-Canada/winui-app-kit) for the tray, flyout,
+  settings store, protected store, startup, theme, window chrome, update check, logging and the
+  shared build configuration; package versions come from `Directory.Packages.props` and the kit
+- Cloud Files API via P/Invoke (`cldapi.dll`)
 
 The SDK target remains Windows build 22000; it does not set the runtime minimum. Both executables set `SupportedOSPlatformVersion` to `10.0.19045.0`, the WinUI project sets the same `TargetPlatformMinVersion`, and the MSIX manifest uses that minimum too. Keep these aligned when changing OS requirements. This enables Windows 10 22H2 installation without changing the packaging script's target-framework paths. Mica falls back to a solid colour on Windows 10; the flyout's optional rounded-corner request is ignored when unsupported.
 

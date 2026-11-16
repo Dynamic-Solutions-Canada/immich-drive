@@ -19,7 +19,15 @@
         "Run at sign-in to keep your drive available",
         "Connect to your chosen Immich server using your own API key"
       ],
-      "keywords": [],
+      "keywords": [
+        "immich windows client",
+        "immich file explorer",
+        "mount immich drive",
+        "immich on demand",
+        "immich desktop app",
+        "immich photo access",
+        "immich virtual drive"
+      ],
       "screenshotCaptions": [
         "App settings",
         "App settings",

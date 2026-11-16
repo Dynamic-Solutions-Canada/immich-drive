@@ -1,5 +1,6 @@
 using System;
 using ImmichDrive.Services;
+using WinUIAppKit.Updates;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Media.Imaging;
@@ -10,7 +11,7 @@ namespace ImmichDrive.Pages;
 
 public sealed partial class AboutPage : Page
 {
-    private UpdateService.UpdateCheckResult? _update;
+    private UpdateCheckResult? _update;
 
     public AboutPage()
     {
@@ -24,39 +25,36 @@ public sealed partial class AboutPage : Page
         }
     }
 
-    /// <summary>Opens Store updates for packaged copies or checks GitHub for development builds.</summary>
+    /// <summary>
+    /// "Check for updates" (DIST-6): the Microsoft Store's updates page for packaged copies, GitHub
+    /// Releases for development builds. Never runs in the background.
+    /// </summary>
     private async void CheckForUpdates_Click(object sender, RoutedEventArgs e)
     {
-        if (UpdateService.IsPackaged)
-        {
-            UpdateStatusText.Text = UpdateService.OpenStoreUpdates()
-                ? "The Microsoft Store is open to Updates & downloads. Check there for available updates."
-                : "Unable to open the Microsoft Store.";
-            return;
-        }
-
         CheckUpdateButton.IsEnabled = false;
         CheckUpdateButton.Content = "Checking...";
         UpdateStatusText.Text = "Checking for updates...";
 
-        var result = await UpdateService.CheckForUpdateAsync();
-        if (result == null)
+        var result = await SourceRepository.Updates.CheckForUpdatesAsync();
+        switch (result.Outcome)
         {
-            UpdateStatusText.Text = "Unable to check for updates. Check your internet connection.";
-        }
-        else if (result.UpdateAvailable)
-        {
-            _update = result;
-            UpdateStatusText.Text = $"Version {result.LatestVersion} is available (you have {result.CurrentVersion}).";
-            CheckUpdateButton.Content = "View Release";
-            CheckUpdateButton.Click -= CheckForUpdates_Click;
-            CheckUpdateButton.Click += ViewRelease_Click;
-            CheckUpdateButton.IsEnabled = true;
-            return;
-        }
-        else
-        {
-            UpdateStatusText.Text = $"You're up to date ({result.CurrentVersion}).";
+            case UpdateCheckOutcome.OpenedStore:
+                UpdateStatusText.Text = "The Microsoft Store is open to Updates & downloads. Check there for available updates.";
+                break;
+            case UpdateCheckOutcome.UpdateAvailable:
+                _update = result;
+                UpdateStatusText.Text = $"Version {result.LatestVersion} is available (you have {result.CurrentVersion}).";
+                CheckUpdateButton.Content = "View Release";
+                CheckUpdateButton.Click -= CheckForUpdates_Click;
+                CheckUpdateButton.Click += ViewRelease_Click;
+                CheckUpdateButton.IsEnabled = true;
+                return;
+            case UpdateCheckOutcome.UpToDate:
+                UpdateStatusText.Text = $"You're up to date ({result.CurrentVersion}).";
+                break;
+            default:
+                UpdateStatusText.Text = "Unable to check for updates. Check your internet connection.";
+                break;
         }
 
         CheckUpdateButton.Content = "Check for Updates";
@@ -65,9 +63,9 @@ public sealed partial class AboutPage : Page
 
     private void ViewRelease_Click(object sender, RoutedEventArgs e)
     {
-        if (_update?.ReleaseUrl is { Length: > 0 } url)
+        if (_update is not null)
         {
-            UpdateService.OpenUrl(url);
+            UpdateService.OpenReleasePage(_update);
         }
     }
 }

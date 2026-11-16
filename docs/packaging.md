@@ -126,7 +126,7 @@ source builds the MSIX themselves.
 automated check that version/arch stamping, `makepri`, `makeappx` and `signtool` still work
 together; drop it and the next packaging break is discovered in a Store submission.
 
-## Store update checks (`Services/UpdateService.cs`)
+## Store update checks (kit `UpdateService`)
 
 For packaged copies, About opens the Microsoft Store's Updates and downloads page with
 `ms-windows-store://downloadsandupdates`. The Store manages the account-wide update
@@ -134,8 +134,9 @@ check and installation. The URI opens the page; the app does not claim a fresh s
 completed. The button remains labeled **Check for Updates**; the Store handles any update
 or restart prompt.
 
-Unpackaged development builds still compare the latest GitHub release with the running
-assembly version and offer **View Release** when newer.
+Unpackaged development builds compare the newest GitHub release (by version, `vX.Y.Z` tags only)
+with the running version and offer **View Release** when newer. The kit's `UpdateService` does both,
+built once in `Services/SourceRepository.cs` with the owner and repository.
 
 ## Notes
 

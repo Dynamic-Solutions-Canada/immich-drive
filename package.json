@@ -9,9 +9,10 @@
     "package:desktop": "scripts/windows-build --no-sign",
     "test": "scripts/run-tests",
     "test:scripts": "scripts/run-tests scripts",
-    "validate": "npm run format:check && npm run check:listings && npm test",
+    "validate": "npm run format:check && npm run check:gitignore && npm run check:listings && npm test",
     "format": "scripts/format",
     "format:check": "scripts/format --check",
-    "check:listings": "node scripts/check-listings.mjs"
+    "check:listings": "node scripts/check-listings.mjs",
+    "check:gitignore": "external/winui-app-kit/scripts/check-gitignore ."
   }
 }

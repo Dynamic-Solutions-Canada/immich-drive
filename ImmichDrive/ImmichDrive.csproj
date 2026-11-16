@@ -4,15 +4,12 @@
     <TargetFramework>net10.0-windows10.0.22000.0</TargetFramework>
     <SupportedOSPlatformVersion>10.0.19045.0</SupportedOSPlatformVersion>
     <TargetPlatformMinVersion>$(SupportedOSPlatformVersion)</TargetPlatformMinVersion>
-    <Nullable>enable</Nullable>
-    <ImplicitUsings>enable</ImplicitUsings>
     <UseWinUI>true</UseWinUI>
     <WindowsPackageType>None</WindowsPackageType>
     <RootNamespace>ImmichDrive</RootNamespace>
     <AssemblyName>ImmichDrive</AssemblyName>
     <Platforms>x64;ARM64</Platforms>
     <RuntimeIdentifiers>win-x64;win-arm64</RuntimeIdentifiers>
-    <LangVersion>preview</LangVersion>
     <Configurations>Debug;Release</Configurations>
     <ApplicationManifest>app.manifest</ApplicationManifest>
     <ApplicationIcon>Resources\ImmichDrive.ico</ApplicationIcon>
@@ -25,13 +22,13 @@
     <FrameworkReference Include="Microsoft.WindowsDesktop.App" />
 
     <!-- WinUI 3 (Windows App SDK) — Fluent Design, Mica, NavigationView -->
-    <PackageReference Include="Microsoft.WindowsAppSDK" Version="1.8.260209005" />
+    <PackageReference Include="Microsoft.WindowsAppSDK" />
 
     <!-- MVVM source generators (ObservableProperty, RelayCommand) -->
-    <PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.0" />
+    <PackageReference Include="CommunityToolkit.Mvvm" />
 
     <!-- Local asset index (relativePath <-> Immich assetId) -->
-    <PackageReference Include="Microsoft.Data.Sqlite" Version="10.0.9" />
+    <PackageReference Include="Microsoft.Data.Sqlite" />
 
     <!-- CVE-2025-6965 (SQLite < 3.50.2 aggregate-term memory corruption). The advisory
          covers SQLitePCLRaw.lib.e_sqlite3 <= 2.1.11 with NO patched release yet, so it
@@ -42,20 +39,16 @@
     <NuGetAuditSuppress Include="https://github.com/advisories/GHSA-2m69-gcr7-jv3q" />
 
     <!-- Structured logging -->
-    <PackageReference Include="NLog" Version="6.1.1" />
+    <PackageReference Include="NLog" />
   </ItemGroup>
 
   <!-- Content files to copy to output ────────────────────────────── -->
   <ItemGroup>
-    <None Remove="NLog.config" />
     <None Remove="Resources\ImmichDrive.ico" />
     <None Remove="Resources\ImmichDrive-Offline.ico" />
     <None Remove="Resources\ImmichDrive.png" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="NLog.config">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
     <Content Include="Resources\ImmichDrive.ico">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
@@ -66,6 +59,11 @@
     <Content Include="Resources\ImmichDrive.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
+  </ItemGroup>
+
+  <!-- Shared plumbing: tray, settings store, startup, theme, window chrome, updates (KIT-2). -->
+  <ItemGroup>
+    <ProjectReference Include="..\external\winui-app-kit\WinUIAppKit\WinUIAppKit.csproj" />
   </ItemGroup>
 
   <!-- Shared "Our other apps" cross-promo page. Bundled data is the offline

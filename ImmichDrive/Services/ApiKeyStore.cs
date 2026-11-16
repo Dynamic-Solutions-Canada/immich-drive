@@ -1,4 +1,5 @@
 using ImmichDrive.Models;
+using WinUIAppKit.Settings;
 
 namespace ImmichDrive.Services;
 
@@ -35,11 +36,19 @@ internal static class ApiKeyStore
     /// </summary>
     public static bool StoredKeyUnreadable { get; private set; }
 
+    /// <summary>The protected store set by <see cref="Initialize"/>.</summary>
+    private static ProtectedStore? _store;
+
+    private static ProtectedStore Store =>
+        _store ?? throw new InvalidOperationException("ApiKeyStore.Initialize has not run.");
+
     /// <summary>Loads the key, migrating it out of settings.json on the first launch of this version.</summary>
     /// <param name="settingsPath">Full path of settings.json.</param>
-    public static void Initialize(string settingsPath)
+    /// <param name="store">The protected store (<see cref="CredentialStore.Create"/>).</param>
+    public static void Initialize(string settingsPath, ProtectedStore store)
     {
-        var result = ApiKeyMigration.Run(settingsPath);
+        _store = store;
+        var result = ApiKeyMigration.Run(settingsPath, store);
         ApiKey = result.ApiKey;
         PendingLegacyKey = result.Outcome == ApiKeyMigrationOutcome.StoreWriteFailed ? result.ApiKey : null;
         StoredKeyUnreadable = result.Outcome == ApiKeyMigrationOutcome.StoredKeyUnreadable;
@@ -69,14 +78,14 @@ internal static class ApiKeyStore
 
         if (key.Length == 0)
         {
-            ProtectedStore.Clear(StoredApiKey.StoreName);
+            Store.Clear(StoredApiKey.StoreName);
             PendingLegacyKey = null;
             StoredKeyUnreadable = false;
             return true;
         }
 
-        ProtectedStore.Save(StoredApiKey.StoreName, new StoredApiKey { ApiKey = key });
-        bool saved = ProtectedStore.Load<StoredApiKey>(StoredApiKey.StoreName)?.ApiKey == key;
+        Store.Save(StoredApiKey.StoreName, new StoredApiKey { ApiKey = key });
+        bool saved = Store.Load<StoredApiKey>(StoredApiKey.StoreName)?.ApiKey == key;
 
         // Phase: settle the pending state only on a confirmed save, never before attempting it.
         if (saved)

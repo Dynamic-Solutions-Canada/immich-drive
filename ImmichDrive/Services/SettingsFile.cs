@@ -8,11 +8,14 @@ namespace ImmichDrive.Services;
 /// Minimal read-only view of <c>settings.json</c> for the out-of-process thumbnail extension,
 /// which only needs the server URL + API key (and must not pull in WinUI / CommunityToolkit /
 /// the full <c>UserSettings</c> type). The resident app uses the full <c>SettingsManager</c>.
-/// WinUI-free: linked into the thumbnail extension. The protected-store read uses reflection-based
-/// System.Text.Json, which is fine because neither executable is trimmed.
+/// WinUI-free: linked into the thumbnail extension. The protected-store read uses the kit's
+/// ProtectedStore (linked source) with reflection-based System.Text.Json; nothing is trimmed.
 /// </summary>
 public static class SettingsFile
 {
+    /// <summary>The protected store, read-only here: this process never saves, clears or migrates.</summary>
+    private static readonly Lazy<WinUIAppKit.Settings.ProtectedStore> Credentials = new(() => CredentialStore.Create());
+
     /// <summary>
     /// The server URL from settings.json and the API key from the protected store, or null when
     /// either is missing. Read-only: never migrates, writes or deletes anything, because the app
@@ -57,7 +60,7 @@ public static class SettingsFile
             return legacyKey;
         }
 
-        return ProtectedStore.Load<StoredApiKey>(StoredApiKey.StoreName)?.ApiKey ?? "";
+        return Credentials.Value.Load<StoredApiKey>(StoredApiKey.StoreName)?.ApiKey ?? "";
     }
 
     /// <summary>The drive folder (sync root), falling back to the default if unset.</summary>

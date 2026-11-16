@@ -1,6 +1,6 @@
 {
   "worktree": {
-    "setup": "git submodule update --init --recursive",
+    "setup": "git submodule update --init --recursive && lefthook install",
     "teardown": "git submodule deinit --all --force"
   },
   "scripts": {

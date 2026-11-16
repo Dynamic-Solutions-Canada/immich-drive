@@ -2,7 +2,7 @@
 
 ```
 App.xaml ──► MainWindow (invisible host)
-               ├── Tray icon (Shell_NotifyIcon)  - status (muted when offline), context menu
+               ├── Tray icon (kit TrayIcon)      - status (muted when offline), context menu
                ├── DriveManager                  - orchestrates client + provider + index
                │     ├── CloudProviderService    - cfapi connection + hydration callbacks
                │     ├── SyncRootService          - register/unregister the sync root
@@ -162,10 +162,24 @@ not protect against software already running as the same user.
 
 ## 7. Theme / window / tray
 
-Same as Repilot/LittleLauncher: MicaBackdrop settings window, custom title bar,
-`NavigationView` + `Frame` with `Tag`→page switch, native window icon via `WM_SETICON`,
-`ThemeManager` for light/dark/system, tray icon owned by the invisible `MainWindow` via
-`Shell_NotifyIcon` with a registered callback message.
+The shared plumbing comes from winui-app-kit (`external/winui-app-kit`, pinned to a release tag):
+
+- **Startup order** (`App.OnLaunched`, kit `AppBootstrap`): crash logging, then claim the single
+  instance (mutex `ImmichDrive.Instance`), then load the API key, migrating it out of
+  `settings.json`, then load settings through the kit's versioned `JsonSettingsStore`, then create
+  the host. The key migration must come before the settings load, because the store rewrites the
+  file as it loads.
+- **Host:** `MainWindow` is the kit's hidden `HostWindow` ("ImmichDrive Host"), which answers a
+  second launch's `ImmichDrive_ShowSettings` message and runs the exit steps (stop tray updates,
+  save settings, remove the tray icon) before the process ends.
+- **Tray:** the kit's `TrayIcon` (GUID `48633E3A-477E-41D2-8596-F1851C4D2045`, permanent) and native
+  `TrayMenu`. The icon is the app's `.ico` artwork, normal or muted, rendered at the tray's exact size;
+  tooltip updates are coalesced to about one a second during a sync.
+- **Flyout:** `StatusFlyout` on the kit's `FlyoutController`.
+- **Windows and theme:** the settings window uses Mica, a custom title bar and a `NavigationView`;
+  its icon and saved placement come from the kit's `WindowIcon` and `WindowChrome`, and every
+  window follows the kit's `AppTheme`.
+- **Start at sign-in:** the kit's `StartupRegistration` over the manifest startup task.
 
 ## 8. When the server goes away
 
@@ -188,18 +202,18 @@ demand, wired to "Try again" in the flyout, the home page, and the tray menu.
 **How it's surfaced: passively.** The tray icon swaps to `Resources\ImmichDrive-Offline.ico`
 (greyscale mark + amber pip, generated alongside the normal icon by
 `ImmichDriveMSIX/generate-msix-images.ps1`) and the tooltip says why. The flyout shows a coloured
-status dot, a plain-language line, and how stale the listing is. **No balloon (`NIF_INFO`), no
+status dot, a plain-language line, and how stale the listing is. **No balloon or toast, no
 sound, no dialog**: a server that is down for a day must not nag once an hour.
 
 ## 9. Where the app writes, and what uninstall leaves
 
 | Location | What | After uninstall (Store install) |
 | --- | --- | --- |
-| Data folder: `%AppData%\ImmichDrive`, redirected into the package's private AppData when installed from the Store | `settings.json`, `index.db`, `protected-immich-api-key.dat`, the folder-retire log, and the app logs | Removed: Windows deletes a package's redirected AppData on uninstall. Not yet confirmed on a real uninstall. |
+| Data folder: `%AppData%\ImmichDrive`, redirected into the package's private AppData when installed from the Store | `settings.json` (plus `settings.json.v<n>.bak` after an upgrade, or `.bad` if it was unreadable), `index.db`, `protected-immich-api-key.dat`, the folder-retire log, and the app logs (one file per launch, current plus three older) | Removed: Windows deletes a package's redirected AppData on uninstall. Not yet confirmed on a real uninstall. |
 | Drive folder: `%UserProfile%\ImmichDrive` by default, or the folder the user chose | Placeholders, any files the user opened (hydrated) or pinned, the `Upload` folder, and a hidden `desktop.ini` for the folder icon | Remains, with whatever was hydrated or still waiting in `Upload`. Placeholders that were never opened hold no data. |
 | Sync root registration (Windows `StorageProviderSyncRootManager`) | The Explorer navigation pane entry for the drive | Microsoft documents that Windows unregisters a packaged app's sync root on uninstall; developers have reported it persisting. Not yet confirmed for this app. |
 | `C:\ProgramData\ImmichDrive` (not redirected) | `location.txt` (the breadcrumb), `ImmichDrive.ico` (stable folder icon), `thumb.log` (thumbnail provider diagnostics) | Remains. Holds no credentials or photos. |
-| Startup | The MSIX startup task `ImmichDriveAutoStart`; unpackaged dev builds use the per-user `Run` registry key instead | The startup task goes with the package. A dev build's `Run` entry remains until the app turns it off. |
+| Startup | The MSIX startup task `ImmichDriveAutoStart`; unpackaged dev builds use the per-user `Run` registry value `ImmichDrive` (with `--silent`) instead | The startup task goes with the package. A dev build's `Run` entry remains until the app turns it off. |
 
 Nothing else is written: no other registry keys, no server-side data beyond what the user uploads through `Upload`, and no telemetry. A dev build that is not packaged writes its data folder to the real `%AppData%\ImmichDrive`, which remains after it is removed.
 

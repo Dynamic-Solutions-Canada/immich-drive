@@ -1,6 +1,5 @@
 using ImmichDrive.Classes.Settings;
 using ImmichDrive.Pages;
-using Microsoft.UI.Windowing;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Media;
@@ -8,7 +7,8 @@ using Microsoft.UI.Xaml.Media.Imaging;
 using System.IO;
 using System.Linq;
 using WinRT.Interop;
-using static ImmichDrive.Classes.NativeMethods;
+using WinUIAppKit.Theming;
+using WinUIAppKit.Windowing;
 
 namespace ImmichDrive;
 
@@ -16,13 +16,12 @@ namespace ImmichDrive;
 public sealed partial class SettingsWindow : Window
 {
     private static SettingsWindow? _instance;
-    private IntPtr _hIconSmall, _hIconBig;
 
     public SettingsWindow()
     {
         if (_instance != null)
         {
-            SetForegroundWindow(WindowNative.GetWindowHandle(_instance));
+            WindowChrome.BringToFront(_instance);
             Close();
             return;
         }
@@ -34,55 +33,17 @@ public sealed partial class SettingsWindow : Window
         ExtendsContentIntoTitleBar = true;
         SetTitleBar(AppTitleBar);
 
-        var hwnd = WindowNative.GetWindowHandle(this);
-        var wndId = Microsoft.UI.Win32Interop.GetWindowIdFromWindow(hwnd);
-        var appWindow = AppWindow.GetFromWindowId(wndId);
+        // Sharp window and taskbar icon at this window's scaling, re-applied on activation (kit).
+        WindowIcon.Apply(this, App.IconPath);
+        LoadTitleBarIcon();
 
-        string iconPath = App.IconPath;
-        if (File.Exists(iconPath))
-        {
-            ApplyWindowIcon(hwnd, iconPath);
-            SetAppWindowIcon(appWindow, iconPath);
-            LoadTitleBarIcon(iconPath);
-        }
-
-        uint dpi = GetDpiForWindow(hwnd);
-        double scale = dpi / 96.0;
-        var settings = SettingsManager.Current;
-
-        if (settings.SettingsWindowWidth > 0 && settings.SettingsWindowHeight > 0)
-        {
-            appWindow.Resize(new global::Windows.Graphics.SizeInt32(settings.SettingsWindowWidth, settings.SettingsWindowHeight));
-            appWindow.Move(new global::Windows.Graphics.PointInt32(settings.SettingsWindowX, settings.SettingsWindowY));
-        }
-        else
-        {
-            int width = (int)(820 * scale), height = (int)(680 * scale);
-            appWindow.Resize(new global::Windows.Graphics.SizeInt32(width, height));
-            GetCursorPos(out var cursorPt);
-            var monitor = MonitorFromPoint(cursorPt, MONITOR_DEFAULTTONEAREST);
-            var mi = new MONITORINFOEX { cbSize = System.Runtime.InteropServices.Marshal.SizeOf<MONITORINFOEX>() };
-            if (GetMonitorInfo(monitor, ref mi))
-            {
-                int cx = mi.rcWork.Left + (mi.rcWork.Right - mi.rcWork.Left - width) / 2;
-                int cy = mi.rcWork.Top + (mi.rcWork.Bottom - mi.rcWork.Top - height) / 2;
-                appWindow.Move(new global::Windows.Graphics.PointInt32(cx, cy));
-            }
-        }
+        // Saved size and position, or centred on the cursor's monitor; placement on a monitor that is
+        // gone is ignored.
+        WindowChrome.RestorePlacement(this, SettingsManager.Current.SettingsWindowPlacement, 820, 680);
 
         RootNavigation.SelectedItem = RootNavigation.MenuItems[0];
         ContentFrame.Navigate(typeof(HomePage));
-        Classes.ThemeManager.ApplySavedTheme(this);
-
-        Activated += (s, e) =>
-        {
-            if (_hIconBig != IntPtr.Zero)
-            {
-                var h = WindowNative.GetWindowHandle(this);
-                SendMessage(h, WM_SETICON, new IntPtr(ICON_SMALL), _hIconSmall);
-                SendMessage(h, WM_SETICON, new IntPtr(ICON_BIG), _hIconBig);
-            }
-        };
+        AppTheme.Track(this);
 
         Closed += SettingsWindow_Closed;
     }
@@ -131,38 +92,7 @@ public sealed partial class SettingsWindow : Window
         _ => null
     };
 
-    private static void SetAppWindowIcon(AppWindow appWindow, string icoPath)
-    {
-        var hIcon = LoadImage(IntPtr.Zero, icoPath, IMAGE_ICON, 64, 64, LR_LOADFROMFILE);
-        if (hIcon == IntPtr.Zero)
-        {
-            return;
-        }
-
-        try { appWindow.SetIcon(Microsoft.UI.Win32Interop.GetIconIdFromIcon(hIcon)); }
-        finally { DestroyIcon(hIcon); }
-    }
-
-    private void ApplyWindowIcon(IntPtr hwnd, string icoPath)
-    {
-        if (_hIconSmall != IntPtr.Zero) { DestroyIcon(_hIconSmall); _hIconSmall = IntPtr.Zero; }
-        if (_hIconBig != IntPtr.Zero) { DestroyIcon(_hIconBig); _hIconBig = IntPtr.Zero; }
-        // Load generous sizes so the shell downscales (crisp) at any DPI rather than upscaling a
-        // 16/32 frame: small is drawn at 16*scale, big (taskbar/alt-tab) at 32*scale.
-        _hIconSmall = LoadImage(IntPtr.Zero, icoPath, IMAGE_ICON, 32, 32, LR_LOADFROMFILE);
-        _hIconBig = LoadImage(IntPtr.Zero, icoPath, IMAGE_ICON, 64, 64, LR_LOADFROMFILE);
-        if (_hIconSmall != IntPtr.Zero)
-        {
-            SendMessage(hwnd, WM_SETICON, new IntPtr(ICON_SMALL), _hIconSmall);
-        }
-
-        if (_hIconBig != IntPtr.Zero)
-        {
-            SendMessage(hwnd, WM_SETICON, new IntPtr(ICON_BIG), _hIconBig);
-        }
-    }
-
-    private void LoadTitleBarIcon(string icoPath)
+    private void LoadTitleBarIcon()
     {
         // Use the high-res PNG (not the .ico) so it scales down crisply to the 16px title bar.
         try { TitleBarIcon.Source = new BitmapImage(new Uri(App.IconImagePath)); }
@@ -171,19 +101,12 @@ public sealed partial class SettingsWindow : Window
 
     private void SettingsWindow_Closed(object sender, WindowEventArgs e)
     {
-        var hwnd = WindowNative.GetWindowHandle(this);
-        var wndId = Microsoft.UI.Win32Interop.GetWindowIdFromWindow(hwnd);
-        var appWindow = AppWindow.GetFromWindowId(wndId);
-        var settings = SettingsManager.Current;
-
-        bool isMaximized = appWindow.Presenter is OverlappedPresenter p && p.State == OverlappedPresenterState.Maximized;
-        if (!isMaximized)
+        // Null when minimized or maximized, so an odd normal size is never saved.
+        if (WindowChrome.CapturePlacement(this) is { } placement)
         {
-            settings.SettingsWindowX = appWindow.Position.X;
-            settings.SettingsWindowY = appWindow.Position.Y;
-            settings.SettingsWindowWidth = appWindow.Size.Width;
-            settings.SettingsWindowHeight = appWindow.Size.Height;
+            SettingsManager.Current.SettingsWindowPlacement = placement;
         }
+
         SettingsManager.SaveSettings();
         _instance = null;
     }

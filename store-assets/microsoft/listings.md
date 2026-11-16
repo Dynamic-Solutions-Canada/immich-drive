@@ -16,7 +16,7 @@ It starts from the live listing as published on 2026-11-16, read from the public
 - "Screenshots show the English interface." is dropped, since the app has only one language.
 - One sentence is added: the API key is stored encrypted for the Windows account. That is true from the release that ships the protected key store; do not publish this text with an older build.
 
-The corrected text has not been published yet. It goes live with the next Store submission.
+A listing-only Store submission made on 2026-11-16 (submission 1152921505702422473) published this text for `en-US` and `en-CA`. The Store's seven translated listings had only the name corrected in that submission; their Windows-version and language wording waits for the translation step (package 10).
 
 ## Limits
 
@@ -26,7 +26,7 @@ The corrected text has not been published yet. It goes live with the next Store 
 | `shortDescription` | 270 characters | 150 |
 | `fullDescription` | 4,000 characters | 1,174 |
 | `features` | Up to 20, each up to 200 characters | 12, longest 77 |
-| `keywords` | Up to 7, each up to 40 characters, 21 words combined | 0 (see open questions) |
+| `keywords` | Up to 7, each up to 40 characters, 21 words combined | 7, longest 21 characters, 21 words (at the limit) |
 | `screenshotCaptions` | One per screenshot, each up to 200 characters | 5, longest 81 |
 | Release notes ("What's new") | 1,500 characters | From `release-notes/` |
 
@@ -54,6 +54,5 @@ The corrected text has not been published yet. It goes live with the next Store 
 
 ## Open questions before the next submission
 
-- **Keywords:** the live keywords are not in the public Store data. Copy them from Partner Center into `keywords`, or write new ones; the field is optional.
 - **Screenshots:** the live listing has five screenshots, with the captions in `listings.json`. Their image files are not in the repo, and the README set in `store-assets/web/screenshots/` shows personal details (LIST-8). Recapturing both sets with synthetic data, plus `store-assets/manifest.json`, is still to do; the caption count must then match the manifest.
 - **Publishing:** nothing yet pushes this file to Partner Center. The corrected text goes in by hand, or with a listing-sync step added to `store-publish.yml` later (LIST-6).

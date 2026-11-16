@@ -1,0 +1,14 @@
+<Project>
+  <PropertyGroup>
+    <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
+  </PropertyGroup>
+
+  <!-- Versions the family shares (Windows App SDK, NLog, CommunityToolkit.Mvvm, ProtectedData). -->
+  <Import Project="$(MSBuildThisFileDirectory)external/winui-app-kit/build/WinUIAppKit.Packages.props" />
+
+  <!-- This app's own packages. -->
+  <ItemGroup>
+    <!-- Local asset index (relativePath to Immich asset id), in the app and the thumbnail provider. -->
+    <PackageVersion Include="Microsoft.Data.Sqlite" Version="10.0.9" />
+  </ItemGroup>
+</Project>

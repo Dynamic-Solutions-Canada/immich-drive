@@ -48,7 +48,7 @@ process self-registers a class factory at startup rather than exporting `DllGetC
 
 The extension reads the server URL via `SettingsFile.ReadConnection()` from the same
 `settings.json` the app writes, and the API key from the DPAPI-protected file the app writes through
-`ProtectedStore` (read-only; it falls back to a legacy `ApiKey` field in `settings.json` only before
+the kit's `ProtectedStore`, linked as source through `CredentialStore` (read-only; it falls back to a legacy `ApiKey` field in `settings.json` only before
 the app has migrated it; see [ARCHITECTURE.md](../ARCHITECTURE.md), "Where the Immich API key lives"). It reads the index path from `SharedPaths.IndexDbPath` (so it
 resolves the same physical DB whether the app is packaged or not). Diagnostics are appended to
 `C:\ProgramData\ImmichDrive\thumb.log`, a fixed non-redirected path the surrogate can write.

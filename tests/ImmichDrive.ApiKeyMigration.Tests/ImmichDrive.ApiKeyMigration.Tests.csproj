@@ -5,8 +5,6 @@
   <PropertyGroup>
     <OutputType>Exe</OutputType>
     <TargetFramework>net10.0</TargetFramework>
-    <ImplicitUsings>enable</ImplicitUsings>
-    <Nullable>enable</Nullable>
     <!-- ProtectedStore.cs also declares the DPAPI implementation, which is Windows-only. It is
          compiled here but never called, so the platform analyzer warning does not apply. -->
     <NoWarn>$(NoWarn);CA1416</NoWarn>
@@ -15,13 +13,19 @@
   <ItemGroup>
     <!-- Supplies ProtectedData off Windows so the linked ProtectedStore compiles; on Windows the app
          gets it from Microsoft.WindowsDesktop.App. 10.x matches the net10.0 target. -->
-    <PackageReference Include="System.Security.Cryptography.ProtectedData" Version="10.0.15" />
+    <PackageReference Include="System.Security.Cryptography.ProtectedData" />
+    <!-- JsonSettingsStore logs through NLog; nothing is configured, so nothing is written. -->
+    <PackageReference Include="NLog" />
   </ItemGroup>
 
   <ItemGroup>
     <Compile Include="../../ImmichDrive/Models/StoredApiKey.cs" Link="Linked/StoredApiKey.cs" />
-    <Compile Include="../../ImmichDrive/Services/AtomicFile.cs" Link="Linked/AtomicFile.cs" />
-    <Compile Include="../../ImmichDrive/Services/ProtectedStore.cs" Link="Linked/ProtectedStore.cs" />
+    <Compile Include="../../external/winui-app-kit/WinUIAppKit/Settings/AtomicFile.cs" Link="Linked/AtomicFile.cs" />
+    <Compile Include="../../external/winui-app-kit/WinUIAppKit/Settings/ProtectedStore.cs" Link="Linked/ProtectedStore.cs" />
+    <Compile Include="../../ImmichDrive/Services/CredentialStore.cs" Link="Linked/CredentialStore.cs" />
+    <!-- The kit's settings store and the app's migrations, for the "never lose the key" sequence. -->
+    <Compile Include="../../external/winui-app-kit/WinUIAppKit/Settings/JsonSettingsStore.cs" Link="Linked/JsonSettingsStore.cs" />
+    <Compile Include="../../ImmichDrive/Classes/Settings/SettingsMigrations.cs" Link="Linked/SettingsMigrations.cs" />
     <Compile Include="../../ImmichDrive/Services/SharedPaths.cs" Link="Linked/SharedPaths.cs" />
     <Compile Include="../../ImmichDrive/Services/ApiKeyMigration.cs" Link="Linked/ApiKeyMigration.cs" />
     <Compile Include="../../ImmichDrive/Services/ApiKeyStore.cs" Link="Linked/ApiKeyStore.cs" />

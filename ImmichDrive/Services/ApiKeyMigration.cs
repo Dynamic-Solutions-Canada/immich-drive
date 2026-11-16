@@ -2,6 +2,7 @@ using ImmichDrive.Models;
 using System.IO;
 using System.Text.Json;
 using System.Text.Json.Nodes;
+using WinUIAppKit.Settings;
 
 namespace ImmichDrive.Services;
 
@@ -54,18 +55,19 @@ internal static class ApiKeyMigration
     /// Migrates if needed and returns the key to use.
     /// </summary>
     /// <param name="settingsPath">Full path of settings.json.</param>
-    public static ApiKeyMigrationResult Run(string settingsPath)
+    /// <param name="store">The protected store the key moves into (<see cref="CredentialStore.Create"/>).</param>
+    public static ApiKeyMigrationResult Run(string settingsPath, ProtectedStore store)
     {
         string? legacyKey = ReadLegacyKey(settingsPath);
         if (legacyKey is null)
         {
-            return ReadStoredKey();
+            return ReadStoredKey(store);
         }
 
         // Phase 1: copy into the store and prove it landed. Save swallows its own failures,
         // so the read-back is the only reliable success signal.
-        ProtectedStore.Save(StoredApiKey.StoreName, new StoredApiKey { ApiKey = legacyKey });
-        string? readBack = ProtectedStore.Load<StoredApiKey>(StoredApiKey.StoreName)?.ApiKey;
+        store.Save(StoredApiKey.StoreName, new StoredApiKey { ApiKey = legacyKey });
+        string? readBack = store.Load<StoredApiKey>(StoredApiKey.StoreName)?.ApiKey;
         if (readBack != legacyKey)
         {
             return new(ApiKeyMigrationOutcome.StoreWriteFailed, legacyKey);
@@ -117,9 +119,9 @@ internal static class ApiKeyMigration
     }
 
     /// <summary>Reads the store when settings.json holds no key.</summary>
-    private static ApiKeyMigrationResult ReadStoredKey()
+    private static ApiKeyMigrationResult ReadStoredKey(ProtectedStore store)
     {
-        string? stored = ProtectedStore.Load<StoredApiKey>(StoredApiKey.StoreName)?.ApiKey;
+        string? stored = store.Load<StoredApiKey>(StoredApiKey.StoreName)?.ApiKey;
         if (!string.IsNullOrEmpty(stored))
         {
             return new(ApiKeyMigrationOutcome.AlreadyMigrated, stored);
@@ -127,7 +129,7 @@ internal static class ApiKeyMigration
 
         // A file that exists but does not decrypt is different from no file: the user needs to be
         // told to re-enter the key rather than see a silent "Not configured".
-        if (ProtectedStore.Exists(StoredApiKey.StoreName))
+        if (store.Exists(StoredApiKey.StoreName))
         {
             return new(ApiKeyMigrationOutcome.StoredKeyUnreadable, "");
         }
@@ -158,17 +160,5 @@ internal static class ApiKeyMigration
         {
             return false;
         }
-    }
-
-    /// <summary>
-    /// Adds the legacy key field to a serialised settings document. Used only while
-    /// <see cref="ApiKeyMigrationOutcome.StoreWriteFailed"/> applies, so an ordinary settings save
-    /// does not erase the one copy of the key before the store accepts it.
-    /// </summary>
-    internal static string CarryLegacyKey(string settingsJson, string legacyKey)
-    {
-        var root = JsonNode.Parse(settingsJson)!.AsObject();
-        root[StoredApiKey.LegacySettingsField] = legacyKey;
-        return root.ToJsonString(new JsonSerializerOptions { WriteIndented = true });
     }
 }

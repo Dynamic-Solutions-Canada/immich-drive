@@ -95,7 +95,7 @@ internal sealed class ClassFactory : IClassFactory
         }
 
         IntPtr unk = Marshal.GetIUnknownForObject(new ImmichThumbnailProvider());
-        try { return Marshal.QueryInterface(unk, ref riid, out ppvObject); }
+        try { return Marshal.QueryInterface(unk, in riid, out ppvObject); }
         finally { Marshal.Release(unk); }
     }
 
