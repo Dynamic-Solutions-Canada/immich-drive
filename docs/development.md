@@ -56,7 +56,8 @@ npm run package:desktop     # Store build (unsigned; the Store re-signs)
   first show up during a Store submission.
 - **Store submission runs on release tags** through `.github/workflows/store-publish.yml`,
   using CLI v0.4.3 and the configured Entra secrets. Both unsigned architectures stay on one
-  runner and go directly to Partner Center. Manual runs default to draft review. The
+  runner and are uploaded to Partner Center as a draft with the notes attached; a second,
+  manual run on the tag submits it (see the packaging guide). The
   workflow uses `Tier1012` for the US $0.99 base price and can change regional prices. See
   [the packaging guide](packaging.md). The local `build-msix.ps1 -NoSign` path
   remains available for manual uploads.

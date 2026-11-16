@@ -1,7 +1,10 @@
 name: Publish to Microsoft Store
 
-# Tags submit both architectures directly to Partner Center at the verified US $0.99 tier.
-# Manual runs default to draft-only review. Never expose paid MSIX files as artifacts.
+# A v* tag builds both architectures, uploads them to Partner Center at the verified US $0.99
+# tier, attaches the release notes, and stops: the submission stays a draft (REL-7). Publishing
+# is a second, manual step: run this workflow on the same tag with submit_draft set to the draft
+# ID from the tag run's summary. Manual full runs also default to draft-only review.
+# Never expose paid MSIX files as artifacts.
 # The published submission reports Base; CLI 0.4.3 needs Tier1012 for this product.
 
 on:
@@ -22,8 +25,8 @@ on:
         description: 'Exact canceled tier submission ID to replace with a corrected release'
         type: string
         default: ''
-      resume_draft:
-        description: 'Exact uploaded draft ID to submit after a release-note or commit failure'
+      submit_draft:
+        description: 'Draft ID from the tag run to submit for certification; run on that release tag with no_commit unchecked'
         type: string
         default: ''
       replace_failed_draft:
@@ -44,7 +47,7 @@ concurrency:
 
 jobs:
   publish:
-    if: inputs.resume_draft == ''
+    if: inputs.submit_draft == ''
     runs-on: windows-2025
     # Two self-contained builds, bundling, the upload and the release-note verification.
     timeout-minutes: 60
@@ -191,7 +194,8 @@ jobs:
         if: inputs.repair_draft == ''
         shell: pwsh
         env:
-          NO_COMMIT: ${{ github.event_name == 'workflow_dispatch' && inputs.no_commit }}
+          # A tag run always stops at a draft; only a manual run can commit (REL-7).
+          NO_COMMIT: ${{ github.event_name == 'push' || inputs.no_commit }}
           AZURE_AD_TENANT_ID: ${{ secrets.AZURE_AD_TENANT_ID }}
           AZURE_AD_APPLICATION_CLIENT_ID: ${{ secrets.AZURE_AD_APPLICATION_CLIENT_ID }}
           AZURE_AD_APPLICATION_SECRET: ${{ secrets.AZURE_AD_APPLICATION_SECRET }}
@@ -207,9 +211,14 @@ jobs:
           if ($LASTEXITCODE -ne 0) {
             throw "Store publishing failed (exit $LASTEXITCODE). Review the submission in Partner Center."
           }
-          & ./.github/scripts/set-store-release-notes.ps1 -AppId 9MWC6165N7DH -UploadFileName "ImmichDrive-$version.msixupload" -NotesPath "release-notes/$version.md" -Commit:($env:NO_COMMIT -ne 'true')
+          $output = & ./.github/scripts/set-store-release-notes.ps1 -AppId 9MWC6165N7DH -UploadFileName "ImmichDrive-$version.msixupload" -NotesPath "release-notes/$version.md" -Commit:($env:NO_COMMIT -ne 'true')
+          $output | Write-Output
           if ($env:NO_COMMIT -eq 'true') {
-            'Store draft uploaded. Review pricing and packages in Partner Center before committing.' >> $env:GITHUB_STEP_SUMMARY
+            $draftId = (($output | Out-String) | Select-String -Pattern 'Submission (\d+):').Matches[0].Groups[1].Value
+            @(
+              "Store draft $draftId uploaded with the v$version release notes. Review it in Partner Center,"
+              "then run this workflow on tag v$version with submit_draft = $draftId and no_commit unchecked."
+            ) -join "`n" >> $env:GITHUB_STEP_SUMMARY
           } else {
             'Store submission committed. Publication depends on Microsoft certification and the submission publishing settings.' >> $env:GITHUB_STEP_SUMMARY
           }
@@ -229,17 +238,19 @@ jobs:
           $version = $props.SelectSingleNode("//Version").InnerText
           & ./.github/scripts/repair-store-draft.ps1 -AppId 9MWC6165N7DH -SubmissionId $env:SUBMISSION_ID -PriceId Tier1012 -UploadPath "$env:GITHUB_WORKSPACE/ImmichDriveMSIX/bin/msix-output/ImmichDrive-$version.msixupload"
 
-  resume:
-    if: inputs.resume_draft != ''
+  submit:
+    if: inputs.submit_draft != ''
     runs-on: windows-2025
     timeout-minutes: 15
     steps:
       - name: Checkout
         uses: actions/checkout@v7
-      - name: Verify and submit the selected uploaded draft
+      - name: Verify the draft against the tag and submit it
         shell: pwsh
         env:
-          SUBMISSION_ID: ${{ inputs.resume_draft }}
+          SUBMISSION_ID: ${{ inputs.submit_draft }}
+          REF_TYPE: ${{ github.ref_type }}
+          REF_NAME: ${{ github.ref_name }}
           NO_COMMIT: ${{ inputs.no_commit }}
           REPAIR_DRAFT: ${{ inputs.repair_draft }}
           REPLACE_DRAFT: ${{ inputs.replace_canceled_draft }}
@@ -249,8 +260,13 @@ jobs:
           AZURE_AD_APPLICATION_SECRET: ${{ secrets.AZURE_AD_APPLICATION_SECRET }}
         run: |
           if ($env:NO_COMMIT -ne 'false' -or $env:REPAIR_DRAFT -or $env:REPLACE_DRAFT -or $env:FAILED_DRAFT) {
-            throw 'Resuming requires no_commit=false without other repair options.'
+            throw 'Submitting a draft requires no_commit=false without other repair options.'
           }
           [xml]$props = Get-Content Directory.Build.props
           $version = $props.SelectSingleNode('//Version').InnerText
+          # Check the draft against the tag: the run must be on the release tag for this version,
+          # so the notes and upload name it verifies are the ones that tag shipped.
+          if ($env:REF_TYPE -ne 'tag' -or $env:REF_NAME -ne "v$version") {
+            throw "Run submit_draft on the release tag v$version (this run is on $env:REF_TYPE '$env:REF_NAME')."
+          }
           & ./.github/scripts/set-store-release-notes.ps1 -AppId 9MWC6165N7DH -ExpectedSubmissionId $env:SUBMISSION_ID -UploadFileName "ImmichDrive-$version.msixupload" -NotesPath "release-notes/$version.md" -Commit

@@ -5,7 +5,7 @@ description: Cut an ImmichDrive release: write and approve the notes, bump the v
 
 # Cut a release
 
-Goal: a tagged version whose notes-only GitHub release and Store submission both succeed, tested on Windows 11 and Windows 10 22H2 before it ships.
+Goal: a tagged version whose notes-only GitHub release succeeds and whose Store draft is submitted, tested on Windows 11 and Windows 10 22H2 before it ships.
 
 1. **Clean start.** Stop if the working tree has changes that are not part of this release, or if `HEAD` is not `origin/main` after `git fetch`.
 2. **Gate.** Run `npm run validate`, `npm run verify:desktop` and `npm run package:desktop` (it compiles the thumbnail provider too). Stop on any failure.
@@ -15,7 +15,8 @@ Goal: a tagged version whose notes-only GitHub release and Store submission both
 6. **Tag and push together.** `git tag -a vX.Y.Z -m "vX.Y.Z: <summary>"`, then `git push origin main vX.Y.Z`.
 7. **Watch both tag workflows:**
    - `build-msix.yml` builds x64 and ARM64 as a packaging check and creates the GitHub release from the notes file. It fails if the notes are missing. Never attach a package or upload an Actions artifact: this is a paid app in a public repo.
-   - `store-publish.yml` submits the unsigned x64 and ARM64 packages to Partner Center with `Tier1012` (US $0.99 base price) and the notes as "What's new". After it passes, check the submission and the ingested regional prices in Partner Center. Recovery options are in [docs/packaging.md](../../../docs/packaging.md).
-8. **Post-release (REL-9).** Update the promo catalog entry and the website page if this release changes what they say. Bump the `external/` submodules only when kit or promo code changed.
+   - `store-publish.yml` uploads the unsigned x64 and ARM64 packages to Partner Center as a **draft** with `Tier1012` (US $0.99 base price) and the notes as "What's new", and names the draft ID in its run summary. It does not publish.
+8. **Publish the Store draft (REL-7).** Check the draft with the read-only `inspect-store-submission.yml` workflow (`gh workflow run inspect-store-submission.yml -f submission_id=<id>`): both architectures present, the expected upload, and the price tier. Tell the user what it shows; the ingested regional prices are visible only in Partner Center, so ask the user to check them there. Then run `store-publish.yml` manually on tag `vX.Y.Z` with `submit_draft` set to the draft ID and `no_commit` unchecked: `gh workflow run store-publish.yml --ref vX.Y.Z -f submit_draft=<id> -f no_commit=false`. Confirm it reaches `Certification`. Recovery options are in [docs/packaging.md](../../../docs/packaging.md).
+9. **Post-release (REL-9).** Update the promo catalog entry and the website page if this release changes what they say. Bump the `external/` submodules only when kit or promo code changed.
 
 Report: the version and tag, both workflow results with links, the Store submission state, the post-release steps done, and anything the user must still check.

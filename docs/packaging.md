@@ -70,19 +70,18 @@ different package family and break in-place updates for existing Store installs.
 The workflow pins [Microsoft Store CLI v0.4.3](https://github.com/microsoft/msstore-cli/releases/tag/v0.4.3),
 builds unsigned x64 and ARM64 packages on one runner, combines them into a real
 architecture-aware `.msixbundle` stamped with the app version, and wraps that in a versioned `.msixupload`,
-and submits directly to Partner Center on `v*` tags. It uploads no public binary artifacts.
+and uploads it to Partner Center on `v*` tags as a draft. It uploads no public binary artifacts.
 MakeAppx must receive `/bv` so the bundle does not get a date-based version that
 could outrank the next app release.
-Manual dispatch defaults `no_commit` to true for draft review; disable it to commit the submission.
+**A tag never publishes (REL-7).** The tag run stops at a `PendingCommit` draft with the release notes attached, and its run summary names the draft ID. After reviewing the draft in Partner Center, run the workflow manually **on the same tag** with `submit_draft` set to that ID and `no_commit` unchecked. That run refuses any ref other than `v<version>` from `Directory.Build.props`, verifies the draft is the current pending submission with the expected versioned upload, re-applies and checks the notes from the tag, then commits. Manual full runs also default `no_commit` to true.
 Certification and the submission's publishing settings determine when it becomes available.
 The read-only `inspect-store-submission.yml` action reports validation details for an exact submission ID without exposing signed upload URLs. The API refuses updates to `CommitFailed` submissions. For a confirmed package-validation failure, correct the package and use `replace_failed_draft` with the exact failed ID, `failed_upload` with its exact upload filename, and `no_commit=false`. The workflow verifies the failed state and upload before deleting only that unpublished submission, then creates a corrected submission from the published app. `repair_draft` remains limited to editable `PendingCommit` drafts; it cannot repair `CommitFailed` or `Canceled` submissions.
 Each release includes `release-notes/<version>.md`: user-facing lines only, with no heading and no AI disclosure (the GitHub release adds both), at most 1,500 characters. The workflow stages the package upload,
-updates the English Store listings' What's new text with that file, verifies it was saved,
-and only then commits the submission. Other listing fields and publishing settings are preserved.
+updates the English Store listings' What's new text with that file, and verifies it was saved.
+Other listing fields and publishing settings are preserved.
 GitHub release notes use the same blurb and never attach binaries.
-If upload succeeds but release-note verification or the final commit fails, use manual
-`resume_draft` with that exact submission ID and `no_commit=false`. This validates the
-expected upload and notes, then commits without rebuilding or replacing the draft.
+The same `submit_draft` run is the recovery path when a commit fails after upload: it validates
+the expected upload and notes, then commits without rebuilding or replacing the draft.
 
 The published base price is US $0.99. The API may report it as `PriceId: "Base"`, which
 the CLI cannot round-trip. This workflow explicitly supplies `Tier1012`, the US $0.99
