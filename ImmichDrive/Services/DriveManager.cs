@@ -126,7 +126,11 @@ public sealed class DriveManager
 
         try
         {
-            if (announce) Set(DriveStatus.Connecting, "Verifying server…");
+            if (announce)
+            {
+                Set(DriveStatus.Connecting, "Verifying server…");
+            }
+
             SharedPaths.WriteBreadcrumb();
 
             // Finish any retire that a previous session started but didn't complete (app quit mid-delete).
@@ -174,7 +178,10 @@ public sealed class DriveManager
             // sync-root id is server-derived, so a relocation would otherwise silently strand the old
             // read-only placeholder tree — the user can't delete it, see the deny ACE in DriveSecurity).
             string? retiredPath = await SyncRootService.RegisterAsync(syncRoot, s.ServerUrl, icon);
-            if (retiredPath != null) RetireOldSyncRoot(retiredPath, syncRoot);
+            if (retiredPath != null)
+            {
+                RetireOldSyncRoot(retiredPath, syncRoot);
+            }
 
             // One-time clean rebuild when the on-disk layout/naming revision changes. Carry the old
             // index's metadata forward first so the rebuild re-creates placeholders from known
@@ -187,7 +194,11 @@ public sealed class DriveManager
                     var old = new AssetIndex();
                     old.EnsureCreated();
                     var cache = old.BuildMetadataCache();
-                    if (cache.Count > 0) _migrationCache = cache;
+                    if (cache.Count > 0)
+                    {
+                        _migrationCache = cache;
+                    }
+
                     Logger.Info("Layout migration: carried {0} assets' metadata forward", cache.Count);
                 }
                 catch (Exception ex) { Logger.Warn(ex, "Building migration metadata cache failed (will re-enrich)"); }
@@ -225,8 +236,14 @@ public sealed class DriveManager
         catch (Exception ex)
         {
             Logger.Error(ex, "Connect failed");
-            if (IsNetworkFailure(ex)) GoOffline();
-            else Set(DriveStatus.Error, ex.Message);
+            if (IsNetworkFailure(ex))
+            {
+                GoOffline();
+            }
+            else
+            {
+                Set(DriveStatus.Error, ex.Message);
+            }
         }
     }
 
@@ -241,7 +258,11 @@ public sealed class DriveManager
     /// </summary>
     public async Task RetryConnectionAsync()
     {
-        if (IsCheckingConnection || !IsConfigured) return;
+        if (IsCheckingConnection || !IsConfigured)
+        {
+            return;
+        }
+
         IsCheckingConnection = true;
         StatusChanged?.Invoke();
         try
@@ -250,8 +271,14 @@ public sealed class DriveManager
             // Only a mounted-but-unreachable drive can be fixed by a ping. Anything else (including a
             // rejected key the user has just corrected in Settings) needs a connect from scratch, so
             // the client picks up the current settings.
-            if (Status == DriveStatus.Offline && _provider != null && _client != null) await ProbeAsync();
-            else await ConnectAsync();
+            if (Status == DriveStatus.Offline && _provider != null && _client != null)
+            {
+                await ProbeAsync();
+            }
+            else
+            {
+                await ConnectAsync();
+            }
         }
         finally
         {
@@ -263,8 +290,16 @@ public sealed class DriveManager
     /// <summary>Pings the server once and moves the drive between Online and Offline. Never throws.</summary>
     private async Task ProbeAsync()
     {
-        if (_client == null) return;
-        if (!await _probeLock.WaitAsync(0)) return;   // one probe at a time
+        if (_client == null)
+        {
+            return;
+        }
+
+        if (!await _probeLock.WaitAsync(0))
+        {
+            return;   // one probe at a time
+        }
+
         try
         {
             var (reachability, who) = await _client.ProbeAsync();
@@ -289,8 +324,15 @@ public sealed class DriveManager
     private void NoteServerReachable(string? who = null)
     {
         LastContactUtc = DateTimeOffset.UtcNow;
-        if (who != null) _connectedAs = who;
-        if (Status != DriveStatus.Offline) return;
+        if (who != null)
+        {
+            _connectedAs = who;
+        }
+
+        if (Status != DriveStatus.Offline)
+        {
+            return;
+        }
 
         StopWatchdog();
         Logger.Info("Immich is reachable again");
@@ -310,8 +352,16 @@ public sealed class DriveManager
     /// </summary>
     private void NoteServerUnreachable(Exception? ex)
     {
-        if (Status != DriveStatus.Online) return;
-        if (!IsNetworkFailure(ex)) return;
+        if (Status != DriveStatus.Online)
+        {
+            return;
+        }
+
+        if (!IsNetworkFailure(ex))
+        {
+            return;
+        }
+
         _ = ProbeAsync();
     }
 
@@ -327,7 +377,11 @@ public sealed class DriveManager
 
     private void StartWatchdog()
     {
-        if (_watchdogTimer != null) return;
+        if (_watchdogTimer != null)
+        {
+            return;
+        }
+
         _watchdogStep = 0;
         _watchdogTimer = new Timer(_ => _ = OnWatchdogTick(), null,
             TimeSpan.FromSeconds(WatchdogSteps[0]), Timeout.InfiniteTimeSpan);
@@ -344,10 +398,20 @@ public sealed class DriveManager
     {
         // The drive may never have come up (nothing to ping through), in which case retry the
         // whole connect; otherwise a cheap ping is enough.
-        if (_provider != null && _client != null) await ProbeAsync();
-        else await ConnectAsync(announce: false);
+        if (_provider != null && _client != null)
+        {
+            await ProbeAsync();
+        }
+        else
+        {
+            await ConnectAsync(announce: false);
+        }
 
-        if (Status != DriveStatus.Offline) return;   // recovered, or torn down
+        if (Status != DriveStatus.Offline)
+        {
+            return;   // recovered, or torn down
+        }
+
         _watchdogStep = Math.Min(_watchdogStep + 1, WatchdogSteps.Length - 1);
         int next = WatchdogSteps[_watchdogStep];
         Logger.Debug("Still offline; next reachability check in {0}s", next);
@@ -410,11 +474,27 @@ public sealed class DriveManager
     /// </summary>
     private async Task RunPopulate(bool newestOnly, bool skipIfBusy, CancellationToken ct)
     {
-        if (_client == null || _index == null) return;
-        if (Status == DriveStatus.Offline) return;   // the watchdog owns recovery while offline
+        if (_client == null || _index == null)
+        {
+            return;
+        }
 
-        if (skipIfBusy) { if (!await _populateLock.WaitAsync(0, ct)) return; }
-        else { await _populateLock.WaitAsync(ct); }
+        if (Status == DriveStatus.Offline)
+        {
+            return;   // the watchdog owns recovery while offline
+        }
+
+        if (skipIfBusy)
+        {
+            if (!await _populateLock.WaitAsync(0, ct))
+            {
+                return;
+            }
+        }
+        else
+        {
+            await _populateLock.WaitAsync(ct);
+        }
 
         try
         {
@@ -438,7 +518,10 @@ public sealed class DriveManager
                 ct.ThrowIfCancellationRequested();
                 Progress = (result.Processed, result.Processed);
                 if (result.Failures > 0)
+                {
                     _populateIssue = "Some photos could not be synced. Refresh to retry.";
+                }
+
                 _migrationCache = null; // consumed: the rebuilt index is now authoritative
                 if (result.Failures == 0)
                 {
@@ -452,7 +535,11 @@ public sealed class DriveManager
         catch (Exception ex)
         {
             Logger.Warn(ex, "Populate failed (newestOnly={0})", newestOnly);
-            if (!newestOnly) _populateIssue = "Some photos could not be synced. Refresh to retry.";
+            if (!newestOnly)
+            {
+                _populateIssue = "Some photos could not be synced. Refresh to retry.";
+            }
+
             NoteServerUnreachable(ex);
         }
         finally
@@ -471,7 +558,11 @@ public sealed class DriveManager
     /// <summary>Re-runs full population against the server (e.g. tray "Refresh").</summary>
     public void Refresh()
     {
-        if (Status != DriveStatus.Online) return;
+        if (Status != DriveStatus.Online)
+        {
+            return;
+        }
+
         _populateCts?.Cancel();
         _populateCts = new CancellationTokenSource();
         _ = RunPopulate(newestOnly: false, skipIfBusy: false, _populateCts.Token);
@@ -495,8 +586,15 @@ public sealed class DriveManager
             Directory.CreateDirectory(dir);
             string dst = Path.Combine(dir, "ImmichDrive.ico");
             string src = Path.Combine(AppContext.BaseDirectory, "Resources", "ImmichDrive.ico");
-            if (File.Exists(src)) File.Copy(src, dst, overwrite: true);
-            if (File.Exists(dst)) return $"{dst},0";
+            if (File.Exists(src))
+            {
+                File.Copy(src, dst, overwrite: true);
+            }
+
+            if (File.Exists(dst))
+            {
+                return $"{dst},0";
+            }
         }
         catch (Exception ex) { Logger.Warn(ex, "Stable icon copy failed; using exe path"); }
         return $"{Environment.ProcessPath},0";
@@ -524,7 +622,10 @@ public sealed class DriveManager
         {
             try
             {
-                if (!Directory.Exists(oldRoot)) return;
+                if (!Directory.Exists(oldRoot))
+                {
+                    return;
+                }
 
                 // Lift the read-only deny at the root — it's inherited, so this clears it across the whole
                 // tree (no need for a slow recursive icacls grant). Then salvage pending uploads before the
@@ -540,7 +641,10 @@ public sealed class DriveManager
                     try { new DirectoryInfo(oldRoot).Attributes = FileAttributes.Directory; } catch { }
                     string graveyard = oldRoot + ".retiring";
                     if (Directory.Exists(graveyard))
+                    {
                         graveyard = $"{oldRoot}.retiring-{Guid.NewGuid():N}";
+                    }
+
                     Directory.Move(oldRoot, graveyard);
                     target = graveyard;
                     // Hide the renamed-aside folder so it doesn't briefly flash in Explorer before the
@@ -561,14 +665,14 @@ public sealed class DriveManager
 
     // Crash-safe cleanup: the retire records the renamed-aside folder here before deleting it, and clears the
     // entry on success. A leftover (delete interrupted by app exit) is finished on the next launch.
-    private static readonly object _retireLogLock = new();
+    private static readonly object RetireLogLock = new();
     private static string RetireLogPath => Path.Combine(SharedPaths.DataDir, "pending-retire.txt");
 
     private static void RecordPendingRetire(string path)
     {
         try
         {
-            lock (_retireLogLock)
+            lock (RetireLogLock)
             {
                 Directory.CreateDirectory(SharedPaths.DataDir);
                 File.AppendAllText(RetireLogPath, path + Environment.NewLine);
@@ -581,18 +685,30 @@ public sealed class DriveManager
     {
         try
         {
-            lock (_retireLogLock)
+            lock (RetireLogLock)
             {
-                if (!File.Exists(RetireLogPath)) return;
+                if (!File.Exists(RetireLogPath))
+                {
+                    return;
+                }
+
                 var remaining = new List<string>();
                 foreach (var line in File.ReadAllLines(RetireLogPath))
                 {
                     string t = line.Trim();
                     if (t.Length > 0 && !string.Equals(t, path, StringComparison.OrdinalIgnoreCase))
+                    {
                         remaining.Add(t);
+                    }
                 }
-                if (remaining.Count == 0) File.Delete(RetireLogPath);
-                else File.WriteAllLines(RetireLogPath, remaining);
+                if (remaining.Count == 0)
+                {
+                    File.Delete(RetireLogPath);
+                }
+                else
+                {
+                    File.WriteAllLines(RetireLogPath, remaining);
+                }
             }
         }
         catch (Exception ex) { Logger.Warn(ex, "Unrecording pending retire {0} failed", path); }
@@ -603,15 +719,23 @@ public sealed class DriveManager
     private static void CleanUpPendingRetirements()
     {
         string[] pending;
-        lock (_retireLogLock)
+        lock (RetireLogLock)
         {
-            if (!File.Exists(RetireLogPath)) return;
+            if (!File.Exists(RetireLogPath))
+            {
+                return;
+            }
+
             try { pending = File.ReadAllLines(RetireLogPath); } catch { return; }
         }
         foreach (var line in pending)
         {
             string path = line.Trim();
-            if (path.Length == 0) continue;
+            if (path.Length == 0)
+            {
+                continue;
+            }
+
             try
             {
                 if (Directory.Exists(path))
@@ -634,7 +758,11 @@ public sealed class DriveManager
         try
         {
             string oldUpload = Path.Combine(oldRoot, UploadService.UploadFolderName);
-            if (!Directory.Exists(oldUpload)) return;
+            if (!Directory.Exists(oldUpload))
+            {
+                return;
+            }
+
             string newUpload = Path.Combine(newRoot, UploadService.UploadFolderName);
             Directory.CreateDirectory(newUpload);
             foreach (var file in Directory.GetFiles(oldUpload, "*", SearchOption.AllDirectories))
@@ -643,7 +771,10 @@ public sealed class DriveManager
                 {
                     string dest = Path.Combine(newUpload, Path.GetFileName(file));
                     for (int n = 2; File.Exists(dest); n++)
+                    {
                         dest = Path.Combine(newUpload, $"{Path.GetFileNameWithoutExtension(file)} ({n}){Path.GetExtension(file)}");
+                    }
+
                     File.SetAttributes(file, FileAttributes.Normal);
                     File.Move(file, dest);
                     Logger.Info("Rescued pending upload {0} -> {1}", file, dest);
@@ -659,9 +790,15 @@ public sealed class DriveManager
     private static void ClearAttributesRecursive(string root)
     {
         foreach (var f in Directory.GetFiles(root, "*", SearchOption.AllDirectories))
+        {
             try { File.SetAttributes(f, FileAttributes.Normal); } catch { }
+        }
+
         foreach (var d in Directory.GetDirectories(root, "*", SearchOption.AllDirectories))
+        {
             try { new DirectoryInfo(d).Attributes = FileAttributes.Directory; } catch { }
+        }
+
         try { new DirectoryInfo(root).Attributes = FileAttributes.Directory; } catch { }
     }
 
@@ -692,9 +829,15 @@ public sealed class DriveManager
                     // Our folders are ReadOnly and hold Hidden/System desktop.ini files — clear
                     // attributes before deleting.
                     foreach (var f in Directory.GetFiles(dir, "*", SearchOption.AllDirectories))
+                    {
                         try { File.SetAttributes(f, FileAttributes.Normal); } catch { }
+                    }
+
                     foreach (var d in Directory.GetDirectories(dir, "*", SearchOption.AllDirectories))
+                    {
                         try { new DirectoryInfo(d).Attributes = FileAttributes.Directory; } catch { }
+                    }
+
                     new DirectoryInfo(dir).Attributes = FileAttributes.Directory;
                     Directory.Delete(dir, recursive: true);
                 }
@@ -712,14 +855,20 @@ public sealed class DriveManager
         _upload?.Dispose(); _upload = null;
         _pins?.Dispose(); _pins = null;
         if (!string.IsNullOrWhiteSpace(SettingsManager.Current.ServerUrl))
+        {
             try { DriveSecurity.RemoveReadOnly(SettingsManager.Current.EffectiveSyncRootPath); } catch { }
+        }
+
         _populateCts?.Cancel();
         IsPopulating = false;
         _populateIssue = null;
         _provider?.Disconnect();
         _provider = null;
         if (!string.IsNullOrWhiteSpace(SettingsManager.Current.ServerUrl))
+        {
             SyncRootService.Unregister(SettingsManager.Current.ServerUrl);
+        }
+
         SettingsManager.Current.Connected = false;
         SettingsManager.SaveSettings();
         Set(DriveStatus.Disconnected, "Disconnected");

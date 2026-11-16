@@ -43,7 +43,11 @@ internal static class Program
         var clsid = new Guid(ComGuids.ThumbnailProviderClsid);
         int hr = CoRegisterClassObject(ref clsid, new ClassFactory(),
             CLSCTX_LOCAL_SERVER, REGCLS_MULTIPLEUSE | REGCLS_SUSPENDED, out uint cookie);
-        if (hr < 0) return hr;
+        if (hr < 0)
+        {
+            return hr;
+        }
+
         CoResumeClassObjects();
 
         // Idle watchdog: quit the message loop once the shell stops using us for IdleTimeout.
@@ -59,7 +63,8 @@ internal static class Program
                     break;
                 }
             }
-        }) { IsBackground = true };
+        })
+        { IsBackground = true };
         watchdog.Start();
 
         while (GetMessage(out MSG msg, IntPtr.Zero, 0, 0) > 0)
@@ -84,7 +89,10 @@ internal sealed class ClassFactory : IClassFactory
     {
         ppvObject = IntPtr.Zero;
         Program.Touch();
-        if (pUnkOuter != IntPtr.Zero) return CLASS_E_NOAGGREGATION;
+        if (pUnkOuter != IntPtr.Zero)
+        {
+            return CLASS_E_NOAGGREGATION;
+        }
 
         IntPtr unk = Marshal.GetIUnknownForObject(new ImmichThumbnailProvider());
         try { return Marshal.QueryInterface(unk, ref riid, out ppvObject); }

@@ -47,7 +47,11 @@ public sealed class UploadService : IDisposable
         _watcher.EnableRaisingEvents = true;
 
         // Watch first so a drop during the initial scan cannot be missed.
-        foreach (var f in SafeEnumerate()) _pending[f] = 0;
+        foreach (var f in SafeEnumerate())
+        {
+            _pending[f] = 0;
+        }
+
         RefreshFolderSyncState();
 
         _timer = new Timer(_ => _ = ProcessPendingAsync(), null, TimeSpan.FromSeconds(2), TimeSpan.FromSeconds(2));
@@ -58,12 +62,19 @@ public sealed class UploadService : IDisposable
     private void Enqueue(string path)
     {
         Interlocked.Increment(ref _folderChangeVersion);
-        if (File.Exists(path)) _pending[path] = 0;
+        if (File.Exists(path))
+        {
+            _pending[path] = 0;
+        }
     }
 
     private async Task ProcessPendingAsync()
     {
-        if (Interlocked.Exchange(ref _busy, 1) == 1) return;
+        if (Interlocked.Exchange(ref _busy, 1) == 1)
+        {
+            return;
+        }
+
         try
         {
             // Report pending before a potentially slow upload starts.
@@ -71,7 +82,11 @@ public sealed class UploadService : IDisposable
             foreach (var path in _pending.Keys.ToList())
             {
                 if (!File.Exists(path)) { _pending.TryRemove(path, out _); continue; }
-                if (!IsStable(path)) continue;                 // still being written/copied
+                if (!IsStable(path))
+                {
+                    continue;                 // still being written/copied
+                }
+
                 _pending.TryRemove(path, out _);
 
                 bool ok = await _client.UploadAssetAsync(path);
@@ -116,8 +131,15 @@ public sealed class UploadService : IDisposable
         }
 
         // A concurrent drop invalidates an empty snapshot. The next tick will inspect it again.
-        if (version != Volatile.Read(ref _folderChangeVersion)) inSync = false;
-        if (_reportedInSync == inSync && _reportedFolderVersion == version) return;
+        if (version != Volatile.Read(ref _folderChangeVersion))
+        {
+            inSync = false;
+        }
+
+        if (_reportedInSync == inSync && _reportedFolderVersion == version)
+        {
+            return;
+        }
 
         if (CloudFolderState.SetInSync(_uploadDir, inSync))
         {
@@ -149,7 +171,9 @@ public sealed class UploadService : IDisposable
         try
         {
             foreach (var dir in Directory.EnumerateDirectories(_uploadDir, "*", SearchOption.AllDirectories).OrderByDescending(d => d.Length))
-                try { if (!Directory.EnumerateFileSystemEntries(dir).Any()) Directory.Delete(dir); } catch { }
+            {
+                try { if (!Directory.EnumerateFileSystemEntries(dir).Any()) { Directory.Delete(dir); } } catch { }
+            }
         }
         catch { }
     }

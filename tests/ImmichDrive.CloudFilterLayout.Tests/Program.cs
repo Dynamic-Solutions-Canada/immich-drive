@@ -1,7 +1,7 @@
 using System.Runtime.InteropServices;
 using ImmichDrive.Classes.CloudFilter;
 
-namespace ImmichDrive.Tests.CloudFilterLayout;
+namespace ImmichDrive.CloudFilterLayout.Tests;
 
 internal static class Program
 {

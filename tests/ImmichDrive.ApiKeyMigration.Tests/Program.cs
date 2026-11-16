@@ -3,7 +3,7 @@ using System.Text.Json;
 using ImmichDrive.Models;
 using ImmichDrive.Services;
 
-namespace ImmichDrive.Tests.ApiKeyMigration;
+namespace ImmichDrive.ApiKeyMigration.Tests;
 
 /// <summary>
 /// Checks the one-time move of the Immich API key from settings.json into the protected store

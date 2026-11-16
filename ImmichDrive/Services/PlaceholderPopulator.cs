@@ -83,18 +83,27 @@ public sealed class PlaceholderPopulator
 
         // Only prune when we have the complete picture (no bucket fetch failed), so a transient
         // network error can never delete the whole library.
-        if (allOk) PruneTimeline(seenIds);
+        if (allOk)
+        {
+            PruneTimeline(seenIds);
+        }
 
         await PopulateAlbumsAsync(ct);
         await PopulateFavoritesAsync(ct);
         await PopulatePartnersAsync(ct);
         ct.ThrowIfCancellationRequested();
         if (allOk && _otherFailures == 0 && UploadIsEmpty())
+        {
             _readyFolders.Add(_syncRootPath);
+        }
+
         UpdateFolderSyncStates();
 
         if (total != done)
+        {
             Logger.Warn("Timeline count changed or assets were skipped: {0} processed of {1} estimated", done, total);
+        }
+
         int failures = failedBuckets + _otherFailures;
         Logger.Info("Populate complete: {0} processed, {1} indexed, across {2} buckets ({3} failures)",
             done, _index.Count(), buckets.Count, failures);
@@ -107,12 +116,23 @@ public sealed class PlaceholderPopulator
         int removed = 0;
         foreach (var (rel, assetId) in _index.AllRows())
         {
-            if (IsUnderReserved(rel)) continue;          // Albums / Favorites / Partners handled separately
-            if (seenIds.Contains(assetId)) continue;
+            if (IsUnderReserved(rel))
+            {
+                continue;          // Albums / Favorites / Partners handled separately
+            }
+
+            if (seenIds.Contains(assetId))
+            {
+                continue;
+            }
+
             DeletePlaceholder(rel);
             removed++;
         }
-        if (removed > 0) Logger.Info("Pruned {0} timeline placeholders removed from Immich", removed);
+        if (removed > 0)
+        {
+            Logger.Info("Pruned {0} timeline placeholders removed from Immich", removed);
+        }
     }
 
     /// <summary>Deletes a placeholder file (clearing attributes first) and its index row.</summary>
@@ -143,7 +163,10 @@ public sealed class PlaceholderPopulator
         List<ImmichClient.AlbumRef> albums;
         try { albums = await _client.GetAlbumsAsync(ct); }
         catch (Exception ex) { _otherFailures++; Logger.Warn(ex, "Listing albums failed"); return; }
-        if (albums.Count == 0) return; // empty (or a transient failure) → don't prune anything
+        if (albums.Count == 0)
+        {
+            return; // empty (or a transient failure) → don't prune anything
+        }
 
         string albumsRoot = EnsureFolder(AlbumsFolderName);
         int failuresBefore = _otherFailures;
@@ -185,7 +208,9 @@ public sealed class PlaceholderPopulator
                     {
                         used.Add(Path.GetFileName(rel));
                         if (!File.Exists(Path.Combine(_syncRootPath, rel)))
+                        {
                             CreatePlaceholder(albumAbs, Path.GetFileName(rel), asset.Id, size, isVideo, asset.FileCreatedAt);
+                        }
                     }
                     continue;
                 }
@@ -194,12 +219,16 @@ public sealed class PlaceholderPopulator
 
             var toEnrich = newAssets.Where(a => !TryResolveFromIndex(a)).ToList();
             if (toEnrich.Count > 0)
+            {
                 using (var sem = new SemaphoreSlim(EnrichConcurrency))
+                {
                     await Task.WhenAll(toEnrich.Select(async a =>
                     {
                         await sem.WaitAsync(ct);
                         try { await _client.EnrichAsync(a, ct); } finally { sem.Release(); }
                     }));
+                }
+            }
 
             foreach (var asset in newAssets)
             {
@@ -213,18 +242,34 @@ public sealed class PlaceholderPopulator
                 }
                 catch (Exception ex) { _otherFailures++; Logger.Warn(ex, "Album placeholder failed for asset {0}", asset.Id); }
             }
-            if (indexRows.Count > 0) _index.UpsertMany(indexRows);
+            if (indexRows.Count > 0)
+            {
+                _index.UpsertMany(indexRows);
+            }
 
             // Prune assets that were removed from this album (fetch succeeded → set is authoritative).
             int pruned = 0;
             foreach (var (rel, assetId) in _index.RowsUnderPrefix(relPrefix))
+            {
                 if (!currentIds.Contains(assetId)) { DeletePlaceholder(rel); pruned++; }
-            if (pruned > 0) Logger.Info("Album '{0}': pruned {1} removed assets", album.Name, pruned);
-            if (_otherFailures == albumFailuresBefore) _readyFolders.Add(albumAbs);
+            }
+
+            if (pruned > 0)
+            {
+                Logger.Info("Album '{0}': pruned {1} removed assets", album.Name, pruned);
+            }
+
+            if (_otherFailures == albumFailuresBefore)
+            {
+                _readyFolders.Add(albumAbs);
+            }
         }
 
         PruneOrphanFolders(AlbumsFolderName, currentAlbumFolders);
-        if (_otherFailures == failuresBefore) _readyFolders.Add(albumsRoot);
+        if (_otherFailures == failuresBefore)
+        {
+            _readyFolders.Add(albumsRoot);
+        }
     }
 
     /// <summary>Removes immediate subfolders of <paramref name="rootFolderName"/> (and their index rows)
@@ -232,16 +277,27 @@ public sealed class PlaceholderPopulator
     private void PruneOrphanFolders(string rootFolderName, HashSet<string> currentFolders)
     {
         string rootAbs = Path.Combine(_syncRootPath, rootFolderName);
-        if (!Directory.Exists(rootAbs)) return;
+        if (!Directory.Exists(rootAbs))
+        {
+            return;
+        }
+
         foreach (var dir in Directory.GetDirectories(rootAbs))
         {
             string rel = Path.Combine(rootFolderName, Path.GetFileName(dir));
-            if (currentFolders.Contains(rel)) continue;
+            if (currentFolders.Contains(rel))
+            {
+                continue;
+            }
+
             try
             {
                 DriveSecurity.AllowDeleteTree(dir);   // override the read-only deny on the subtree
                 foreach (var f in Directory.GetFiles(dir, "*", SearchOption.AllDirectories))
+                {
                     try { File.SetAttributes(f, FileAttributes.Normal); } catch { }
+                }
+
                 Directory.Delete(dir, recursive: true);
                 _index.DeleteByPathPrefix(rel + "\\");
                 Logger.Info("Removed orphaned folder {0}", rel);
@@ -256,7 +312,11 @@ public sealed class PlaceholderPopulator
 
     private static string SanitizeFolderName(string name)
     {
-        foreach (char c in Path.GetInvalidFileNameChars()) name = name.Replace(c, '_');
+        foreach (char c in Path.GetInvalidFileNameChars())
+        {
+            name = name.Replace(c, '_');
+        }
+
         name = name.Trim().TrimEnd('.', ' ');
         return name.Length == 0 ? "Unnamed" : name;
     }
@@ -271,7 +331,11 @@ public sealed class PlaceholderPopulator
     private bool TryResolveFromIndex(ImmichAsset asset)
     {
         var rows = _index.RowsForAsset(asset.Id);
-        if (rows.Count == 0) return false;
+        if (rows.Count == 0)
+        {
+            return false;
+        }
+
         var best = rows
             .OrderByDescending(r => !IsUnderReserved(r.RelPath)) // timeline copy → clean original name
             .ThenByDescending(r => r.Size > 0)                   // and a real size when available
@@ -314,7 +378,9 @@ public sealed class PlaceholderPopulator
                 {
                     used.Add(Path.GetFileName(rel));
                     if (!File.Exists(Path.Combine(_syncRootPath, rel)))
+                    {
                         CreatePlaceholder(favAbs, Path.GetFileName(rel), asset.Id, size, isVideo, asset.FileCreatedAt);
+                    }
                 }
             }
         }
@@ -322,7 +388,9 @@ public sealed class PlaceholderPopulator
         if (newAssets.Count > 0)
         {
             using (var sem = new SemaphoreSlim(EnrichConcurrency))
+            {
                 await Task.WhenAll(newAssets.Select(async a => { await sem.WaitAsync(ct); try { await _client.EnrichAsync(a, ct); } finally { sem.Release(); } }));
+            }
 
             var indexRows = new List<(string, string, bool, long)>();
             foreach (var asset in newAssets)
@@ -335,17 +403,29 @@ public sealed class PlaceholderPopulator
                 }
                 catch (Exception ex) { _otherFailures++; Logger.Warn(ex, "Favorite placeholder failed for asset {0}", asset.Id); }
             }
-            if (indexRows.Count > 0) _index.UpsertMany(indexRows);
+            if (indexRows.Count > 0)
+            {
+                _index.UpsertMany(indexRows);
+            }
         }
 
         if (allOk)
         {
             int pruned = 0;
             foreach (var (rel, assetId) in _index.RowsUnderPrefix(favPrefix))
+            {
                 if (!seenFav.Contains(assetId)) { DeletePlaceholder(rel); pruned++; }
-            if (pruned > 0) Logger.Info("Pruned {0} un-favorited placeholders", pruned);
+            }
+
+            if (pruned > 0)
+            {
+                Logger.Info("Pruned {0} un-favorited placeholders", pruned);
+            }
         }
-        if (allOk && _otherFailures == failuresBefore) _readyFolders.Add(favAbs);
+        if (allOk && _otherFailures == failuresBefore)
+        {
+            _readyFolders.Add(favAbs);
+        }
     }
 
     /// <summary>
@@ -357,7 +437,10 @@ public sealed class PlaceholderPopulator
         List<ImmichClient.PartnerRef> partners;
         try { partners = await _client.GetPartnersAsync(ct); }
         catch (Exception ex) { _otherFailures++; Logger.Warn(ex, "Listing partners failed"); return; }
-        if (partners.Count == 0) return; // none (or transient) → don't prune
+        if (partners.Count == 0)
+        {
+            return; // none (or transient) → don't prune
+        }
 
         string partnersRoot = EnsureFolder(PartnersFolderName);
         int failuresBefore = _otherFailures;
@@ -389,14 +472,24 @@ public sealed class PlaceholderPopulator
             {
                 int pruned = 0;
                 foreach (var (rel, assetId) in _index.RowsUnderPrefix(partnerRoot + Path.DirectorySeparatorChar))
+                {
                     if (!seen.Contains(assetId)) { DeletePlaceholder(rel); pruned++; }
-                if (pruned > 0) Logger.Info("Partner '{0}': pruned {1} removed assets", partner.Name, pruned);
+                }
+
+                if (pruned > 0)
+                {
+                    Logger.Info("Partner '{0}': pruned {1} removed assets", partner.Name, pruned);
+                }
+
                 _readyFolders.Add(partnerAbs);
             }
         }
 
         PruneOrphanFolders(PartnersFolderName, currentFolders);
-        if (_otherFailures == failuresBefore) _readyFolders.Add(partnersRoot);
+        if (_otherFailures == failuresBefore)
+        {
+            _readyFolders.Add(partnersRoot);
+        }
     }
 
     /// <summary>
@@ -454,7 +547,9 @@ public sealed class PlaceholderPopulator
                 string fn = Path.GetFileName(rel);
                 monthUsed.Add(fn);
                 if (!File.Exists(Path.Combine(_syncRootPath, rel)))
+                {
                     CreatePlaceholder(monthAbs, fn, asset.Id, size, isVideo, asset.FileCreatedAt);
+                }
             }
             onAsset?.Invoke();
         }
@@ -477,13 +572,20 @@ public sealed class PlaceholderPopulator
                 {
                     a.FileSizeBytes = m.Size;
                     a.Type = m.IsVideo ? "VIDEO" : "IMAGE";
-                    if (string.IsNullOrEmpty(a.OriginalFileName)) a.OriginalFileName = m.Name;
+                    if (string.IsNullOrEmpty(a.OriginalFileName))
+                    {
+                        a.OriginalFileName = m.Name;
+                    }
                 }
-                else toEnrich.Add(a);
+                else
+                {
+                    toEnrich.Add(a);
+                }
             }
         }
 
         if (toEnrich.Count > 0)
+        {
             using (var sem = new SemaphoreSlim(EnrichConcurrency))
             {
                 await Task.WhenAll(toEnrich.Select(async a =>
@@ -492,6 +594,7 @@ public sealed class PlaceholderPopulator
                     try { await _client.EnrichAsync(a, ct); } finally { sem.Release(); }
                 }));
             }
+        }
 
         var indexRows = new List<(string, string, bool, long)>();
         bool placeholdersOk = true;
@@ -508,8 +611,16 @@ public sealed class PlaceholderPopulator
             onAsset?.Invoke();
         }
 
-        if (indexRows.Count > 0) _index.UpsertMany(indexRows);
-        if (placeholdersOk) _readyFolders.Add(monthAbs);
+        if (indexRows.Count > 0)
+        {
+            _index.UpsertMany(indexRows);
+        }
+
+        if (placeholdersOk)
+        {
+            _readyFolders.Add(monthAbs);
+        }
+
         return placeholdersOk;
     }
 
@@ -559,7 +670,10 @@ public sealed class PlaceholderPopulator
                 continue;
             }
 
-            if (!CloudFolderState.MarkInSync(folder)) failed.Add(folder);
+            if (!CloudFolderState.MarkInSync(folder))
+            {
+                failed.Add(folder);
+            }
         }
 
         _otherFailures += failed.Count;
@@ -580,13 +694,20 @@ public sealed class PlaceholderPopulator
     /// <summary>Returns a name unique within <paramref name="used"/>, adding " (2)", " (3)", … on collision.</summary>
     private static string Disambiguate(string baseName, HashSet<string> used)
     {
-        if (used.Add(baseName)) return baseName;
+        if (used.Add(baseName))
+        {
+            return baseName;
+        }
+
         string stem = Path.GetFileNameWithoutExtension(baseName);
         string ext = Path.GetExtension(baseName);
         for (int i = 2; ; i++)
         {
             string candidate = $"{stem} ({i}){ext}";
-            if (used.Add(candidate)) return candidate;
+            if (used.Add(candidate))
+            {
+                return candidate;
+            }
         }
     }
 
@@ -596,7 +717,9 @@ public sealed class PlaceholderPopulator
         // A zero-length cloud file can never request the original bytes during hydration.
         // Leave it unindexed so the next populate can retry metadata enrichment.
         if (size <= 0)
+        {
             throw new InvalidOperationException($"Asset {assetId} has no usable file size");
+        }
 
         IntPtr identity = IntPtr.Zero;
         try
@@ -631,11 +754,16 @@ public sealed class PlaceholderPopulator
 
             int hr = CfCreatePlaceholders(baseDir, infos, 1, CF_CREATE_FLAGS.CF_CREATE_FLAG_NONE, out _);
             if (hr < 0 && hr != unchecked((int)0x800700B7)) // ignore "already exists"
+            {
                 throw new COMException($"CfCreatePlaceholders failed for {fileName}", hr);
+            }
         }
         finally
         {
-            if (identity != IntPtr.Zero) Marshal.FreeHGlobal(identity);
+            if (identity != IntPtr.Zero)
+            {
+                Marshal.FreeHGlobal(identity);
+            }
         }
     }
 }

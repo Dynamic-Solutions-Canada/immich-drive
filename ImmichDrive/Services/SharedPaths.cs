@@ -37,7 +37,10 @@ public static class SharedPaths
                 if (File.Exists(BreadcrumbPath))
                 {
                     string dir = File.ReadAllText(BreadcrumbPath).Trim();
-                    if (dir.Length > 0 && Directory.Exists(dir)) return dir;
+                    if (dir.Length > 0 && Directory.Exists(dir))
+                    {
+                        return dir;
+                    }
                 }
             }
             catch { /* fall through to default */ }

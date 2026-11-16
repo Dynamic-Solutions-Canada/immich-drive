@@ -21,13 +21,21 @@ public sealed partial class SettingsPage : Page
 
     private void ThemeCombo_SelectionChanged(object sender, SelectionChangedEventArgs e)
     {
-        if (_loading) return;
+        if (_loading)
+        {
+            return;
+        }
+
         ThemeManager.ApplyAndSaveTheme(ThemeCombo.SelectedIndex);
     }
 
     private void StartupToggle_Toggled(object sender, Microsoft.UI.Xaml.RoutedEventArgs e)
     {
-        if (_loading) return;
+        if (_loading)
+        {
+            return;
+        }
+
         SettingsManager.Current.Startup = StartupToggle.IsOn; // side-effect sets the Run key
         SettingsManager.SaveSettings();
     }

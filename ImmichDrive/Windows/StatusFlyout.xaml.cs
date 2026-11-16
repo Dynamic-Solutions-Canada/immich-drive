@@ -49,7 +49,9 @@ public sealed partial class StatusFlyout : Window
         DwmSetWindowAttribute(hwnd, DWMWA_WINDOW_CORNER_PREFERENCE, ref round, sizeof(int));
 
         if (File.Exists(App.IconImagePath))
+        {
             try { Icon.Source = new BitmapImage(new Uri(App.IconImagePath)); } catch { }
+        }
 
         Classes.ThemeManager.ApplySavedTheme(this);
         DriveManager.Current.StatusChanged += OnStatusChanged;
@@ -57,13 +59,19 @@ public sealed partial class StatusFlyout : Window
 
         Activated += (s, e) =>
         {
-            if (e.WindowActivationState == WindowActivationState.Deactivated) Close();
+            if (e.WindowActivationState == WindowActivationState.Deactivated)
+            {
+                Close();
+            }
         };
         Closed += (s, e) =>
         {
             _closed = true;
             DriveManager.Current.StatusChanged -= OnStatusChanged;
-            if (_instance == this) _instance = null;
+            if (_instance == this)
+            {
+                _instance = null;
+            }
         };
     }
 
@@ -75,7 +83,11 @@ public sealed partial class StatusFlyout : Window
 
     private void UpdateUi()
     {
-        if (_closed) return;
+        if (_closed)
+        {
+            return;
+        }
+
         var dm = DriveManager.Current;
         var (done, total) = dm.Progress;
         bool syncing = dm.Status == DriveStatus.Online && dm.IsPopulating;
@@ -134,7 +146,10 @@ public sealed partial class StatusFlyout : Window
         RetryText.Text = checking ? "Checking…" : "Try again";
         RefreshButton.IsEnabled = dm.Status == DriveStatus.Online;
 
-        if (_corner != null) Place();   // rows appear/disappear as the state changes — refit
+        if (_corner != null)
+        {
+            Place();   // rows appear/disappear as the state changes — refit
+        }
     }
 
     /// <summary>", last updated 12:04" when we ever got through this session, otherwise nothing.</summary>
@@ -178,7 +193,11 @@ public sealed partial class StatusFlyout : Window
         var desired = Root.DesiredSize;
         int w = (int)Math.Ceiling((desired.Width > 0 ? desired.Width : 300) * scale);
         int h = (int)Math.Ceiling((desired.Height > 0 ? desired.Height : 150) * scale);
-        if (_corner != null && (w, h) == _size) return;
+        if (_corner != null && (w, h) == _size)
+        {
+            return;
+        }
+
         _size = (w, h);
 
         if (_corner == null)
@@ -190,7 +209,10 @@ public sealed partial class StatusFlyout : Window
                 int margin = (int)(12 * scale);
                 _corner = (mi.rcWork.Right - margin, mi.rcWork.Bottom - margin);
             }
-            else _corner = (pt.X + w, pt.Y + h);
+            else
+            {
+                _corner = (pt.X + w, pt.Y + h);
+            }
         }
 
         _appWindow.MoveAndResize(new global::Windows.Graphics.RectInt32(_corner.Value.X - w, _corner.Value.Y - h, w, h));

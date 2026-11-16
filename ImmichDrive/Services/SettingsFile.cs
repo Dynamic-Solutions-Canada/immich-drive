@@ -23,12 +23,20 @@ public static class SettingsFile
         try
         {
             string path = SharedPaths.SettingsFilePath;
-            if (!File.Exists(path)) return null;
+            if (!File.Exists(path))
+            {
+                return null;
+            }
+
             using var doc = JsonDocument.Parse(File.ReadAllText(path));
             var root = doc.RootElement;
             string url = root.TryGetProperty("ServerUrl", out var u) ? u.GetString() ?? "" : "";
             string key = ReadApiKey(root);
-            if (url.Length == 0 || key.Length == 0) return null;
+            if (url.Length == 0 || key.Length == 0)
+            {
+                return null;
+            }
+
             return (url, key);
         }
         catch { return null; }
@@ -63,7 +71,9 @@ public static class SettingsFile
                 using var doc = JsonDocument.Parse(File.ReadAllText(path));
                 if (doc.RootElement.TryGetProperty("SyncRootPath", out var p) &&
                     p.GetString() is { Length: > 0 } s)
+                {
                     return s;
+                }
             }
         }
         catch { /* fall through */ }

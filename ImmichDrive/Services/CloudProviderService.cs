@@ -36,7 +36,10 @@ public sealed class CloudProviderService : IDisposable
 
     public void Connect(string syncRootPath)
     {
-        if (_connected) return;
+        if (_connected)
+        {
+            return;
+        }
 
         _onFetchData = OnFetchData;
         _onCancelFetchData = OnCancelFetchData;
@@ -63,7 +66,11 @@ public sealed class CloudProviderService : IDisposable
 
     public void Disconnect()
     {
-        if (!_connected) return;
+        if (!_connected)
+        {
+            return;
+        }
+
         CfDisconnectSyncRoot(_connectionKey);
         _connected = false;
         _table = null;
@@ -124,12 +131,18 @@ public sealed class CloudProviderService : IDisposable
             {
                 int want = (int)Math.Min(ChunkBytes, end - pos);
                 int read = await stream.ReadAtLeastAsync(buffer.AsMemory(0, want), want, throwOnEndOfStream: false);
-                if (read <= 0) break;
+                if (read <= 0)
+                {
+                    break;
+                }
+
                 TransferData(connKey, transferKey, requestKey, handle.AddrOfPinnedObject(), pos, read, STATUS_SUCCESS);
                 pos += read;
             }
             if (pos < end) // server returned less than promised
+            {
                 TransferData(connKey, transferKey, requestKey, handle.AddrOfPinnedObject(), pos, 0, STATUS_UNSUCCESSFUL);
+            }
         }
         catch (Exception ex)
         {
@@ -163,7 +176,10 @@ public sealed class CloudProviderService : IDisposable
             Length = length,
         };
         int hr = CfExecute(in opInfo, ref opParams);
-        if (hr < 0) Logger.Warn("CfExecute(TRANSFER_DATA) 0x{0:X8} at offset {1}", hr, offset);
+        if (hr < 0)
+        {
+            Logger.Warn("CfExecute(TRANSFER_DATA) 0x{0:X8} at offset {1}", hr, offset);
+        }
     }
 
     private static string ReadFileIdentity(CF_CALLBACK_INFO info)
@@ -171,7 +187,10 @@ public sealed class CloudProviderService : IDisposable
         // The identity is a short UTF-8 GUID string; bound the length defensively so a bad value
         // can never read protected memory.
         if (info.FileIdentity == IntPtr.Zero || info.FileIdentityLength == 0 || info.FileIdentityLength > 4096)
+        {
             return "";
+        }
+
         var bytes = new byte[info.FileIdentityLength];
         Marshal.Copy(info.FileIdentity, bytes, 0, bytes.Length);
         return Encoding.UTF8.GetString(bytes).TrimEnd('\0');

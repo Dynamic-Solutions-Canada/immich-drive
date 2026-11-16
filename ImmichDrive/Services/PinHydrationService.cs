@@ -43,9 +43,11 @@ public sealed class PinHydrationService : IDisposable
         get
         {
             lock (_progressLock)
+            {
                 return (_completedTrackedFiles.Count, _trackedFiles.Count,
                     _trackedFiles.Count > _completedTrackedFiles.Count ||
                     Volatile.Read(ref _scanning) != 0 || Volatile.Read(ref _busy) != 0);
+            }
         }
     }
 
@@ -87,13 +89,18 @@ public sealed class PinHydrationService : IDisposable
             FileAttributes attributes = File.GetAttributes(path);
             if ((attributes & FileAttributes.Directory) != 0)
             {
-                if ((attributes & Pinned) != 0) Queue(path);
+                if ((attributes & Pinned) != 0)
+                {
+                    Queue(path);
+                }
             }
             else
             {
                 bool needsDownload = NeedsHydration(attributes) && IsPinned(path, attributes);
                 if ((attributes & Unpinned) != 0 || needsDownload)
+                {
                     Queue(path, trackHydration: needsDownload);
+                }
             }
         }
         catch (Exception ex) when (ex is IOException or UnauthorizedAccessException) { }
@@ -107,9 +114,16 @@ public sealed class PinHydrationService : IDisposable
             relative.StartsWith(".." + Path.DirectorySeparatorChar, StringComparison.Ordinal) ||
             relative.Equals(UploadService.UploadFolderName, StringComparison.OrdinalIgnoreCase) ||
             relative.StartsWith(UploadService.UploadFolderName + Path.DirectorySeparatorChar,
-                StringComparison.OrdinalIgnoreCase)) return;
+                StringComparison.OrdinalIgnoreCase))
+        {
+            return;
+        }
+
         _pending[path] = Interlocked.Increment(ref _changeNumber);
-        if (!trackHydration) return;
+        if (!trackHydration)
+        {
+            return;
+        }
 
         lock (_progressLock)
         {
@@ -123,7 +137,9 @@ public sealed class PinHydrationService : IDisposable
                  folder != null && !folder.Equals(_root, StringComparison.OrdinalIgnoreCase) &&
                  folder.StartsWith(_root + Path.DirectorySeparatorChar, StringComparison.OrdinalIgnoreCase);
                  folder = Path.GetDirectoryName(folder))
+            {
                 _foldersToRefresh.Add(folder);
+            }
         }
     }
 
@@ -131,19 +147,27 @@ public sealed class PinHydrationService : IDisposable
     private void RequestScan()
     {
         Interlocked.Exchange(ref _scanRequested, 1);
-        if (Interlocked.CompareExchange(ref _scanning, 1, 0) != 0) return;
+        if (Interlocked.CompareExchange(ref _scanning, 1, 0) != 0)
+        {
+            return;
+        }
+
         _ = Task.Run(() =>
         {
             try
             {
                 while (!_stop.IsCancellationRequested && Interlocked.Exchange(ref _scanRequested, 0) != 0)
+                {
                     ScanPinnedFiles();
+                }
             }
             finally
             {
                 Interlocked.Exchange(ref _scanning, 0);
                 if (!_stop.IsCancellationRequested && Volatile.Read(ref _scanRequested) != 0)
+                {
                     RequestScan();
+                }
             }
         });
     }
@@ -153,7 +177,11 @@ public sealed class PinHydrationService : IDisposable
     {
         try
         {
-            if ((File.GetAttributes(_root) & Pinned) != 0) Queue(_root);
+            if ((File.GetAttributes(_root) & Pinned) != 0)
+            {
+                Queue(_root);
+            }
+
             var dirs = new Stack<string>();
             dirs.Push(_root);
             while (dirs.Count > 0 && !_stop.IsCancellationRequested)
@@ -163,16 +191,31 @@ public sealed class PinHydrationService : IDisposable
                 {
                     foreach (string child in Directory.EnumerateFileSystemEntries(dir))
                     {
-                        if (_stop.IsCancellationRequested) return;
+                        if (_stop.IsCancellationRequested)
+                        {
+                            return;
+                        }
+
                         if (child.Equals(Path.Combine(_root, UploadService.UploadFolderName),
-                                StringComparison.OrdinalIgnoreCase)) continue;
+                                StringComparison.OrdinalIgnoreCase))
+                        {
+                            continue;
+                        }
+
                         try
                         {
                             FileAttributes attributes = File.GetAttributes(child);
                             if ((attributes & FileAttributes.Directory) != 0)
                             {
-                                if ((attributes & Pinned) != 0) Queue(child);
-                                if (CanTraverseFolder(child)) dirs.Push(child);
+                                if ((attributes & Pinned) != 0)
+                                {
+                                    Queue(child);
+                                }
+
+                                if (CanTraverseFolder(child))
+                                {
+                                    dirs.Push(child);
+                                }
                             }
                             else if ((attributes & Pinned) != 0 && NeedsHydration(attributes))
                             {
@@ -195,7 +238,11 @@ public sealed class PinHydrationService : IDisposable
     /// <summary>Bound concurrent downloads so folder pins make progress without flooding Immich.</summary>
     private void ProcessPending()
     {
-        if (!_canHydrate() || Interlocked.Exchange(ref _busy, 1) != 0) return;
+        if (!_canHydrate() || Interlocked.Exchange(ref _busy, 1) != 0)
+        {
+            return;
+        }
+
         try
         {
             Parallel.ForEach(_pending,
@@ -212,13 +259,21 @@ public sealed class PinHydrationService : IDisposable
     /// <summary>Recheck current pin and disk state before each request; events may arrive meanwhile.</summary>
     private void ProcessPendingItem(string path, long version)
     {
-        if (_stop.IsCancellationRequested || !_canHydrate()) return;
+        if (_stop.IsCancellationRequested || !_canHydrate())
+        {
+            return;
+        }
+
         try
         {
             FileAttributes attributes = File.GetAttributes(path);
             if ((attributes & FileAttributes.Directory) != 0)
             {
-                if ((attributes & Pinned) != 0) QueuePinnedFolder(path);
+                if ((attributes & Pinned) != 0)
+                {
+                    QueuePinnedFolder(path);
+                }
+
                 RemovePending(path, version);
                 return;
             }
@@ -267,7 +322,10 @@ public sealed class PinHydrationService : IDisposable
     {
         lock (_progressLock)
         {
-            if (_trackedFiles.Contains(path)) _completedTrackedFiles.Add(path);
+            if (_trackedFiles.Contains(path))
+            {
+                _completedTrackedFiles.Add(path);
+            }
         }
     }
 
@@ -298,7 +356,11 @@ public sealed class PinHydrationService : IDisposable
                 }
             }
         }
-        if (current == _lastReportedProgress) return;
+        if (current == _lastReportedProgress)
+        {
+            return;
+        }
+
         _lastReportedProgress = current;
         ProgressChanged?.Invoke();
     }
@@ -307,18 +369,26 @@ public sealed class PinHydrationService : IDisposable
     private void RefreshCompletedFolders()
     {
         if (!_pending.IsEmpty || Volatile.Read(ref _scanning) != 0 || _stop.IsCancellationRequested)
+        {
             return;
+        }
 
         string[] folders;
         lock (_progressLock)
         {
-            if (!_pending.IsEmpty) return;
+            if (!_pending.IsEmpty)
+            {
+                return;
+            }
+
             folders = _foldersToRefresh.OrderByDescending(path => path.Length).ToArray();
             _foldersToRefresh.Clear();
         }
 
         foreach (string folder in folders)
+        {
             CloudFolderState.RefreshExisting(folder);
+        }
     }
 
     /// <summary>Cloud folder placeholders are reparse points; only links must be skipped.</summary>
@@ -329,27 +399,52 @@ public sealed class PinHydrationService : IDisposable
     {
         bool hadFailures = HasFailures;
         _failed[path] = 0;
-        if (!hadFailures) FailureStateChanged?.Invoke();
+        if (!hadFailures)
+        {
+            FailureStateChanged?.Invoke();
+        }
     }
 
     private void ClearFailure(string path)
     {
-        if (_failed.TryRemove(path, out _) && !HasFailures) FailureStateChanged?.Invoke();
+        if (_failed.TryRemove(path, out _) && !HasFailures)
+        {
+            FailureStateChanged?.Invoke();
+        }
     }
 
     /// <summary>A pinned parent folder also requests its descendants be kept locally.</summary>
     private bool IsPinned(string path, FileAttributes attributes)
     {
-        if ((attributes & Unpinned) != 0) return false;
-        if ((attributes & Pinned) != 0) return true;
+        if ((attributes & Unpinned) != 0)
+        {
+            return false;
+        }
+
+        if ((attributes & Pinned) != 0)
+        {
+            return true;
+        }
+
         for (string? parent = Path.GetDirectoryName(path);
              parent != null && parent.StartsWith(_root, StringComparison.OrdinalIgnoreCase);
              parent = Path.GetDirectoryName(parent))
         {
             FileAttributes parentAttributes = File.GetAttributes(parent);
-            if ((parentAttributes & Unpinned) != 0) return false;
-            if ((parentAttributes & Pinned) != 0) return true;
-            if (parent.Equals(_root, StringComparison.OrdinalIgnoreCase)) break;
+            if ((parentAttributes & Unpinned) != 0)
+            {
+                return false;
+            }
+
+            if ((parentAttributes & Pinned) != 0)
+            {
+                return true;
+            }
+
+            if (parent.Equals(_root, StringComparison.OrdinalIgnoreCase))
+            {
+                break;
+            }
         }
         return false;
     }
@@ -359,7 +454,10 @@ public sealed class PinHydrationService : IDisposable
     {
         if (!folder.Equals(_root, StringComparison.OrdinalIgnoreCase))
         {
-            lock (_progressLock) _foldersToRefresh.Add(folder);
+            lock (_progressLock)
+            {
+                _foldersToRefresh.Add(folder);
+            }
         }
         try
         {
@@ -372,15 +470,26 @@ public sealed class PinHydrationService : IDisposable
                 {
                     foreach (string path in Directory.EnumerateFileSystemEntries(dir))
                     {
-                        if (_stop.IsCancellationRequested) return;
+                        if (_stop.IsCancellationRequested)
+                        {
+                            return;
+                        }
+
                         if (path.Equals(Path.Combine(_root, UploadService.UploadFolderName),
-                                StringComparison.OrdinalIgnoreCase)) continue;
+                                StringComparison.OrdinalIgnoreCase))
+                        {
+                            continue;
+                        }
+
                         try
                         {
                             FileAttributes attributes = File.GetAttributes(path);
                             if ((attributes & FileAttributes.Directory) != 0)
                             {
-                                if (CanTraverseFolder(path)) dirs.Push(path);
+                                if (CanTraverseFolder(path))
+                                {
+                                    dirs.Push(path);
+                                }
                             }
                             else if (NeedsHydration(attributes) && IsPinned(path, attributes))
                             {

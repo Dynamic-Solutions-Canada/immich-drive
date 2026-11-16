@@ -41,8 +41,16 @@ public sealed class ImmichClient : IDisposable
     public static string NormalizeApiBase(string serverUrl)
     {
         string s = (serverUrl ?? "").Trim().TrimEnd('/');
-        if (s.Length == 0) return s;
-        if (!s.EndsWith("/api", StringComparison.OrdinalIgnoreCase)) s += "/api";
+        if (s.Length == 0)
+        {
+            return s;
+        }
+
+        if (!s.EndsWith("/api", StringComparison.OrdinalIgnoreCase))
+        {
+            s += "/api";
+        }
+
         return s;
     }
 
@@ -58,8 +66,15 @@ public sealed class ImmichClient : IDisposable
         {
             using var resp = await _http.GetAsync($"{ApiBase}/users/me", ct);
             if (resp.StatusCode is System.Net.HttpStatusCode.Unauthorized or System.Net.HttpStatusCode.Forbidden)
+            {
                 return (ImmichReachability.Unauthorized, null);
-            if (!resp.IsSuccessStatusCode) return (ImmichReachability.Unreachable, null);
+            }
+
+            if (!resp.IsSuccessStatusCode)
+            {
+                return (ImmichReachability.Unreachable, null);
+            }
+
             await using var stream = await resp.Content.ReadAsStreamAsync(ct);
             using var doc = await JsonDocument.ParseAsync(stream, cancellationToken: ct);
             var root = doc.RootElement;
@@ -81,11 +96,21 @@ public sealed class ImmichClient : IDisposable
         // An album timeline is scoped by albumId alone — the isArchived/isTrashed filters would drop
         // assets the album legitimately contains, so its count wouldn't match the album's assetCount.
         if (!string.IsNullOrEmpty(albumId))
+        {
             return "size=MONTH&albumId=" + Uri.EscapeDataString(albumId);
+        }
 
         string q = "size=MONTH&isTrashed=false&isArchived=false";
-        if (!string.IsNullOrEmpty(userId)) q += "&userId=" + Uri.EscapeDataString(userId);
-        if (isFavorite == true) q += "&isFavorite=true";
+        if (!string.IsNullOrEmpty(userId))
+        {
+            q += "&userId=" + Uri.EscapeDataString(userId);
+        }
+
+        if (isFavorite == true)
+        {
+            q += "&isFavorite=true";
+        }
+
         return q;
     }
 
@@ -105,7 +130,9 @@ public sealed class ImmichClient : IDisposable
             int count = el.TryGetProperty("count", out var c) && c.TryGetInt32(out var ci) ? ci : 0;
             if (tb != null && DateTimeOffset.TryParse(tb, System.Globalization.CultureInfo.InvariantCulture,
                     System.Globalization.DateTimeStyles.AssumeUniversal | System.Globalization.DateTimeStyles.AdjustToUniversal, out var dto))
+            {
                 result.Add(new BucketRef(tb, dto, count));
+            }
         }
         // Newest first (the API usually returns this order already).
         result.Sort((a, b) => b.Date.CompareTo(a.Date));
@@ -143,11 +170,21 @@ public sealed class ImmichClient : IDisposable
                 Type = GetStr(el, "type") ?? "IMAGE",
                 OriginalFileName = GetStr(el, "originalFileName") ?? "",
             };
-            if (DateTimeOffset.TryParse(GetStr(el, "fileCreatedAt"), out var dto)) a.FileCreatedAt = dto;
+            if (DateTimeOffset.TryParse(GetStr(el, "fileCreatedAt"), out var dto))
+            {
+                a.FileCreatedAt = dto;
+            }
+
             if (el.TryGetProperty("exifInfo", out var exif) && exif.ValueKind == JsonValueKind.Object &&
                 exif.TryGetProperty("fileSizeInByte", out var sz) && sz.TryGetInt64(out var szv))
+            {
                 a.FileSizeBytes = szv;
-            if (!string.IsNullOrEmpty(a.Id)) list.Add(a);
+            }
+
+            if (!string.IsNullOrEmpty(a.Id))
+            {
+                list.Add(a);
+            }
         }
         return list;
     }
@@ -156,7 +193,9 @@ public sealed class ImmichClient : IDisposable
     {
         var list = new List<ImmichAsset>();
         if (!obj.TryGetProperty("id", out var ids) || ids.ValueKind != JsonValueKind.Array)
+        {
             return list;
+        }
 
         var idArr = ids.EnumerateArray().ToArray();
         string[]? created = GetArray(obj, "fileCreatedAt");
@@ -167,18 +206,34 @@ public sealed class ImmichClient : IDisposable
         for (int i = 0; i < idArr.Length; i++)
         {
             var a = new ImmichAsset { Id = idArr[i].GetString() ?? "" };
-            if (a.Id.Length == 0) continue;
+            if (a.Id.Length == 0)
+            {
+                continue;
+            }
 
             if (created != null && i < created.Length && DateTimeOffset.TryParse(created[i], out var dto))
+            {
                 a.FileCreatedAt = dto;
+            }
 
             bool image = true;
-            if (isImage != null && i < isImage.Length && isImage[i].ValueKind == JsonValueKind.False) image = false;
+            if (isImage != null && i < isImage.Length && isImage[i].ValueKind == JsonValueKind.False)
+            {
+                image = false;
+            }
             else if (durations != null && i < durations.Length && durations[i].ValueKind == JsonValueKind.String &&
-                     durations[i].GetString() is { Length: > 0 } d && d != "0:00:00.00000") image = false;
+                     durations[i].GetString() is { Length: > 0 } d && d != "0:00:00.00000")
+            {
+                image = false;
+            }
+
             a.Type = image ? "IMAGE" : "VIDEO";
 
-            if (names != null && i < names.Length && !string.IsNullOrEmpty(names[i])) a.OriginalFileName = names[i]!;
+            if (names != null && i < names.Length && !string.IsNullOrEmpty(names[i]))
+            {
+                a.OriginalFileName = names[i]!;
+            }
+
             list.Add(a);
         }
         return list;
@@ -192,15 +247,26 @@ public sealed class ImmichClient : IDisposable
     {
         var result = new List<PartnerRef>();
         using var resp = await _http.GetAsync($"{ApiBase}/partners?direction=shared-with", ct);
-        if (!resp.IsSuccessStatusCode) return result;
+        if (!resp.IsSuccessStatusCode)
+        {
+            return result;
+        }
+
         await using var stream = await resp.Content.ReadAsStreamAsync(ct);
         using var doc = await JsonDocument.ParseAsync(stream, cancellationToken: ct);
-        if (doc.RootElement.ValueKind != JsonValueKind.Array) return result;
+        if (doc.RootElement.ValueKind != JsonValueKind.Array)
+        {
+            return result;
+        }
+
         foreach (var el in doc.RootElement.EnumerateArray())
         {
             string? id = GetStr(el, "id");
             string name = GetStr(el, "name") ?? GetStr(el, "email") ?? "Partner";
-            if (!string.IsNullOrEmpty(id)) result.Add(new PartnerRef(id, name));
+            if (!string.IsNullOrEmpty(id))
+            {
+                result.Add(new PartnerRef(id, name));
+            }
         }
         return result;
     }
@@ -213,15 +279,26 @@ public sealed class ImmichClient : IDisposable
     {
         var result = new List<AlbumRef>();
         using var resp = await _http.GetAsync($"{ApiBase}/albums", ct);
-        if (!resp.IsSuccessStatusCode) return result;
+        if (!resp.IsSuccessStatusCode)
+        {
+            return result;
+        }
+
         await using var stream = await resp.Content.ReadAsStreamAsync(ct);
         using var doc = await JsonDocument.ParseAsync(stream, cancellationToken: ct);
-        if (doc.RootElement.ValueKind != JsonValueKind.Array) return result;
+        if (doc.RootElement.ValueKind != JsonValueKind.Array)
+        {
+            return result;
+        }
+
         foreach (var el in doc.RootElement.EnumerateArray())
         {
             string? id = GetStr(el, "id");
             string? name = GetStr(el, "albumName");
-            if (!string.IsNullOrEmpty(id)) result.Add(new AlbumRef(id, name ?? "Album"));
+            if (!string.IsNullOrEmpty(id))
+            {
+                result.Add(new AlbumRef(id, name ?? "Album"));
+            }
         }
         return result;
     }
@@ -251,14 +328,24 @@ public sealed class ImmichClient : IDisposable
         try
         {
             using var resp = await _http.GetAsync($"{ApiBase}/assets/{a.Id}", ct);
-            if (!resp.IsSuccessStatusCode) return;
+            if (!resp.IsSuccessStatusCode)
+            {
+                return;
+            }
+
             await using var stream = await resp.Content.ReadAsStreamAsync(ct);
             using var doc = await JsonDocument.ParseAsync(stream, cancellationToken: ct);
             var el = doc.RootElement;
-            if (string.IsNullOrEmpty(a.OriginalFileName)) a.OriginalFileName = GetStr(el, "originalFileName") ?? a.OriginalFileName;
+            if (string.IsNullOrEmpty(a.OriginalFileName))
+            {
+                a.OriginalFileName = GetStr(el, "originalFileName") ?? a.OriginalFileName;
+            }
+
             if (a.FileSizeBytes == 0 && el.TryGetProperty("exifInfo", out var exif) && exif.ValueKind == JsonValueKind.Object &&
                 exif.TryGetProperty("fileSizeInByte", out var sz) && sz.TryGetInt64(out var szv))
+            {
                 a.FileSizeBytes = szv;
+            }
         }
         catch { /* best effort */ }
     }
@@ -291,7 +378,11 @@ public sealed class ImmichClient : IDisposable
         try
         {
             using var resp = await _http.GetAsync($"{ApiBase}/assets/{assetId}/thumbnail?size={size}", ct);
-            if (!resp.IsSuccessStatusCode) return null;
+            if (!resp.IsSuccessStatusCode)
+            {
+                return null;
+            }
+
             return await resp.Content.ReadAsByteArrayAsync(ct);
         }
         catch { return null; }

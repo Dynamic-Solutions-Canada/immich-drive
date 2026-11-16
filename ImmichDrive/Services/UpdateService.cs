@@ -68,15 +68,23 @@ public static class UpdateService
             using var resp = await Http.GetAsync(LatestReleaseUri);
             // No releases published yet → you already have the latest.
             if (resp.StatusCode == HttpStatusCode.NotFound)
+            {
                 return new UpdateCheckResult { CurrentVersion = CurrentVersion(), LatestVersion = CurrentVersion() };
+            }
 
             resp.EnsureSuccessStatusCode();
             var release = await resp.Content.ReadFromJsonAsync(GitHubJsonContext.Default.GitHubRelease);
-            if (release == null || string.IsNullOrWhiteSpace(release.TagName)) return null;
+            if (release == null || string.IsNullOrWhiteSpace(release.TagName))
+            {
+                return null;
+            }
 
             var current = ParseVersion(CurrentVersion());
             var latest = ParseVersion(release.TagName);
-            if (current == null || latest == null) return null;
+            if (current == null || latest == null)
+            {
+                return null;
+            }
 
             return new UpdateCheckResult
             {

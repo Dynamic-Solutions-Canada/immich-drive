@@ -57,9 +57,13 @@ public sealed partial class MainWindow : Window
 
         // First run with no config → show settings; otherwise connect the drive in the background.
         if (DriveManager.Current.IsConfigured)
+        {
             _ = DriveManager.Current.ConnectAsync();
+        }
         else
+        {
             ShowSettings();
+        }
     }
 
     /// <summary>
@@ -100,7 +104,10 @@ public sealed partial class MainWindow : Window
         string path = muted ? App.OfflineIconPath : App.IconPath;
         _hIcon = LoadImage(IntPtr.Zero, path, IMAGE_ICON, 32, 32, LR_LOADFROMFILE);
         if (_hIcon == IntPtr.Zero && muted)   // muted variant missing — better the normal icon than none
+        {
             _hIcon = LoadImage(IntPtr.Zero, App.IconPath, IMAGE_ICON, 32, 32, LR_LOADFROMFILE);
+        }
+
         _mutedIconShown = muted;
     }
 
@@ -110,7 +117,11 @@ public sealed partial class MainWindow : Window
     /// </summary>
     private void UpdateTray()
     {
-        if (!_trayAdded) return;
+        if (!_trayAdded)
+        {
+            return;
+        }
+
         var dm = DriveManager.Current;
 
         bool muted = WantsMutedIcon;
@@ -143,7 +154,11 @@ public sealed partial class MainWindow : Window
 
     private void RemoveTrayIcon()
     {
-        if (!_trayAdded) return;
+        if (!_trayAdded)
+        {
+            return;
+        }
+
         var data = NewIconData();
         Shell_NotifyIcon(NIM_DELETE, ref data);
         _trayAdded = false;
@@ -165,7 +180,11 @@ public sealed partial class MainWindow : Window
 
     private void OnDriveStatusChanged()
     {
-        if (_tipUpdatePending) return;
+        if (_tipUpdatePending)
+        {
+            return;
+        }
+
         long now = Environment.TickCount64;
         long since = now - _lastTipTicks;
         if (since >= 750)
@@ -267,8 +286,15 @@ public sealed partial class MainWindow : Window
             case CmdRefresh: dm.Refresh(); break;
             case CmdRetry: _ = dm.RetryConnectionAsync(); break;
             case CmdToggle:
-                if (driveOn) dm.Disconnect();
-                else _ = dm.ConnectAsync();
+                if (driveOn)
+                {
+                    dm.Disconnect();
+                }
+                else
+                {
+                    _ = dm.ConnectAsync();
+                }
+
                 break;
             case CmdExit: ExitApp(); break;
         }
@@ -292,7 +318,11 @@ public sealed partial class MainWindow : Window
     {
         DriveManager.Current.StatusChanged -= OnDriveStatusChanged;
         RemoveTrayIcon();
-        if (_subclass != null) RemoveWindowSubclass(_hwnd, _subclass, IntPtr.Zero);
+        if (_subclass != null)
+        {
+            RemoveWindowSubclass(_hwnd, _subclass, IntPtr.Zero);
+        }
+
         Application.Current.Exit();
     }
 }

@@ -41,13 +41,18 @@ internal static partial class CloudFolderState
         try
         {
             var directory = new DirectoryInfo(path);
-            if (!directory.Exists || directory.LinkTarget != null) return false;
+            if (!directory.Exists || directory.LinkTarget != null)
+            {
+                return false;
+            }
 
             bool isPlaceholder = (directory.Attributes & FileAttributes.ReparsePoint) != 0;
             using SafeFileHandle handle = OpenDirectory(path, WriteDac, ShareReadWriteDelete,
                 IntPtr.Zero, OpenExisting, FileFlagBackupSemantics, IntPtr.Zero);
             if (handle.IsInvalid)
+            {
                 throw new Win32Exception(Marshal.GetLastPInvokeError());
+            }
 
             var state = inSync
                 ? CfApi.CF_IN_SYNC_STATE.CF_IN_SYNC_STATE_IN_SYNC
@@ -62,7 +67,9 @@ internal static partial class CloudFolderState
                 : CfApi.CfConvertToPlaceholder(handle, IntPtr.Zero, 0,
                     flags, IntPtr.Zero, IntPtr.Zero);
             if (hr < 0)
+            {
                 throw new COMException($"Cloud folder state update failed for {path}", hr);
+            }
 
             DriveSecurity.NotifyFolderChanged(path);
             return true;
@@ -85,7 +92,9 @@ internal static partial class CloudFolderState
             var directory = new DirectoryInfo(path);
             if (directory.Exists && directory.LinkTarget == null &&
                 (directory.Attributes & FileAttributes.ReparsePoint) != 0)
+            {
                 MarkInSync(path);
+            }
         }
         catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
         {

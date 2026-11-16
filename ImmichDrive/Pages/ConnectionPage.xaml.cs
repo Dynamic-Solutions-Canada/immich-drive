@@ -99,12 +99,18 @@ public sealed partial class ConnectionPage : Page
             panel.Children.Add(new TextBlock { Text = label });
             panel.Children.Add(new TextBlock { Text = path, Opacity = 0.7, FontSize = 12, TextWrapping = TextWrapping.Wrap });
             radios.Items.Add(new RadioButton { Content = panel });
-            if (select) radios.SelectedIndex = idx;
+            if (select)
+            {
+                radios.SelectedIndex = idx;
+            }
         }
 
         // Surface the current location first (pre-selected) when it isn't one of the presets.
         if (!PathsEqual(current, home) && !PathsEqual(current, pics))
+        {
             AddOption("Current location", current, select: true);
+        }
+
         AddOption("Home folder", home, select: PathsEqual(current, home));
         AddOption("Pictures", pics, select: PathsEqual(current, pics));
 
@@ -114,20 +120,32 @@ public sealed partial class ConnectionPage : Page
             var picker = new FolderPicker { SuggestedStartLocation = PickerLocationId.PicturesLibrary };
             picker.FileTypeFilter.Add("*");
             var window = SettingsWindow.GetCurrent();
-            if (window == null) return;
+            if (window == null)
+            {
+                return;
+            }
+
             InitializeWithWindow.Initialize(picker, WindowNative.GetWindowHandle(window));
             var folder = await picker.PickSingleFolderAsync();
-            if (folder != null) AddOption("Chosen folder", folder.Path, select: true);
+            if (folder != null)
+            {
+                AddOption("Chosen folder", folder.Path, select: true);
+            }
         };
 
         var content = new StackPanel { Spacing = 4 };
         if (online)
+        {
             content.Children.Add(new TextBlock
             {
                 Text = "Your photos re-appear at the new location and the old folder is removed. " +
                        "Nothing is deleted from Immich.",
-                Opacity = 0.7, TextWrapping = TextWrapping.Wrap, Margin = new Thickness(0, 0, 0, 8),
+                Opacity = 0.7,
+                TextWrapping = TextWrapping.Wrap,
+                Margin = new Thickness(0, 0, 0, 8),
             });
+        }
+
         content.Children.Add(radios);
         content.Children.Add(browseButton);
 
@@ -141,12 +159,22 @@ public sealed partial class ConnectionPage : Page
             XamlRoot = XamlRoot,
         };
 
-        if (await dialog.ShowAsync() != ContentDialogResult.Primary) return;
+        if (await dialog.ShowAsync() != ContentDialogResult.Primary)
+        {
+            return;
+        }
 
         int sel = radios.SelectedIndex;
-        if (sel < 0 || sel >= paths.Count) return;
+        if (sel < 0 || sel >= paths.Count)
+        {
+            return;
+        }
+
         string chosen = paths[sel];
-        if (PathsEqual(chosen, current)) return; // no change
+        if (PathsEqual(chosen, current))
+        {
+            return; // no change
+        }
 
         s.SyncRootPath = chosen;
         SettingsManager.SaveSettings();
@@ -155,7 +183,10 @@ public sealed partial class ConnectionPage : Page
         // If the drive is live, reconnecting relocates it: SyncRootService re-registers at the new
         // path and DriveManager retires (and deletes) the old folder. Otherwise the new path just
         // takes effect on the next Connect.
-        if (online) await MoveDriveAsync();
+        if (online)
+        {
+            await MoveDriveAsync();
+        }
     }
 
     private async Task MoveDriveAsync()

@@ -22,8 +22,14 @@ internal static class StartupManager
             try
             {
                 var task = await StartupTask.GetAsync(TaskId);
-                if (enabled) await task.RequestEnableAsync();
-                else task.Disable();
+                if (enabled)
+                {
+                    await task.RequestEnableAsync();
+                }
+                else
+                {
+                    task.Disable();
+                }
             }
             catch
             {
@@ -50,11 +56,18 @@ internal static class StartupManager
         try
         {
             using var key = Registry.CurrentUser.OpenSubKey(RunKey, writable: true);
-            if (key == null) return;
+            if (key == null)
+            {
+                return;
+            }
+
             if (enabled)
             {
                 string? exe = Environment.ProcessPath;
-                if (exe != null) key.SetValue(ValueName, $"\"{exe}\"");
+                if (exe != null)
+                {
+                    key.SetValue(ValueName, $"\"{exe}\"");
+                }
             }
             else if (key.GetValue(ValueName) != null)
             {

@@ -34,10 +34,15 @@ public sealed class ImmichAsset
     {
         string name = OriginalFileName;
         if (string.IsNullOrWhiteSpace(name))
+        {
             name = (Id.Length >= 8 ? Id[..8] : Id) + (IsVideo ? ".mp4" : ".jpg");
+        }
 
         foreach (char c in System.IO.Path.GetInvalidFileNameChars())
+        {
             name = name.Replace(c, '_');
+        }
+
         return name;
     }
 }

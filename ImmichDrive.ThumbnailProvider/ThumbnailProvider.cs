@@ -17,8 +17,11 @@ namespace ImmichDrive.ThumbnailProvider;
 [ClassInterface(ClassInterfaceType.None)]
 public sealed class ImmichThumbnailProvider : IThumbnailProvider, IInitializeWithItem
 {
+    // HRESULT values keep their Win32 names so they read the same as the COM documentation.
+#pragma warning disable IDE1006
     private const int S_OK = 0;
     private const int E_FAIL = unchecked((int)0x80004005);
+#pragma warning restore IDE1006
     private static readonly TimeSpan HttpTimeout = TimeSpan.FromSeconds(5);
 
     private string? _path;
@@ -93,7 +96,11 @@ public sealed class ImmichThumbnailProvider : IThumbnailProvider, IInitializeWit
     {
         using var src = (Bitmap)Image.FromStream(new MemoryStream(bytes));
         double ratio = Math.Min((double)cx / src.Width, (double)cx / src.Height);
-        if (ratio <= 0 || double.IsInfinity(ratio)) ratio = 1;
+        if (ratio <= 0 || double.IsInfinity(ratio))
+        {
+            ratio = 1;
+        }
+
         int w = Math.Max(1, (int)Math.Round(src.Width * ratio));
         int h = Math.Max(1, (int)Math.Round(src.Height * ratio));
 

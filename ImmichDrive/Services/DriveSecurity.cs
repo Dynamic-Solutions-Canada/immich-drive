@@ -56,9 +56,16 @@ public static partial class DriveSecurity
             bool correct = rules.Count == 1 &&
                 (rules[0].FileSystemRights & ~FileSystemRights.Synchronize) == DeniedContentRights &&
                 rules[0].PropagationFlags == PropagationFlags.None;
-            if (correct) return;
+            if (correct)
+            {
+                return;
+            }
 
-            foreach (var rule in rules) security.RemoveAccessRuleSpecific(rule);
+            foreach (var rule in rules)
+            {
+                security.RemoveAccessRuleSpecific(rule);
+            }
+
             security.AddAccessRule(new FileSystemAccessRule(CurrentUser, DeniedContentRights,
                 InheritanceFlags.ContainerInherit | InheritanceFlags.ObjectInherit,
                 PropagationFlags.None, AccessControlType.Deny));
@@ -72,7 +79,9 @@ public static partial class DriveSecurity
     public static void RemoveReadOnly(string syncRoot)
     {
         if (RunIcacls($"\"{syncRoot}\" /remove:d *{CurrentSid}"))
+        {
             Logger.Info("Removed read-only deny ACE from {0}", syncRoot);
+        }
     }
 
     /// <summary>Creates the Upload folder and makes it writable (breaks inheritance of the deny, grants full control).</summary>
@@ -97,7 +106,11 @@ public static partial class DriveSecurity
             string content = $"[.ShellClassInfo]\r\nIconResource={icoPath},0\r\nConfirmFileOp=0\r\n";
             if (!File.Exists(ini) || File.ReadAllText(ini) != content)
             {
-                if (File.Exists(ini)) File.SetAttributes(ini, FileAttributes.Normal);
+                if (File.Exists(ini))
+                {
+                    File.SetAttributes(ini, FileAttributes.Normal);
+                }
+
                 File.WriteAllText(ini, content);
             }
             File.SetAttributes(ini, FileAttributes.Hidden | FileAttributes.System);
@@ -141,7 +154,11 @@ public static partial class DriveSecurity
                 RedirectStandardOutput = false,
                 RedirectStandardError = false,
             });
-            if (p == null) return false;
+            if (p == null)
+            {
+                return false;
+            }
+
             if (!p.WaitForExit(120000))
             {
                 p.Kill(entireProcessTree: true);
@@ -149,7 +166,11 @@ public static partial class DriveSecurity
                 Logger.Warn("icacls timed out: {0}", args);
                 return false;
             }
-            if (p.ExitCode != 0) Logger.Warn("icacls {0} exited {1}", args, p.ExitCode);
+            if (p.ExitCode != 0)
+            {
+                Logger.Warn("icacls {0} exited {1}", args, p.ExitCode);
+            }
+
             return p.ExitCode == 0;
         }
         catch (Exception ex) { Logger.Warn(ex, "icacls failed: {0}", args); return false; }

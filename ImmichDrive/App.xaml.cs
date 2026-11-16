@@ -44,7 +44,10 @@ public partial class App : Application
             // Already running — tell the existing instance to open settings, then exit.
             IntPtr existing = FindWindow(null, MainWindow.HostWindowTitle);
             if (existing != IntPtr.Zero)
+            {
                 PostMessage(existing, MainWindow.WmShowSettings, IntPtr.Zero, IntPtr.Zero);
+            }
+
             Environment.Exit(0);
             return;
         }

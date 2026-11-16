@@ -14,7 +14,11 @@ void Enqueue(string path) => typeof(UploadService).GetMethod("Enqueue", flags)!.
 Task Process() => (Task)typeof(UploadService).GetMethod("ProcessPendingAsync", flags)!.Invoke(service, null)!;
 void Check(bool condition, string name)
 {
-    if (!condition) throw new Exception(name);
+    if (!condition)
+    {
+        throw new Exception(name);
+    }
+
     Console.WriteLine("PASS: " + name);
 }
 try
@@ -87,9 +91,14 @@ try
 }
 finally
 {
-    if (Directory.Exists(root)) Directory.Delete(root, true);
+    if (Directory.Exists(root))
+    {
+        Directory.Delete(root, true);
+    }
 }
 
+// The stubs below stand in for production types, so they must use the production namespaces.
+#pragma warning disable IDE0130
 namespace ImmichDrive.Services
 {
     public sealed class ImmichClient
@@ -105,7 +114,11 @@ namespace ImmichDrive.Services
         public static bool SetInSync(string path, bool inSync)
         {
             Calls++;
-            if (Succeed) Last = inSync;
+            if (Succeed)
+            {
+                Last = inSync;
+            }
+
             return Succeed;
         }
     }
@@ -123,3 +136,4 @@ namespace NLog
         public static Logger GetCurrentClassLogger() => new();
     }
 }
+#pragma warning restore IDE0130

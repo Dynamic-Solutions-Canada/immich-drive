@@ -13,20 +13,26 @@ internal static class ThemeManager
         SettingsManager.Current.AppTheme = theme;
         SettingsManager.SaveSettings();
         var w = SettingsWindow.GetCurrent();
-        if (w != null) Apply(theme, w);
+        if (w != null)
+        {
+            Apply(theme, w);
+        }
     }
 
     private static void Apply(int theme, Window window)
     {
         var requested = theme switch { 1 => ElementTheme.Light, 2 => ElementTheme.Dark, _ => ElementTheme.Default };
-        if (window.Content is FrameworkElement fe) fe.RequestedTheme = requested;
+        if (window.Content is FrameworkElement fe)
+        {
+            fe.RequestedTheme = requested;
+        }
     }
 
-    private static readonly global::Windows.UI.ViewManagement.UISettings s_uiSettings = new();
+    private static readonly global::Windows.UI.ViewManagement.UISettings UiSettings = new();
 
     public static bool IsDarkTheme()
     {
-        var fg = s_uiSettings.GetColorValue(global::Windows.UI.ViewManagement.UIColorType.Foreground);
+        var fg = UiSettings.GetColorValue(global::Windows.UI.ViewManagement.UIColorType.Foreground);
         return fg.R > 128;
     }
 }

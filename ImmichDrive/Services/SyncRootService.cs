@@ -64,7 +64,10 @@ public static class SyncRootService
         // register at the new folder and hand the old one back to the caller to retire).
         if (!forceRefresh && !relocating && registeredPath != null) { Logger.Info("Sync root already registered; leaving intact"); return null; }
 
-        if (relocating) Logger.Info("Sync root relocating from {0} to {1}", registeredPath, syncRootPath);
+        if (relocating)
+        {
+            Logger.Info("Sync root relocating from {0} to {1}", registeredPath, syncRootPath);
+        }
 
         // Clear any current/orphaned roots (old randomized-hash ids, the prior version's, or the
         // pre-relocation registration), then register fresh.
@@ -125,7 +128,9 @@ public static class SyncRootService
                 try
                 {
                     if (root.Id is { } id && id.StartsWith(IdPrefix, StringComparison.OrdinalIgnoreCase))
+                    {
                         StorageProviderSyncRootManager.Unregister(id);
+                    }
                 }
                 catch { /* ignore individual */ }
             }
@@ -152,7 +157,12 @@ public static class SyncRootService
         {
             string id = MakeSyncRootId(serverUrl);
             foreach (var root in StorageProviderSyncRootManager.GetCurrentSyncRoots())
-                if (root.Id == id) return root.Path?.Path;
+            {
+                if (root.Id == id)
+                {
+                    return root.Path?.Path;
+                }
+            }
         }
         catch { /* API unavailable */ }
         return null;

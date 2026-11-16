@@ -85,7 +85,10 @@ public sealed class AssetIndex
         cmd.Parameters.AddWithValue("$a", assetId);
         using var r = cmd.ExecuteReader();
         while (r.Read())
+        {
             list.Add((r.GetString(0), r.GetInt64(1), r.GetInt64(2) != 0));
+        }
+
         return list;
     }
 
@@ -134,7 +137,11 @@ public sealed class AssetIndex
         using var cmd = c.CreateCommand();
         cmd.CommandText = "SELECT rel_path, asset_id FROM assets;";
         using var r = cmd.ExecuteReader();
-        while (r.Read()) list.Add((r.GetString(0), r.GetString(1)));
+        while (r.Read())
+        {
+            list.Add((r.GetString(0), r.GetString(1)));
+        }
+
         return list;
     }
 
@@ -154,7 +161,11 @@ public sealed class AssetIndex
         {
             string id = r.GetString(0);
             long size = r.GetInt64(1);
-            if (map.TryGetValue(id, out var existing) && existing.Size > 0) continue; // keep the good one
+            if (map.TryGetValue(id, out var existing) && existing.Size > 0)
+            {
+                continue; // keep the good one
+            }
+
             map[id] = (size, r.GetInt64(2) != 0, Path.GetFileName(r.GetString(3)));
         }
         return map;
@@ -169,7 +180,11 @@ public sealed class AssetIndex
         cmd.Parameters.AddWithValue("$lo", lo);
         cmd.Parameters.AddWithValue("$hi", hi);
         using var r = cmd.ExecuteReader();
-        while (r.Read()) list.Add((r.GetString(0), r.GetString(1)));
+        while (r.Read())
+        {
+            list.Add((r.GetString(0), r.GetString(1)));
+        }
+
         return list;
     }
 
@@ -210,7 +225,7 @@ public sealed class AssetIndex
         SqliteConnection.ClearAllPools();
         foreach (var p in new[] { path, path + "-wal", path + "-shm" })
         {
-            try { if (File.Exists(p)) File.Delete(p); } catch { /* best effort */ }
+            try { if (File.Exists(p)) { File.Delete(p); } } catch { /* best effort */ }
         }
     }
 
