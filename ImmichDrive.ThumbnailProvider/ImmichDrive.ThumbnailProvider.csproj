@@ -12,7 +12,7 @@
     <RuntimeIdentifiers>win-x64;win-arm64</RuntimeIdentifiers>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <BuiltInComInteropSupport>true</BuiltInComInteropSupport>
-    <!-- The shell-launched provider logs to thumb.log itself and must stay NLog-free, so it does
+    <!-- The shell-launched provider logs through ThumbnailLog itself and must stay NLog-free, so it does
          not ship the shared NLog config. -->
     <WinUIAppKitIncludeNLogConfig>false</WinUIAppKitIncludeNLogConfig>
   </PropertyGroup>

@@ -105,6 +105,9 @@ public sealed partial class MainWindow : Window
 
         _ = RegisterStartupOnFirstRunAsync();
 
+        // The thumbnail provider's old log held full photo paths in ProgramData (FIX-063).
+        _ = Task.Run(SharedPaths.DeleteLegacyThumbnailLog);
+
         // Connect in the background when configured. When settings were reset, open the Settings page,
         // which shows the notice on this launch only (CONF-2); otherwise show settings on first run or
         // with no usable configuration.

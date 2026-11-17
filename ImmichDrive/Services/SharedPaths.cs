@@ -51,6 +51,21 @@ public static class SharedPaths
     public static string SettingsFilePath => Path.Combine(DataDir, "settings.json");
     public static string IndexDbPath => Path.Combine(DataDir, "index.db");
 
+    /// <summary>
+    /// Deletes the thumbnail provider's old log, <c>C:\ProgramData\ImmichDrive\thumb.log</c>. Versions
+    /// before FIX-063 wrote it there uncapped, with full photo paths, and uninstall left it behind; the
+    /// provider now logs to the data folder instead. Safe to call on every launch: once the file is gone
+    /// this does nothing. Never throws.
+    /// </summary>
+    public static void DeleteLegacyThumbnailLog()
+    {
+        try
+        {
+            File.Delete(Path.Combine(BreadcrumbDir, "thumb.log"));
+        }
+        catch { /* best effort: a locked or protected file is tried again next launch */ }
+    }
+
     /// <summary>Called once at app startup to record where this (possibly packaged) process stores data.</summary>
     public static void WriteBreadcrumb()
     {

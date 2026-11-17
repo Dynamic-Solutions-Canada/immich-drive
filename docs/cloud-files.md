@@ -144,12 +144,15 @@ active; after a successful pass it records the actual processed count. Failed bu
 writes leave a visible sync warning rather than making an incomplete pass look up to date.
 
 `HydrationPolicyModifier = AutoDehydrationAllowed` lets Windows reclaim space automatically.
-To force-free a file: `CfDehydratePlaceholder`. On disconnect-account we unregister the sync
-root and may delete the local placeholder tree (no originals are stored, so nothing is lost).
+To force-free a file: `CfDehydratePlaceholder`. Disconnect (`DriveManager.Disconnect`) stops the
+timers, upload watcher and pin downloads, removes the read-only protection, disconnects the
+provider and unregisters the sync root. It does not delete the placeholder tree: the folder stays
+on disk, holding no originals, and a later Connect reuses it. Only moving the drive folder retires
+(and deletes) the old tree.
 
 ## Gotchas
 
-- `CF_OPERATION_INFO` must place `CorrelationVector` and `SyncStatus` before `RequestKey`, matching `cfapi.h`. On x64 and ARM64 the pointer offsets are 24 and 32, the request-key offset is 40, and the total size is 48 bytes. Putting the request key at offset 24 instead passes it as a pointer and sends a zero request key. `tests/CloudFilterLayout` checks the linked production declaration against these native offsets without invoking Cloud Files.
+- `CF_OPERATION_INFO` must place `CorrelationVector` and `SyncStatus` before `RequestKey`, matching `cfapi.h`. On x64 and ARM64 the pointer offsets are 24 and 32, the request-key offset is 40, and the total size is 48 bytes. Putting the request key at offset 24 instead passes it as a pointer and sends a zero request key. `tests/ImmichDrive.CloudFilterLayout.Tests` checks the linked production declaration against these native offsets without invoking Cloud Files.
 - All cfapi structs must match `cfapi.h` packing exactly; verify on-device, and a wrong offset
   silently corrupts hydration.
 - `CfCreatePlaceholders` `RelativeFileName` is relative to the `baseDirectoryPath` argument,

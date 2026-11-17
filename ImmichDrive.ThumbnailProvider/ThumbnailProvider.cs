@@ -32,13 +32,12 @@ public sealed class ImmichThumbnailProvider : IThumbnailProvider, IInitializeWit
         {
             // SIGDN_FILESYSPATH gives the path without opening a stream (no hydration).
             int hr = psi.GetDisplayName(SIGDN.SIGDN_FILESYSPATH, out IntPtr p);
-            if (hr < 0 || p == IntPtr.Zero) { Log($"Initialize: GetDisplayName hr=0x{hr:X8}"); return E_FAIL; }
+            if (hr < 0 || p == IntPtr.Zero) { ThumbnailLog.Write($"Initialize: no file path, hr=0x{hr:X8}"); return E_FAIL; }
             try { _path = Marshal.PtrToStringUni(p); }
             finally { Marshal.FreeCoTaskMem(p); }
-            Log($"Initialize: path={_path}");
             return string.IsNullOrEmpty(_path) ? E_FAIL : S_OK;
         }
-        catch (Exception ex) { Log($"Initialize EX: {ex.Message}"); return E_FAIL; }
+        catch (Exception ex) { ThumbnailLog.Write($"Initialize failed: {Describe(ex)}"); return E_FAIL; }
     }
 
     public int GetThumbnail(uint cx, out IntPtr phbmp, out WTS_ALPHATYPE pdwAlpha)
@@ -48,42 +47,44 @@ public sealed class ImmichThumbnailProvider : IThumbnailProvider, IInitializeWit
 
         try
         {
-            if (string.IsNullOrEmpty(_path)) { Log("GetThumbnail: no path"); return E_FAIL; }
+            if (string.IsNullOrEmpty(_path)) { ThumbnailLog.Write("GetThumbnail: no path"); return E_FAIL; }
 
             // Only handle files inside the sync root; otherwise let the shell's default handler run.
             string syncRoot = SettingsFile.ReadSyncRoot();
             string full = Path.GetFullPath(_path);
             if (!full.StartsWith(EnsureSep(syncRoot), StringComparison.OrdinalIgnoreCase))
-            { Log($"GetThumbnail: outside syncRoot ({syncRoot}) path={full}"); return E_FAIL; }
+            {
+                // Not ours: the shell's default handler takes it. Normal, so not logged.
+                return E_FAIL;
+            }
 
             string rel = full[EnsureSep(syncRoot).Length..];
             string? assetId = new AssetIndex().TryGetAssetId(rel);
-            if (string.IsNullOrEmpty(assetId)) { Log($"GetThumbnail: no asset for rel={rel} (db={SharedPaths.IndexDbPath})"); return E_FAIL; }
+            if (string.IsNullOrEmpty(assetId)) { ThumbnailLog.Write("GetThumbnail: the file is not in the index"); return E_FAIL; }
 
             var conn = SettingsFile.ReadConnection();
-            if (conn is not { } c) { Log("GetThumbnail: no connection in settings"); return E_FAIL; }
+            if (conn is not { } c) { ThumbnailLog.Write("GetThumbnail: no connection in settings"); return E_FAIL; }
 
             byte[]? bytes = FetchThumbnail(c.ServerUrl, c.ApiKey, assetId);
-            if (bytes is null || bytes.Length == 0) { Log($"GetThumbnail: empty thumb for {assetId}"); return E_FAIL; }
+            if (bytes is null || bytes.Length == 0) { ThumbnailLog.Write($"GetThumbnail: empty thumbnail for asset {assetId}"); return E_FAIL; }
 
             phbmp = ToHBitmap(bytes, (int)cx);
-            Log($"GetThumbnail: OK {assetId} cx={cx} bytes={bytes.Length} hbmp={(phbmp != IntPtr.Zero)}");
-            return phbmp == IntPtr.Zero ? E_FAIL : S_OK;
+            if (phbmp == IntPtr.Zero)
+            {
+                ThumbnailLog.Write($"GetThumbnail: could not decode the thumbnail for asset {assetId}");
+                return E_FAIL;
+            }
+
+            return S_OK;
         }
-        catch (Exception ex) { Log($"GetThumbnail EX: {ex}"); return E_FAIL; }
+        catch (Exception ex) { ThumbnailLog.Write($"GetThumbnail failed: {Describe(ex)}"); return E_FAIL; }
     }
 
-    /// <summary>Best-effort diagnostic log to a fixed, non-redirected path the shell surrogate can write.</summary>
-    private static void Log(string msg)
-    {
-        try
-        {
-            string dir = @"C:\ProgramData\ImmichDrive";
-            Directory.CreateDirectory(dir);
-            File.AppendAllText(Path.Combine(dir, "thumb.log"), $"{DateTime.Now:HH:mm:ss.fff} {msg}\r\n");
-        }
-        catch { }
-    }
+    /// <summary>
+    /// An exception for the log: its type and HRESULT only. Messages can carry file paths or server
+    /// details, so they are left out (FIX-063).
+    /// </summary>
+    private static string Describe(Exception ex) => $"{ex.GetType().Name} 0x{ex.HResult:X8}";
 
     private static byte[]? FetchThumbnail(string url, string key, string assetId)
     {
