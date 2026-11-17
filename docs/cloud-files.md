@@ -146,9 +146,12 @@ writes leave a visible sync warning rather than making an incomplete pass look u
 `HydrationPolicyModifier = AutoDehydrationAllowed` lets Windows reclaim space automatically.
 To force-free a file: `CfDehydratePlaceholder`. Disconnect (`DriveManager.Disconnect`) stops the
 timers, upload watcher and pin downloads, removes the read-only protection, disconnects the
-provider and unregisters the sync root. It does not delete the placeholder tree: the folder stays
-on disk, holding no originals, and a later Connect reuses it. Only moving the drive folder retires
-(and deletes) the old tree.
+provider and unregisters the sync root. Windows then removes the online-only file placeholders;
+the folder tree stays, with any file that was hydrated or pinned, and a later Connect re-creates the
+placeholders (observed on a Windows 11 test VM, 2026-11-17: 68 items became 10 empty folders). Only
+moving the drive folder retires (and deletes) the old tree. Uninstalling without disconnecting is
+different: the read-only deny ACE stays on the folder, so Windows' cleanup is refused and the
+placeholders are left behind (ARCHITECTURE.md, "Where the app writes, and what uninstall leaves").
 
 ## Gotchas
 

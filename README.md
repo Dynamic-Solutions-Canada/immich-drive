@@ -85,6 +85,20 @@ Select all **seven** to use every feature. Delete, update, API key management an
 
 These permissions match [Immich's endpoint declarations](https://github.com/immich-app/immich/tree/main/server/src/controllers).
 
+### Uninstall
+
+Before uninstalling, open ImmichDrive and select **Disconnect** on the Connection page. Disconnecting lifts the drive's read-only protection and removes it from Explorer, and Windows then removes the photos you never opened; uninstall afterwards leaves at most an empty `ImmichDrive` folder that you can delete normally.
+
+If you uninstalled without disconnecting, the drive folder stays behind: its photos can't be opened ("The cloud file provider is not running") and Windows refuses to delete it ("Access is denied"), because the read-only protection is still on it. To remove it, open a Command Prompt (no administrator rights needed) and run:
+
+```
+icacls "%USERPROFILE%\ImmichDrive" /reset /t /c /q
+attrib -r "%USERPROFILE%\ImmichDrive\*" /s /d
+rmdir /s /q "%USERPROFILE%\ImmichDrive"
+```
+
+Use your own folder's path instead if you chose a different drive folder. Nothing is deleted from your Immich server either way.
+
 ## How it works
 
 ImmichDrive uses the same Windows mechanism as OneDrive and Dropbox, the **Cloud Files API**, to create *placeholder* files. They look and behave like normal files in Explorer, with correct names, dates and **thumbnails**, but take up **0 bytes** until you open one. Opening a file streams the original from your Immich server in the background; freeing up space turns it back into a placeholder.

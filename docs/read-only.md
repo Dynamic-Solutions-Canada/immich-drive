@@ -9,6 +9,12 @@ files to Immich.
 
 ## Read-only (deny ACE)
 
+**Uninstall consequence:** the ACE outlives the app. MSIX runs no code at uninstall, so after an
+uninstall without Disconnect the drive folder keeps the deny ACE: Windows can't remove the
+placeholders when it unregisters the sync root, and the user can't delete the folder until the
+permissions are reset (README, "Uninstall"). Moving the protection from the ACL to the provider's
+delete and rename callbacks is under consideration.
+
 `DriveSecurity.EnsureReadOnly(syncRoot)` installs an inheritable deny ACE equivalent to
 `(OI)(CI)(DE,DC,WD,WEA)` for the current user. That denies Delete, DeleteChild,
 WriteData/AddFile, WriteExtendedAttributes → **blocks edit, new files, delete, rename**.
