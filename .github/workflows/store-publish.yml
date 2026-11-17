@@ -51,17 +51,16 @@ concurrency:
 
 jobs:
   publish:
-    uses: Dynamic-Solutions-Canada/winui-app-kit/.github/workflows/store-publish.yml@v1.13.0
+    uses: Dynamic-Solutions-Canada/winui-app-kit/.github/workflows/store-publish.yml@v1.14.0
     with:
       store_product_id: 9MWC6165N7DH
       # US $0.99 base price. The published submission reports Base, but the Store CLI needs Tier1012
       # for this product; regional prices can change when the tier is applied.
       price_tier: 'Tier1012'
       # The Cloud Files struct layout check (x64 runner), then the MSIX images and app icons. The kit
-      # checks only the last command's result, so the layout check throws on its own exit code.
+      # stops on any failed command, native ones included.
       pre_build: >-
         dotnet run --project tests/ImmichDrive.CloudFilterLayout.Tests/ImmichDrive.CloudFilterLayout.Tests.csproj -c Release;
-        if ($LASTEXITCODE -ne 0) { throw 'Cloud Files layout check failed' };
         & ./ImmichDriveMSIX/generate-msix-images.ps1
       # The gate run first, on Linux; this is the default.
       gate_command: 'npm run validate'
