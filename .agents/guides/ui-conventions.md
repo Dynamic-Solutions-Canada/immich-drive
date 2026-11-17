@@ -23,7 +23,8 @@ This app's own interface conventions. The shared family rules are in the standar
   `AutomationProperties.SetName` in code when the label changes (UI-14). Secondary text uses
   `Foreground="{ThemeResource TextFillColorSecondaryBrush}"`, not `Opacity`.
 - **SettingsPage** is the kit's shared rows (UI-4): `StartupSetting` (Windows' real startup state,
-  TRAY-10) and `ThemeSetting`, which apply at once and raise an event the page saves. The kit's
+  TRAY-10), `LanguageSetting` and `ThemeSetting`, which apply at once and raise an event the page saves, and
+  `ResetSetting` (CONF-4) in its own card, which runs `SettingsManager.ResetSettings` and names what it keeps in `KeptNote`. The kit's
   "settings were reset" notice goes in its `NoticeHost` (CONF-2).
 - Use built-in styles for text: `SubtitleTextBlockStyle`, `CaptionTextBlockStyle`,
   `BodyStrongTextBlockStyle`, `AccentButtonStyle`. Icons via `FontIcon Glyph="&#xExxx;"` (Segoe

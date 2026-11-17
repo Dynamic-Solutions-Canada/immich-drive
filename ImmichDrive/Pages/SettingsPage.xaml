@@ -22,19 +22,9 @@
                 </StackPanel>
             </Border>
 
-            <!-- Reset settings (CONF-4): preferences only; the drive keeps its connection -->
-            <TextBlock l10n:Localize.Text="settings.reset" Style="{StaticResource SectionHeaderStyle}" />
+            <!-- The kit's Reset settings row (CONF-4), in its own card; this app's reset keeps the drive -->
             <Border Style="{StaticResource CardBorderStyle}">
-                <StackPanel Spacing="8">
-                    <TextBlock l10n:Localize.Text="settings.reset-desc" Style="{StaticResource CaptionTextBlockStyle}" TextWrapping="Wrap"
-                               Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
-                    <Button Click="ResetSettings_Click" HorizontalAlignment="Left" l10n:Localize.Name="settings.reset-button">
-                        <StackPanel Style="{StaticResource IconLabelStyle}">
-                            <FontIcon Glyph="&#xE777;" Style="{StaticResource ButtonGlyphStyle}" />
-                            <TextBlock l10n:Localize.Text="settings.reset-button" />
-                        </StackPanel>
-                    </Button>
-                </StackPanel>
+                <kitc:ResetSetting x:Name="ResetRow" />
             </Border>
         </StackPanel>
     </ScrollViewer>

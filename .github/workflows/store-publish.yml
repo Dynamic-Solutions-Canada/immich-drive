@@ -40,6 +40,14 @@ on:
         description: 'Exact upload filename in the failed submission being replaced'
         type: string
         default: ''
+      hold_publication:
+        description: 'With submit_draft: hold the release for manual publication in Partner Center'
+        type: boolean
+        default: false
+      inspect_draft:
+        description: 'Submission ID to report (status, pricing, publishing mode) without changing anything'
+        type: string
+        default: ''
 
 permissions:
   contents: read
@@ -51,7 +59,7 @@ concurrency:
 
 jobs:
   publish:
-    uses: Dynamic-Solutions-Canada/winui-app-kit/.github/workflows/store-publish.yml@v1.14.0
+    uses: Dynamic-Solutions-Canada/winui-app-kit/.github/workflows/store-publish.yml@v1.19.1
     with:
       store_product_id: 9MWC6165N7DH
       # US $0.99 base price. The published submission reports Base, but the Store CLI needs Tier1012
@@ -72,4 +80,6 @@ jobs:
       submit_draft: ${{ inputs.submit_draft || '' }}
       replace_failed_draft: ${{ inputs.replace_failed_draft || '' }}
       failed_upload: ${{ inputs.failed_upload || '' }}
+      hold_publication: ${{ github.event_name == 'workflow_dispatch' && inputs.hold_publication }}
+      inspect_draft: ${{ inputs.inspect_draft || '' }}
     secrets: inherit
