@@ -69,9 +69,9 @@ different package family and break in-place updates for existing Store installs.
 
 ## Distribution (what gets published, and what deliberately does not)
 
-`store-publish.yml` submits to product `9MWC6165N7DH`.
+`store-publish.yml` submits to product `9MWC6165N7DH`. It is a short caller of winui-app-kit's reusable Store workflow (CI-10), pinned to the same tag as the `external/winui-app-kit` submodule (the run stops if they differ); the Partner Center helpers and their tests live in the kit, not here. The caller sets the product ID, `price_tier: Tier1012` and a `pre_build` that runs the Cloud Files layout check and generates the MSIX images. Every run first runs `npm run validate` on Linux. A manual run with `dry_run` builds, bundles and checks everything and makes no Store call, so it needs no secrets: use it to prove a workflow or packaging change before a real release (`gh workflow run store-publish.yml --ref main -f dry_run=true`). `credential-expiry.yml` calls the kit's credential reminder the same way.
 
-The workflow pins [Microsoft Store CLI v0.4.3](https://github.com/microsoft/msstore-cli/releases/tag/v0.4.3),
+The kit's workflow pins [Microsoft Store CLI v0.4.3](https://github.com/microsoft/msstore-cli/releases/tag/v0.4.3),
 builds unsigned x64 and ARM64 packages on one runner, combines them into a real
 architecture-aware `.msixbundle` stamped with the app version, and wraps that in a versioned `.msixupload`,
 and uploads it to Partner Center on `v*` tags as a draft. It uploads no public binary artifacts.

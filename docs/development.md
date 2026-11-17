@@ -57,7 +57,7 @@ npm run package:desktop     # Store build (unsigned; the Store re-signs)
   even though it publishes nothing. That build is the only automated check that manifest
   stamping, `makepri`, `makeappx` and signing still work; without it, a break in packaging would
   first show up during a Store submission.
-- **Store submission runs on release tags** through `.github/workflows/store-publish.yml`,
+- **Store submission runs on release tags** through `.github/workflows/store-publish.yml`, a caller of winui-app-kit's reusable Store workflow,
   using CLI v0.4.3 and the configured Entra secrets. Both unsigned architectures stay on one
   runner and are uploaded to Partner Center as a draft with the notes attached; a second,
   manual run on the tag submits it (see the packaging guide). The
@@ -113,7 +113,7 @@ The SDK target remains Windows build 22000; it does not set the runtime minimum.
 
 `npm test` runs every portable test and `npm run validate` runs the whole Linux gate: `npm run format:check`, `check:gitignore`, `check:l10n`, `check:listing`, `check:notices`, then the tests. `npm run format` rewrites every C# project outside `external/` to the root `.editorconfig`, which is winui-app-kit's file copied unchanged from the tag the app pins; never hand-edit it. Both run through winui-app-kit's `scripts/dotnet` and `scripts/pwsh`, which work on Linux with either the .NET SDK pinned in `global.json` or Docker; Docker runs are capped at 3 GB (`KIT_DOTNET_MEMORY`). Run them as a non-root user. `npm run check:l10n` is the kit's catalog check ([localization](localization.md)). `npm run check:listing` is the kit's Store listing check, configured by the `listing` block in `windows-build.json`. `npm run check:notices` fails when `ImmichDrive/THIRD-PARTY-NOTICES.txt` no longer matches the packages or the About page's link to it; `npm run generate:notices` rewrites it (both are the kit's `generate-notices.py`, which reads the restore graph `format:check` leaves).
 
-The kit's `scripts/run-tests` finds the harnesses itself, so a new one needs no registration: every project under `tests/` is a portable harness (`tests/<App>.<Area>.Tests/`, run with `dotnet run`), and each has a README saying what it covers and does not prove: API key migration, Upload folder status, and the Cloud Files structure layout. `npm run test:store-scripts` runs the `*.Tests.ps1` tests of the Store workflow helpers under `.github/scripts/`; it goes away when the app moves to the kit's shared Store workflow.
+The kit's `scripts/run-tests` finds the harnesses itself, so a new one needs no registration: every project under `tests/` is a portable harness (`tests/<App>.<Area>.Tests/`, run with `dotnet run`), and each has a README saying what it covers and does not prove: API key migration, Upload folder status, and the Cloud Files structure layout. The Store workflow's helpers and their tests are winui-app-kit's, tested there.
 
 Neither proves anything about the installed app; see the compatibility checks below.
 
