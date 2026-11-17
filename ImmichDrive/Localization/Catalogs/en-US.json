@@ -1,0 +1,10 @@
+{
+  "about.how-it-works": "How it works",
+  "about.how-it-works-desc": "ImmichDrive uses the Windows Cloud Files API to show your photos as placeholder files. They appear in File Explorer with real thumbnails but take no space until you open one; then ImmichDrive downloads just that file from your server.",
+  "about.immich": "Immich",
+  "about.immich-desc": "The self-hosted photo and video backup that ImmichDrive shows in File Explorer.",
+  "about.immich-link": "immich.app",
+  "app.description": "Browse your Immich photos and videos in File Explorer, with thumbnails and files that download on demand.",
+  "nav.connection": "Connection",
+  "nav.home": "Home"
+}

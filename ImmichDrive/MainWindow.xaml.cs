@@ -96,14 +96,19 @@ public sealed partial class MainWindow : Window
 
         _ = RegisterStartupOnFirstRunAsync();
 
-        // Connect in the background when configured. Show settings on first run or with no usable
-        // configuration, and when settings were reset, because the notice is only shown this launch.
+        // Connect in the background when configured. When settings were reset, open the Settings page,
+        // which shows the notice on this launch only (CONF-2); otherwise show settings on first run or
+        // with no usable configuration.
         if (DriveManager.Current.IsConfigured)
         {
             _ = DriveManager.Current.ConnectAsync();
         }
 
-        if (!DriveManager.Current.IsConfigured || App.SettingsLoad?.NeedsResetNotice == true)
+        if (App.SettingsLoad?.NeedsResetNotice == true)
+        {
+            ShowSettingsPage();
+        }
+        else if (!DriveManager.Current.IsConfigured)
         {
             ShowSettings();
         }
@@ -120,11 +125,14 @@ public sealed partial class MainWindow : Window
         WindowChrome.BringToFront(window);
     }
 
-    /// <summary>The tray menu's "Settings": the settings window on its Settings page (TRAY-5).</summary>
+    /// <summary>
+    /// The tray menu's "Settings" (TRAY-5), and the launch that reset unreadable settings: the settings
+    /// window on its Settings page.
+    /// </summary>
     private static void ShowSettingsPage()
     {
         ShowSettings();
-        SettingsWindow.GetCurrent()?.NavigateTo(typeof(Pages.SettingsPage));
+        SettingsWindow.GetCurrent()?.Select(WinUIAppKit.Pages.SettingsShell.SettingsTag);
     }
 
     /// <summary>

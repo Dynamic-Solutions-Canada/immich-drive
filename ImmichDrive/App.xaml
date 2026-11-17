@@ -7,11 +7,9 @@
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
                 <XamlControlsResources xmlns="using:Microsoft.UI.Xaml.Controls" />
+                <!-- The family's page, card and button styles (UI-3), from winui-app-kit's shared XAML -->
+                <ResourceDictionary Source="ms-appx:///WinUIAppKit/Styles.xaml" />
             </ResourceDictionary.MergedDictionaries>
-
-            <!-- Transparent NavigationView content so Mica shows through -->
-            <SolidColorBrush x:Key="NavigationViewContentBackground" Color="Transparent" />
-            <SolidColorBrush x:Key="NavigationViewContentGridBorderBrush" Color="Transparent" />
         </ResourceDictionary>
     </Application.Resources>
 </Application>

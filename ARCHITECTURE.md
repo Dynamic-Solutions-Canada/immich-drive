@@ -10,11 +10,12 @@ App.xaml ──► MainWindow (invisible host)
                │     ├── DriveSecurity            - read-only deny ACE + folder icon
                │     ├── UploadService            - watch Upload\, POST drops to Immich
                │     └── AssetIndex (SQLite)      - relativePath ⇄ Immich assetId
-               └── SettingsWindow (WinUI 3 + NavigationView, on demand)
+               └── SettingsWindow (WinUI 3, kit SettingsShell, on demand)
                      ├── HomePage         - status, drive folder, last-updated
                      ├── ConnectionPage   - server URL + API key + Test/Connect/Disconnect
-                     ├── SettingsPage      - app theme + start-at-sign-in
-                     └── AboutPage
+                     ├── SettingsPage     - kit rows: start with Windows, app theme
+                     ├── Our other apps   - apps-promo page
+                     └── About            - kit AboutPage, from AboutContent
 
 ImmichDrive.ThumbnailProvider.exe (separate process: out-of-process COM server)
    └── ImmichThumbnailProvider : IThumbnailProvider, IInitializeWithItem

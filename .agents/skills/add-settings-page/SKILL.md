@@ -9,8 +9,8 @@ Goal: a new page reachable from the settings window's navigation, shaped like it
 
 1. Read [.agents/guides/ui-conventions.md](../../guides/ui-conventions.md) and open an existing page in `ImmichDrive/Pages/` to copy its shape.
 2. Create `ImmichDrive/Pages/<Name>Page.xaml` and `.xaml.cs` as a WinUI 3 `Page`, following the guide's page and card layout.
-3. In `ImmichDrive/SettingsWindow.xaml`, add a `NavigationViewItem` with `Tag="<Name>Page"` and an icon (`SymbolIcon` or a `FontIcon` glyph).
-4. In `ImmichDrive/SettingsWindow.xaml.cs`, add the `Tag` to `typeof(<Name>Page)` case in `GetPageTypeFromTag`.
+3. In `ImmichDrive/SettingsWindow.xaml.cs`, add a tag constant, add its `NavigationViewItem` (label from a catalog key, a `FontIcon` glyph) in `BuildMenu` and relabel it in `OnLanguageChanged`, then map the tag to `typeof(<Name>Page)` in `PageFor`. Settings, Our other apps and About belong to the kit's shell; never add to its footer.
+4. Put the page's navigation label in `ImmichDrive/Localization/Catalogs/en-US.json` under `nav.`.
 5. In the page's code-behind, fully qualify `Microsoft.UI.Xaml.Visibility` and `FocusState` if used.
 6. Run `npm run validate` and `npm run verify:desktop`.
 

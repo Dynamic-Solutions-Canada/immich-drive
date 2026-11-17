@@ -1,3 +1,4 @@
+using ImmichDrive.Classes;
 using ImmichDrive.Classes.Settings;
 using ImmichDrive.Services;
 using Microsoft.UI.Dispatching;
@@ -6,6 +7,7 @@ using Microsoft.UI.Xaml.Controls;
 using System.IO;
 using ImmichDrive.ViewModels;
 using WinUIAppKit.Hosting;
+using WinUIAppKit.Localization;
 using WinUIAppKit.Logging;
 using WinUIAppKit.Settings;
 using WinUIAppKit.Theming;
@@ -45,8 +47,8 @@ public partial class App : Application
 
     /// <summary>
     /// The kit's "settings were reset" bar when settings could not be read at this launch (CONF-2), or
-    /// null. Returns it once: the store has already written defaults, so the notice belongs to this
-    /// launch's first page only and must not reappear when the user navigates back.
+    /// null. The Settings page shows it. Returns it once: the store has already written defaults, so
+    /// the notice belongs to this launch and must not reappear when the user navigates back.
     /// </summary>
     internal static InfoBar? TakeResetNotice()
     {
@@ -79,7 +81,7 @@ public partial class App : Application
     /// 1. claim the single instance, so a second launch exits without touching any file;
     /// 2. load the API key, migrating it out of settings.json, before the settings store rewrites
     ///    that file as it loads;
-    /// 3. load settings and apply the saved theme.
+    /// 3. load settings, then the interface text, the promo page's language and the saved theme.
     /// </summary>
     private static void RestoreSettings()
     {
@@ -90,6 +92,10 @@ public partial class App : Application
 
         InitializeApiKey();
         SettingsLoad = SettingsManager.RestoreSettings();
+
+        // Interface text before any window or tray label is built. English only until the app is
+        // localized, so no language override is read yet.
+        UiText.Configure(typeof(App).Assembly, AppLanguages.CatalogPrefix, AppLanguages.Supported, null);
 
         // The app is English only, so the shared "Our other apps" page is too (PROMO-7), rather than
         // following a Windows language the rest of the app does not speak. Package 10 points this at

@@ -12,13 +12,6 @@ public sealed partial class HomePage : Page
     public HomePage()
     {
         InitializeComponent();
-
-        // After an unreadable settings file, the first page shown this launch says so (CONF-2).
-        if (App.TakeResetNotice() is { } resetNotice)
-        {
-            PageContent.Children.Insert(0, resetNotice);
-        }
-
         Loaded += (s, e) =>
         {
             DriveManager.Current.StatusChanged += OnStatusChanged;
@@ -90,5 +83,5 @@ public sealed partial class HomePage : Page
         _ = DriveManager.Current.RetryConnectionAsync();
 
     private void ConfigureButton_Click(object sender, RoutedEventArgs e) =>
-        SettingsWindow.GetCurrent()?.NavigateTo(typeof(ConnectionPage));
+        SettingsWindow.GetCurrent()?.Select(SettingsWindow.ConnectionTag);
 }

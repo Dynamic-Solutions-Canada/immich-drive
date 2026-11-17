@@ -2,50 +2,22 @@
 <Page
     x:Class="ImmichDrive.Pages.SettingsPage"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
-    <ScrollViewer Padding="32,16,32,32">
-        <StackPanel Spacing="8" MaxWidth="760" HorizontalAlignment="Left">
-            <TextBlock Text="Settings" Style="{StaticResource TitleTextBlockStyle}" Margin="0,0,0,8" />
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:l10n="using:WinUIAppKit.Localization"
+    xmlns:kitc="using:WinUIAppKit.Controls">
+    <ScrollViewer>
+        <StackPanel Style="{StaticResource PageContentStyle}">
+            <TextBlock l10n:Localize.Text="kit.settings.title" Style="{StaticResource PageTitleStyle}" />
 
-            <!-- Theme -->
-            <Border Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
-                    BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" BorderThickness="1"
-                    CornerRadius="8" Padding="16,12">
-                <Grid ColumnSpacing="16">
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="*" />
-                        <ColumnDefinition Width="Auto" />
-                    </Grid.ColumnDefinitions>
-                    <StackPanel Grid.Column="0" VerticalAlignment="Center">
-                        <TextBlock Text="App theme" FontWeight="SemiBold" />
-                        <TextBlock Text="Appearance of this settings window." Opacity="0.7" TextWrapping="Wrap" />
-                    </StackPanel>
-                    <ComboBox Grid.Column="1" x:Name="ThemeCombo" VerticalAlignment="Center" MinWidth="160"
-                              SelectionChanged="ThemeCombo_SelectionChanged">
-                        <ComboBoxItem Content="System default" />
-                        <ComboBoxItem Content="Light" />
-                        <ComboBoxItem Content="Dark" />
-                    </ComboBox>
-                </Grid>
-            </Border>
+            <!-- The kit's "settings were reset" notice goes here, after an unreadable settings file (CONF-2) -->
+            <ContentPresenter x:Name="NoticeHost" />
 
-            <!-- Startup -->
-            <Border Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
-                    BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" BorderThickness="1"
-                    CornerRadius="8" Padding="16,12">
-                <Grid ColumnSpacing="16">
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="*" />
-                        <ColumnDefinition Width="Auto" />
-                    </Grid.ColumnDefinitions>
-                    <StackPanel Grid.Column="0" VerticalAlignment="Center">
-                        <TextBlock Text="Start at sign-in" FontWeight="SemiBold" />
-                        <TextBlock Text="Keep the drive online by launching ImmichDrive when you sign in."
-                                   Opacity="0.7" TextWrapping="Wrap" />
-                    </StackPanel>
-                    <ToggleSwitch Grid.Column="1" x:Name="StartupToggle" VerticalAlignment="Center" MinWidth="0"
-                                  Toggled="StartupToggle_Toggled" />
-                </Grid>
+            <!-- The kit's shared rows (UI-4): Windows' real startup state (TRAY-10), and the app theme -->
+            <Border Style="{StaticResource CardBorderStyle}">
+                <StackPanel Spacing="12">
+                    <kitc:StartupSetting x:Name="StartupRow" />
+                    <kitc:ThemeSetting x:Name="ThemeRow" />
+                </StackPanel>
             </Border>
         </StackPanel>
     </ScrollViewer>

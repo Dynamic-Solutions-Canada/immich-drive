@@ -15,6 +15,10 @@
     "retired_names": [
       "Drive for Immich",
       "Immich Drive"
-    ]
+    ],
+    "catalog_dir": null
+  },
+  "notices": {
+    "about_source": "ImmichDrive/Classes/AboutContent.cs"
   }
 }

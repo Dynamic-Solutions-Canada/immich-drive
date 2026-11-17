@@ -15,14 +15,12 @@
             <Setter Property="Padding" Value="10,6" />
         </Style>
     </Page.Resources>
-    <ScrollViewer Padding="32,16,32,32">
-        <StackPanel Spacing="16" MaxWidth="760" HorizontalAlignment="Left">
-            <TextBlock Text="Connection" Style="{StaticResource TitleTextBlockStyle}" />
-            <TextBlock Text="Point the drive at your Immich server." Opacity="0.7" Margin="0,-8,0,0" />
+    <ScrollViewer>
+        <StackPanel Style="{StaticResource PageContentStyle}">
+            <TextBlock Text="Connection" Style="{StaticResource PageTitleStyle}" />
+            <TextBlock Text="Point the drive at your Immich server." Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
 
-            <Border Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
-                    BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" BorderThickness="1"
-                    CornerRadius="8" Padding="20">
+            <Border Style="{StaticResource CardBorderStyle}">
                 <StackPanel Spacing="16">
                     <TextBox x:Name="ServerBox" Header="Server URL"
                              PlaceholderText="https://photos.example.com" />
@@ -31,14 +29,14 @@
                     <StackPanel Spacing="8">
                         <TextBlock Text="API key permissions" Style="{StaticResource BodyStrongTextBlockStyle}" />
                         <TextBlock Text="In Immich, create or edit your key under Account Settings → API Keys. Select these permissions; All permissions is not needed."
-                                   TextWrapping="Wrap" Opacity="0.7" />
+                                   TextWrapping="Wrap" Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
                         <TextBlock Text="Required for photos" Style="{StaticResource BodyStrongTextBlockStyle}"
                                    Margin="0,4,0,0" />
                         <Border Style="{StaticResource CodeBlockBorderStyle}" HorizontalAlignment="Left">
                             <TextBlock Text="user.read&#x0a;asset.read&#x0a;asset.view&#x0a;asset.download"
                                        Style="{StaticResource CodeTextBlockStyle}" />
                         </Border>
-                        <TextBlock TextWrapping="Wrap" Opacity="0.7">
+                        <TextBlock TextWrapping="Wrap" Foreground="{ThemeResource TextFillColorSecondaryBrush}">
                             <Run Text="Include " /><Run Text="user.read" FontFamily="Consolas" />
                             <Run Text=" even for Test connection." />
                         </TextBlock>
@@ -71,7 +69,7 @@
                                        TextWrapping="Wrap" VerticalAlignment="Center" />
                         </Grid>
                         <TextBlock Text="Delete, update, API key management, and admin permissions are not needed."
-                                   TextWrapping="Wrap" Opacity="0.7" />
+                                   TextWrapping="Wrap" Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
                     </StackPanel>
                     <Grid ColumnSpacing="8">
                         <Grid.ColumnDefinitions>
