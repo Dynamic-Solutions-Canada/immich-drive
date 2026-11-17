@@ -18,7 +18,9 @@ This app's own interface conventions. The shared family rules are in the standar
   `FirstSectionHeaderStyle` and `SectionHeaderStyle`. Never write padding, corner radius or header
   sizes inline (UI-3); the styles come from the kit's `Styles.xaml`, merged in `App.xaml`.
 - Buttons with a glyph use `StackPanel Style="{StaticResource IconLabelStyle}"` with a
-  `FontIcon Style="{StaticResource ButtonGlyphStyle}"` then the label. Secondary text uses
+  `FontIcon Style="{StaticResource ButtonGlyphStyle}"` then the label. Such a button gets no
+  screen-reader name from its content, so give it one: `l10n:Localize.Name` with the label's key, or
+  `AutomationProperties.SetName` in code when the label changes (UI-14). Secondary text uses
   `Foreground="{ThemeResource TextFillColorSecondaryBrush}"`, not `Opacity`.
 - **SettingsPage** is the kit's shared rows (UI-4): `StartupSetting` (Windows' real startup state,
   TRAY-10) and `ThemeSetting`, which apply at once and raise an event the page saves. The kit's

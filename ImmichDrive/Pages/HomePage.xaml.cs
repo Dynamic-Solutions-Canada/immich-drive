@@ -43,6 +43,9 @@ public sealed partial class HomePage : Page
         RetryButton.IsEnabled = !dm.IsCheckingConnection;
         RetryText.Text = UiText.Get(dm.IsCheckingConnection ? "common.checking" : "common.try-again");
 
+        // Its content is a glyph and a label, so give the button the label as its screen-reader name (UI-14).
+        Microsoft.UI.Xaml.Automation.AutomationProperties.SetName(RetryButton, RetryText.Text);
+
         (StatusBar.Severity, StatusBar.Title, StatusBar.Message) = dm.Status switch
         {
             DriveStatus.Online when dm.SyncIssue != null =>

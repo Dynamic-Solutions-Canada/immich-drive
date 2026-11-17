@@ -124,6 +124,9 @@ public sealed partial class StatusFlyout : Window
         RetryButton.Visibility = dm.CanRetry || checking ? Visibility.Visible : Visibility.Collapsed;
         RetryButton.IsEnabled = !checking;
         RetryText.Text = UiText.Get(checking ? "common.checking" : "common.try-again");
+
+        // Its content is a glyph and a label, so give the button the label as its screen-reader name (UI-14).
+        Microsoft.UI.Xaml.Automation.AutomationProperties.SetName(RetryButton, RetryText.Text);
         RefreshButton.IsEnabled = dm.Status == DriveStatus.Online;
 
         RefitIfResized();

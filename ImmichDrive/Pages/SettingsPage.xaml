@@ -28,7 +28,7 @@
                 <StackPanel Spacing="8">
                     <TextBlock l10n:Localize.Text="settings.reset-desc" Style="{StaticResource CaptionTextBlockStyle}" TextWrapping="Wrap"
                                Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
-                    <Button Click="ResetSettings_Click" HorizontalAlignment="Left">
+                    <Button Click="ResetSettings_Click" HorizontalAlignment="Left" l10n:Localize.Name="settings.reset-button">
                         <StackPanel Style="{StaticResource IconLabelStyle}">
                             <FontIcon Glyph="&#xE777;" Style="{StaticResource ButtonGlyphStyle}" />
                             <TextBlock l10n:Localize.Text="settings.reset-button" />

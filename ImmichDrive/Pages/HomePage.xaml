@@ -26,13 +26,14 @@
                     <TextBlock x:Name="PinProgressText" Style="{StaticResource CaptionTextBlockStyle}" Foreground="{ThemeResource TextFillColorSecondaryBrush}" Visibility="Collapsed" />
                     <ProgressBar x:Name="PinProgress" Visibility="Collapsed" />
                     <StackPanel Orientation="Horizontal" Spacing="8">
-                        <Button x:Name="OpenFolderButton" Click="OpenFolderButton_Click" Style="{StaticResource AccentButtonStyle}">
+                        <Button x:Name="OpenFolderButton" Click="OpenFolderButton_Click" Style="{StaticResource AccentButtonStyle}"
+                                l10n:Localize.Name="common.open-drive-folder">
                             <StackPanel Style="{StaticResource IconLabelStyle}">
                                 <FontIcon Glyph="&#xE838;" Style="{StaticResource ButtonGlyphStyle}" />
                                 <TextBlock l10n:Localize.Text="common.open-drive-folder" />
                             </StackPanel>
                         </Button>
-                        <Button x:Name="RefreshButton" Click="RefreshButton_Click">
+                        <Button x:Name="RefreshButton" Click="RefreshButton_Click" l10n:Localize.Name="common.refresh">
                             <StackPanel Style="{StaticResource IconLabelStyle}">
                                 <FontIcon Glyph="&#xE72C;" Style="{StaticResource ButtonGlyphStyle}" />
                                 <TextBlock l10n:Localize.Text="common.refresh" />
