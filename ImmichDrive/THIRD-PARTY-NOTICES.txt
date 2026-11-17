@@ -27,13 +27,13 @@ Microsoft.Web.WebView2 1.0.3179.45
   © Microsoft Corporation. All rights reserved.
   https://aka.ms/webview
 
-Microsoft.WindowsAppSDK 1.8.260209005
+Microsoft.WindowsAppSDK 1.8.260921001
   Licence: see licence text (text 3 below)
   © Microsoft Corporation. All rights reserved.
   https://github.com/microsoft/windowsappsdk
 
-Microsoft.WindowsAppSDK.AI 1.8.47
-  Licence: see licence text (text 4 below)
+Microsoft.WindowsAppSDK.AI 1.8.79
+  Licence: see licence text (text 3 below)
   © Microsoft Corporation. All rights reserved.
   https://github.com/microsoft/windowsappsdk
 
@@ -47,22 +47,22 @@ Microsoft.WindowsAppSDK.DWrite 1.8.25122902
   © Microsoft Corporation. All rights reserved.
   https://aka.ms/WindowsAppSDK
 
-Microsoft.WindowsAppSDK.Foundation 1.8.260203002
-  Licence: see licence text (text 4 below)
+Microsoft.WindowsAppSDK.Foundation 1.8.260803002
+  Licence: see licence text (text 3 below)
   © Microsoft Corporation. All rights reserved.
   https://aka.ms/windowsappsdk
 
-Microsoft.WindowsAppSDK.InteractiveExperiences 1.8.260125001
-  Licence: see licence text (text 4 below)
+Microsoft.WindowsAppSDK.InteractiveExperiences 1.8.260708001
+  Licence: see licence text (text 3 below)
   © Microsoft Corporation. All rights reserved.
   https://aka.ms/windowsappsdk
 
-Microsoft.WindowsAppSDK.ML 1.8.2124
+Microsoft.WindowsAppSDK.ML 1.8.2223
   Licence: see licence text (text 5 below)
   © Microsoft Corporation. All rights reserved.
   https://github.com/microsoft/windowsappsdk
 
-Microsoft.WindowsAppSDK.Runtime 1.8.260209005
+Microsoft.WindowsAppSDK.Runtime 1.8.260921001
   Licence: see licence text (text 3 below)
   © Microsoft Corporation. All rights reserved.
   https://github.com/microsoft/windowsappsdk
@@ -72,8 +72,8 @@ Microsoft.WindowsAppSDK.Widgets 1.8.251231004
   © Microsoft Corporation. All rights reserved.
   https://github.com/microsoft/windowsappsdk
 
-Microsoft.WindowsAppSDK.WinUI 1.8.260204000
-  Licence: see licence text (text 4 below)
+Microsoft.WindowsAppSDK.WinUI 1.8.260803003
+  Licence: see licence text (text 3 below)
   © Microsoft Corporation. All rights reserved.
   https://github.com/microsoft/windowsappsdk
 

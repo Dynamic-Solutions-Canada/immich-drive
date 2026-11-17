@@ -10,7 +10,7 @@ ImmichDrive's interface is in the family's nine languages (LOC-1): English (Unit
 - Shared labels (Settings, About, Cancel, Open logs folder and the rest) are the kit's `kit.*` keys, translated in the kit. Never define a `kit.` key in the app's catalogs.
 - The package manifest's description is `ms-resource:Resources/AppDescription`, written for every language from these catalogs by winui-app-kit's packaging script (`manifest_strings` in `windows-build.json`). It is the one key without dots, because the manifest's resource syntax allows only word characters; the About and Home pages use it too.
 - Numbers and times follow the Windows region, not the interface language (LOC-4), through `DriveStatusText.Count`, `ShortTime` and `ShortDateTime`.
-- `npm run check:l10n` (in `validate`) fails on a missing or extra key, a placeholder mismatch, an em dash, a key the code uses that no catalog defines, a catalog key nothing uses, or a manifest language list that differs from the family's (LOC-9). A literal inside a `UiText.Format` call counts as a key, so format strings such as `"N0"` belong in a helper, not in the call.
+- `npm run check:l10n` (in `validate`) fails on a missing or extra key, a placeholder mismatch, an em dash, a key the code uses that no catalog defines, a catalog key nothing uses, or a manifest language list that differs from the family's (LOC-9). Number and time formats go through `DriveStatusText`'s helpers, so every status line formats them the same way.
 
 ## Review status (LOC-12)
 
