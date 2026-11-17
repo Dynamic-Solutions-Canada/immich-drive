@@ -45,6 +45,12 @@ uses `ProbeAsync` to distinguish that rejection from an unreachable server and s
 permission checklist beside the key. A successful Test connection checks only `/users/me`,
 not permission coverage for other features. Without `asset.upload`, upload failures leave
 local files in Upload for retry; omitting album/partner permissions prevents those mirrors.
+If the key is rejected (401) during a sync, `DriveManager` moves the drive to the same "key rejected"
+error state, logs one line, and skips the periodic polls until **Try again** or **Connect** reconnects
+with the current key, instead of logging the same 401 on every poll. A 403 is a missing permission for
+one area, not a bad key: the album and partner lists come back empty (`ImmichClient.AreaRefused`
+reports them), a timeline 403 becomes a sync issue, and each area is logged once per connection while
+the rest of the drive keeps working.
 
 ## Timeline (the source of the date layout)
 

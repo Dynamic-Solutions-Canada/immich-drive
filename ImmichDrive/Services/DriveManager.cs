@@ -67,6 +67,9 @@ public sealed class DriveManager
     private readonly SemaphoreSlim _probeLock = new(1, 1);
     private string? _connectedAs;
 
+    /// <summary>The areas Immich has refused on this connection, so each is logged once.</summary>
+    private readonly HashSet<string> _refusedAreas = [];
+
     public DriveStatus Status { get; private set; } = DriveStatus.Disconnected;
     /// <summary>The detail behind <see cref="Status"/>, rendered in the current language when shown.</summary>
     public LocalizedMessage? StatusDetail { get; private set; }
@@ -152,7 +155,12 @@ public sealed class DriveManager
             _pins = null;
 
             _client?.Dispose();
-            _client = new ImmichClient(s.ServerUrl, apiKey);
+            lock (_refusedAreas)
+            {
+                _refusedAreas.Clear();   // a new connection may have a key with other permissions
+            }
+
+            _client = new ImmichClient(s.ServerUrl, apiKey) { AreaRefused = NoteAreaRefused };
             var (reachability, who) = await _client.ProbeAsync();
             if (reachability == ImmichReachability.Unauthorized)
             {
@@ -490,6 +498,11 @@ public sealed class DriveManager
             return;   // the watchdog owns recovery while offline
         }
 
+        if (Status == DriveStatus.Error)
+        {
+            return;   // e.g. a rejected key: polling can't fix it; Try again or Connect reconnects
+        }
+
         if (skipIfBusy)
         {
             if (!await _populateLock.WaitAsync(0, ct))
@@ -538,6 +551,20 @@ public sealed class DriveManager
             NoteServerReachable();   // a completed populate is proof the server is answering
         }
         catch (OperationCanceledException) { }
+        catch (HttpRequestException ex) when (IsKeyRejection(ex))
+        {
+            OnKeyRejectedDuringSync(ex);
+        }
+        catch (HttpRequestException ex) when (ex.StatusCode == System.Net.HttpStatusCode.Forbidden)
+        {
+            // The key lacks a permission the timeline needs: a sync issue, not a reason to stop the
+            // drive, and logged once rather than on every poll.
+            NoteAreaRefused("timeline", (int)ex.StatusCode);
+            if (!newestOnly)
+            {
+                _populateIssue = new LocalizedMessage("drive.sync-issue");
+            }
+        }
         catch (Exception ex)
         {
             Logger.Warn(ex, "Populate failed (newestOnly={0})", newestOnly);
@@ -553,6 +580,52 @@ public sealed class DriveManager
             if (!newestOnly) { IsPopulating = false; StatusChanged?.Invoke(); }
             _populateLock.Release();
         }
+    }
+
+    /// <summary>
+    /// True when the server refused the API key itself (401): it was revoked or mistyped. Repeating the
+    /// request can't fix that. A 403 is different: the key lacks one area's permission, so that area
+    /// is skipped (<see cref="NoteAreaRefused"/>) while the rest of the drive keeps working.
+    /// </summary>
+    private static bool IsKeyRejection(HttpRequestException ex) =>
+        ex.StatusCode == System.Net.HttpStatusCode.Unauthorized;
+
+    /// <summary>
+    /// Immich answered one area (albums, partners, the timeline) with an error, usually a 403 for a
+    /// permission the key lacks. Logs it once per area per connection; the area stays empty and the
+    /// rest of the drive keeps syncing.
+    /// </summary>
+    private void NoteAreaRefused(string area, int status)
+    {
+        bool first;
+        lock (_refusedAreas)
+        {
+            first = _refusedAreas.Add(area);
+        }
+
+        if (first)
+        {
+            Logger.Warn("Immich refused {Area} (HTTP {Status}); that part of the drive is skipped. Check the API key's permissions",
+                area, status);
+        }
+    }
+
+    /// <summary>
+    /// Immich refused the key in the middle of a sync. Moves the drive to the "key rejected" error state
+    /// once, logs one line without a stack trace, and lets <see cref="RunPopulate"/> skip the timers'
+    /// polls until the user fixes the key: Try again and Connect reconnect from scratch with the
+    /// current key. Before this, every poll logged the same 401 with a full stack trace.
+    /// </summary>
+    private void OnKeyRejectedDuringSync(HttpRequestException ex)
+    {
+        if (Status == DriveStatus.Error)
+        {
+            return;
+        }
+
+        Logger.Warn("Immich rejected the API key during sync (HTTP {Status}); sync paused until the key is fixed or the connection is retried",
+            (int?)ex.StatusCode);
+        Set(DriveStatus.Error, KeyRejected());
     }
 
     /// <summary>Reports progress in order, including the final update, on the populate thread.</summary>

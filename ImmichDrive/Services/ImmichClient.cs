@@ -29,6 +29,14 @@ public sealed class ImmichClient : IDisposable
     /// <summary>The normalized API base, e.g. <c>https://photos.example.com/api</c>.</summary>
     public string ApiBase { get; }
 
+    /// <summary>
+    /// Called with the area ("albums", "partners") and the HTTP status when the server answers a list
+    /// request with an error, which these methods otherwise turn into an empty list. A 403 usually
+    /// means the key lacks that area's permission. Optional; this class stays free of logging so the
+    /// thumbnail provider can link it, and the app wires this to its log.
+    /// </summary>
+    public Action<string, int>? AreaRefused { get; init; }
+
     public ImmichClient(string serverUrl, string apiKey, TimeSpan? timeout = null)
     {
         ApiBase = NormalizeApiBase(serverUrl);
@@ -249,6 +257,7 @@ public sealed class ImmichClient : IDisposable
         using var resp = await _http.GetAsync($"{ApiBase}/partners?direction=shared-with", ct);
         if (!resp.IsSuccessStatusCode)
         {
+            AreaRefused?.Invoke("partners", (int)resp.StatusCode);
             return result;
         }
 
@@ -281,6 +290,7 @@ public sealed class ImmichClient : IDisposable
         using var resp = await _http.GetAsync($"{ApiBase}/albums", ct);
         if (!resp.IsSuccessStatusCode)
         {
+            AreaRefused?.Invoke("albums", (int)resp.StatusCode);
             return result;
         }
 
