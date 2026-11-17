@@ -1,5 +1,8 @@
 using ImmichDrive.Classes.Settings;
+using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
+using WinUIAppKit.Localization;
+using WinUIAppKit.Windowing;
 
 namespace ImmichDrive.Pages;
 
@@ -29,5 +32,31 @@ public sealed partial class SettingsPage : Page
 
         // Shown once, on the launch that found the settings file unreadable (CONF-2, UI-15).
         NoticeHost.Content = App.TakeResetNotice();
+    }
+
+    /// <summary>
+    /// "Reset settings" (CONF-4): asks first, with Cancel as the default, then resets and opens this
+    /// page again so every row shows the defaults. Start with Windows is Windows' state; its row reads
+    /// it again. The drive and its connection are kept (see <see cref="SettingsManager.ResetSettings"/>).
+    /// </summary>
+    private async void ResetSettings_Click(object sender, RoutedEventArgs e)
+    {
+        if (SettingsWindow.GetCurrent() is not { } window)
+        {
+            return;
+        }
+
+        bool confirmed = await ConfirmDialog.ConfirmAsync(
+            window,
+            UiText.Get("settings.reset-title"),
+            UiText.Get("settings.reset-body"),
+            UiText.Get("settings.reset-confirm"));
+        if (!confirmed)
+        {
+            return;
+        }
+
+        SettingsManager.ResetSettings();
+        Frame?.Navigate(typeof(SettingsPage));
     }
 }

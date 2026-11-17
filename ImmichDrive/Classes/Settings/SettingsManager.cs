@@ -73,6 +73,43 @@ public static class SettingsManager
     }
 
     /// <summary>
+    /// "Reset settings" (CONF-4, D-104): keeps the current file as <c>settings.json.&lt;UTC time&gt;.reset</c>,
+    /// writes a fresh one and applies the default theme and language at once.
+    /// <para>
+    /// What resets is the user's preferences: theme, language and the settings window's placement. The
+    /// drive's connection and bookkeeping carry over (server URL, drive folder, connected flag, layout
+    /// and registration versions, last sync, last known version): clearing them would leave the sync
+    /// root registered at a folder the app no longer knows and force a full rebuild, and the
+    /// Connection page's Disconnect is how a user drops the drive. Start with Windows is Windows' state
+    /// and the API key is in the protected store, so neither is touched.
+    /// </para>
+    /// Callers reload the page that shows the settings, so its controls show the defaults.
+    /// </summary>
+    public static void ResetSettings()
+    {
+        var drive = _current;
+        var result = Store.Reset();
+        _current = result.Settings;
+
+        // Carry the drive over before initialization ends, so no change handler runs for it.
+        _current.ServerUrl = drive.ServerUrl;
+        _current.Connected = drive.Connected;
+        _current.SyncRootPath = drive.SyncRootPath;
+        _current.LastSyncUtc = drive.LastSyncUtc;
+        _current.LayoutVersion = drive.LayoutVersion;
+        _current.RegisteredVersion = drive.RegisteredVersion;
+        _current.LastKnownVersion = drive.LastKnownVersion;
+        _current.CompleteInitialization();
+
+        Logger.Info("Settings reset; previous file kept at {Backup}", result.BackupPath);
+        WinUIAppKit.Theming.AppTheme.Set((WinUIAppKit.Theming.AppThemeChoice)_current.AppTheme);
+        WinUIAppKit.Localization.UiText.SetOverride(_current.Language);
+
+        // Writes the carried-over drive state, and the legacy key field if the key is still pending.
+        SaveSettings();
+    }
+
+    /// <summary>
     /// Writes the current settings atomically. The API key is not a setting; its legacy field is
     /// written only while <see cref="ApiKeyStore.PendingLegacyKey"/> is set, so a save can never erase
     /// the user's only persisted copy. Failures are logged, never thrown.

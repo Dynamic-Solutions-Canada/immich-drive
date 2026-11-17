@@ -21,6 +21,21 @@
                     <kitc:ThemeSetting x:Name="ThemeRow" />
                 </StackPanel>
             </Border>
+
+            <!-- Reset settings (CONF-4): preferences only; the drive keeps its connection -->
+            <TextBlock l10n:Localize.Text="settings.reset" Style="{StaticResource SectionHeaderStyle}" />
+            <Border Style="{StaticResource CardBorderStyle}">
+                <StackPanel Spacing="8">
+                    <TextBlock l10n:Localize.Text="settings.reset-desc" Style="{StaticResource CaptionTextBlockStyle}" TextWrapping="Wrap"
+                               Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
+                    <Button Click="ResetSettings_Click" HorizontalAlignment="Left">
+                        <StackPanel Style="{StaticResource IconLabelStyle}">
+                            <FontIcon Glyph="&#xE777;" Style="{StaticResource ButtonGlyphStyle}" />
+                            <TextBlock l10n:Localize.Text="settings.reset-button" />
+                        </StackPanel>
+                    </Button>
+                </StackPanel>
+            </Border>
         </StackPanel>
     </ScrollViewer>
 </Page>

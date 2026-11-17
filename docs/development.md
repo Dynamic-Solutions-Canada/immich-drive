@@ -139,6 +139,7 @@ Windows 10 22H2 status: a user reported the Store release 0.1.50 working on Wind
   - Home, Connection, Settings (Start with Windows, Language, Theme), About (with the "How it works" and "Immich" cards, the privacy policy and third-party notices links), Our other apps, the tray flyout and the tray menu.
   - Switch the language to German and to Japanese and look for clipped or overlapping text on every page, the flyout and the tray menu; check that a WinUI control's own text, such as a text box's Cut, Copy and Paste menu, is translated too; then return to "Use system setting".
   - On Connection, an `http://` address on the network shows the unencrypted-connection warning (also read by a screen reader), while `https://` and `http://localhost` do not, and the http address still connects.
+  - Settings, Reset settings: Cancel changes nothing; Reset returns the theme, language and window size to defaults, leaves the drive connected and syncing, and leaves a `settings.json.<time>.reset` file in the logs folder.
   - With a settings file made unreadable, the next launch opens Settings with the "settings were reset" notice.
   - Make a thumbnail fail (for example, disconnect the server and open a folder that was never shown), then find `thumbnail-provider.log` through About, "Open logs folder": it should name no file paths, and `C:\ProgramData\ImmichDrive\thumb.log` should be gone after a launch.
 

@@ -47,6 +47,8 @@ provider reads `ServerUrl` and `SyncRootPath` by name), defaults written, nulls 
 | `SettingsWindowPlacement` | The settings window's last normal size and position (kit `WindowPlacement`), or null to centre it. |
 | `PendingLegacyApiKey` | Written as `ApiKey`, and only while the protected store refuses the key during the one-time migration; null and omitted otherwise. Never set it anywhere else. |
 
+**Reset settings** (CONF-4, `SettingsManager.ResetSettings`) keeps the current file as `settings.json.<UTC time>.reset` and resets the user's preferences: `AppTheme`, `Language` and `SettingsWindowPlacement`. The drive's state carries over: `ServerUrl`, `Connected`, `SyncRootPath`, `LastSyncUtc`, `LayoutVersion`, `RegisteredVersion` and `LastKnownVersion`, because clearing them would leave the sync root registered at a folder the app no longer knows and force a full rebuild; Disconnect on the Connection page is how a user drops the drive. The API key (protected store) and Start with Windows (Windows' state) are never touched. A new preference resets by default; a new piece of drive state must be added to the carried-over list. That list is a maintenance trap: if `settings.json` is ever split, drive state belongs in its own store, so Reset never needs to know about it.
+
 The drive is always read-only; there is no `ReadOnlyDrive` setting. There is no `Recent\` folder
 and no `RecentDays` setting.
 
