@@ -10,13 +10,30 @@ Only the endpoints ImmichDrive calls ([docs/immich-api.md](../../docs/immich-api
 - **Timeline:** month buckets, newest first, filtered by `userId`, `isFavorite` and `albumId`; month contents in the newer columnar shape, without `originalFileName`, so ImmichDrive's enrich step (`GET /api/assets/{id}`) runs.
 - **Assets:** metadata with `exifInfo.fileSizeInByte`, a small PNG thumbnail, and the original with HTTP Range support (206).
 - **Upload:** `POST /api/assets` multipart; the file joins the newest month.
-- **Failures on purpose:** the thumbnail of `asset-0007` returns 500, so the thumbnail provider logs a failure to `thumbnail-provider.log` (FIX-063). Stop the container to test the offline state and recovery.
+- **Failures on purpose:** the thumbnail of `asset-0007` returns 500, so the thumbnail provider logs a failure to `thumbnail-provider.log` (FIX-063). `--deny-area albums partners` answers those lists with Immich's 403, as for a key without that permission. Restart it with another `--key` to see a rejected key (401). Stop the container to test the offline state and recovery.
 
 Everything is generated in memory at start: synthetic images, a test user and partner on `example.invalid` addresses, and the API key `test-key`, which is a test value, not a secret. Nothing is written to disk.
 
+## Contract with real Immich
+
+`contract_test.py` (`npm run check:fake-immich`, part of `validate`) holds one spec of what ImmichDrive reads from each endpoint: fields and their JSON types, response shapes, status codes and the month-key format. It checks the recorded responses of a real Immich release (`contract/immich-v3.4.1.json`) against the spec, then starts the fake in-process and checks it against the same spec, so the fake cannot drift from Immich silently. It needs no server or Docker.
+
+Recorded 2026-11-17 from Immich v3.4.1. What the recording changed in the fake: month keys are `YYYY-MM-01` (not midnight UTC timestamps), and error bodies are `{"message": ...}` with Immich's wording. Immich serves JPEG thumbnails and the fake PNG; ImmichDrive decodes both.
+
+To re-record for a new Immich release, when no test VM is running and at least 7 GB is free:
+
+```bash
+cd tests/fake-immich/contract
+docker compose -f compose.yml up -d            # throwaway Immich, capped, loopback only, no machine learning
+python3 -I record_immich.py http://127.0.0.1:22283 /tmp/immich-recording
+docker compose -f compose.yml down -v          # removes the server and all its data
+```
+
+Update the image tag in `compose.yml` first, copy the new `responses.json` over `immich-v<version>.json` (and the path in `contract_test.py`), and fix the fake until `npm run check:fake-immich` passes. The recording seeds only synthetic data: generated images, users on `example.invalid`, and a throwaway password used nowhere else.
+
 ## What it does not prove
 
-It is not Immich. It proves ImmichDrive's Windows-side behaviour (placeholders, thumbnails, hydration, upload, the drive's states) against the shapes in docs/immich-api.md, not compatibility with a real Immich release. The contract check against recorded responses from a real Immich release does that, so the fake cannot drift from Immich silently.
+It is not Immich. It proves ImmichDrive's Windows-side behaviour (placeholders, thumbnails, hydration, upload, the drive's states) against the shapes in docs/immich-api.md, not compatibility with a real Immich release. The contract check above, against recorded responses from a real Immich release, does that.
 
 ## Use
 

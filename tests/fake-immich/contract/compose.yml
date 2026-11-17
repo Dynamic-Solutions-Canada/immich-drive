@@ -1,0 +1,46 @@
+# Throwaway Immich v3.4.1 for recording the API contract of ImmichDrive's fake server.
+# Trimmed from Immich's own v3.4.1 docker-compose.yml: no machine learning, capped memory, API on
+# loopback only, data in named volumes removed by `down -v`. See tests/fake-immich/README.md.
+name: immich-contract
+services:
+  server:
+    container_name: immich-contract-server
+    image: ghcr.io/immich-app/immich-server:v3.4.1
+    environment:
+      DB_HOSTNAME: database
+      DB_USERNAME: postgres
+      DB_PASSWORD: contract-test-only
+      DB_DATABASE_NAME: immich
+      REDIS_HOSTNAME: redis
+      IMMICH_MACHINE_LEARNING_ENABLED: "false"
+    volumes:
+      - library:/data
+    ports:
+      - "127.0.0.1:22283:2283"
+    depends_on: [redis, database]
+    mem_limit: 1536m
+    memswap_limit: 1536m
+    restart: "no"
+  redis:
+    container_name: immich-contract-redis
+    image: docker.io/valkey/valkey:9@sha256:418652cfb58ef879d4978c33553735d7147016032d5aefaa14c828e611eb9dfd
+    mem_limit: 128m
+    memswap_limit: 128m
+    restart: "no"
+  database:
+    container_name: immich-contract-db
+    image: ghcr.io/immich-app/postgres:14-vectorchord0.4.3-pgvectors0.2.0@sha256:bcf63357191b76a916ae5eb93464d65c07511da41e3bf7a8416db519b40b1c23
+    environment:
+      POSTGRES_PASSWORD: contract-test-only
+      POSTGRES_USER: postgres
+      POSTGRES_DB: immich
+      POSTGRES_INITDB_ARGS: "--data-checksums"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    shm_size: 128mb
+    mem_limit: 1536m
+    memswap_limit: 1536m
+    restart: "no"
+volumes:
+  library:
+  pgdata:

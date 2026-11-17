@@ -7,7 +7,7 @@ only. It is not Immich and proves nothing about compatibility with a real server
 against a recorded Immich release does that. See README.md.
 
 Usage:
-    python3 fake_immich.py [--port 2283] [--key test-key] [--fail-thumbnail ASSET_ID ...]
+    python3 fake_immich.py [--port 2283] [--key test-key] [--fail-thumbnail ASSET_ID ...] [--deny-area albums|partners ...]
 
 Endpoints (all under /api, all but /server/ping need the x-api-key header):
     GET  /users/me                       the test user (the connection probe)
@@ -83,7 +83,8 @@ class Asset:
 
     @property
     def month(self) -> str:
-        return self.created[:7] + "-01T00:00:00.000Z"
+        """The month bucket key, as Immich v3.4.1 writes it ("2026-10-01")."""
+        return self.created[:7] + "-01"
 
 
 def build_library() -> list[Asset]:
@@ -176,6 +177,7 @@ class Handler(BaseHTTPRequestHandler):
     library: Library
     api_key: str
     failing_thumbnails: set[str]
+    denied_areas: set[str]
     protocol_version = "HTTP/1.1"
 
     def do_GET(self):
@@ -192,7 +194,7 @@ class Handler(BaseHTTPRequestHandler):
         if method == "GET" and path == "/server/ping":
             return self.send_json({"res": "pong"})
         if self.headers.get("x-api-key") != self.api_key:
-            return self.send_json({"message": "Invalid API key", "statusCode": 401}, HTTPStatus.UNAUTHORIZED)
+            return self.send_json({"message": "Invalid API key"}, HTTPStatus.UNAUTHORIZED)
 
         if method == "GET" and path == "/users/me":
             return self.send_json({"id": USER_ID, "name": "Test User", "email": "test.user@example.invalid"})
@@ -200,6 +202,9 @@ class Handler(BaseHTTPRequestHandler):
             return self.send_json(self.buckets(query))
         if method == "GET" and path == "/timeline/bucket":
             return self.send_json(self.bucket(query))
+        for area, permission in (("albums", "album.read"), ("partners", "partner.read")):
+            if path == f"/{area}" and area in self.denied_areas:
+                return self.send_json({"message": f"Missing required permission: {permission}"}, HTTPStatus.FORBIDDEN)
         if method == "GET" and path == "/albums":
             return self.send_json([{"id": ALBUM_ID, "albumName": "Test Album", "assetCount": len(self.library.album_ids)}])
         if method == "GET" and path == "/partners":
@@ -211,10 +216,10 @@ class Handler(BaseHTTPRequestHandler):
         if method == "GET" and match:
             asset = self.library.find(match.group(1))
             if asset is None:
-                return self.send_json({"message": "Not found", "statusCode": 404}, HTTPStatus.NOT_FOUND)
+                return self.send_json({"message": "Not found"}, HTTPStatus.NOT_FOUND)
             if match.group(2) == "/thumbnail":
                 if asset.id in self.failing_thumbnails:
-                    return self.send_json({"message": "Thumbnail failed (fake)", "statusCode": 500}, HTTPStatus.INTERNAL_SERVER_ERROR)
+                    return self.send_json({"message": "Thumbnail failed (fake)"}, HTTPStatus.INTERNAL_SERVER_ERROR)
                 return self.send_bytes(asset.thumbnail, "image/png")
             if match.group(2) == "/original":
                 return self.send_original(asset)
@@ -227,10 +232,10 @@ class Handler(BaseHTTPRequestHandler):
                 "isFavorite": asset.favorite,
                 "exifInfo": {"fileSizeInByte": len(asset.original)},
             })
-        return self.send_json({"message": "Not found", "statusCode": 404}, HTTPStatus.NOT_FOUND)
+        return self.send_json({"message": "Not found"}, HTTPStatus.NOT_FOUND)
 
     def buckets(self, query) -> list[dict]:
-        """Month buckets for the query, newest first, with keys at midnight UTC like Immich's."""
+        """Month buckets for the query, newest first, keyed "YYYY-MM-01" like Immich v3.4.1."""
         counts: dict[str, int] = {}
         for asset in self.library.select(query):
             counts[asset.month] = counts.get(asset.month, 0) + 1
@@ -285,7 +290,7 @@ class Handler(BaseHTTPRequestHandler):
         body = self.rfile.read(length)
         part = asset_data_part(self.headers.get("Content-Type") or "", body)
         if part is None:
-            return self.send_json({"message": "No assetData part", "statusCode": 400}, HTTPStatus.BAD_REQUEST)
+            return self.send_json({"message": "No assetData part"}, HTTPStatus.BAD_REQUEST)
         asset = self.library.add_upload(*part)
         self.send_json({"id": asset.id, "status": "created"}, HTTPStatus.CREATED)
 
@@ -322,11 +327,14 @@ def main() -> None:
     parser.add_argument("--port", type=int, default=2283)
     parser.add_argument("--key", default="test-key", help="The API key the fake accepts. A test value, not a secret.")
     parser.add_argument("--fail-thumbnail", nargs="*", default=[], help="Asset ids whose thumbnail returns 500.")
+    parser.add_argument("--deny-area", nargs="*", default=[], choices=["albums", "partners"],
+                        help="Areas answered with 403, as for a key without that permission.")
     args = parser.parse_args()
 
     Handler.library = Library()
     Handler.api_key = args.key
     Handler.failing_thumbnails = set(args.fail_thumbnail)
+    Handler.denied_areas = set(args.deny_area)
     server = Server(("0.0.0.0", args.port), Handler)
     count = len(Handler.library.assets)
     print(f"fake-immich: serving {count} assets on port {args.port}", flush=True)

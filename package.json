@@ -8,13 +8,14 @@
     "install:desktop": "scripts/windows-build --install",
     "package:desktop": "scripts/windows-build --no-sign",
     "test": "external/winui-app-kit/scripts/run-tests",
-    "validate": "npm run format:check && npm run check:gitignore && npm run check:l10n && npm run check:listing && npm run check:notices && npm test",
+    "validate": "npm run format:check && npm run check:gitignore && npm run check:l10n && npm run check:listing && npm run check:notices && npm run check:fake-immich && npm test",
     "format": "external/winui-app-kit/scripts/format",
     "format:check": "external/winui-app-kit/scripts/format --check",
     "check:gitignore": "external/winui-app-kit/scripts/check-gitignore .",
     "check:listing": "python3 external/winui-app-kit/scripts/check-listing.py",
     "generate:notices": "python3 external/winui-app-kit/scripts/generate-notices.py",
     "check:notices": "python3 external/winui-app-kit/scripts/generate-notices.py --check",
-    "check:l10n": "python3 external/winui-app-kit/scripts/check-localization.py"
+    "check:l10n": "python3 external/winui-app-kit/scripts/check-localization.py",
+    "check:fake-immich": "python3 -I tests/fake-immich/contract_test.py"
   }
 }

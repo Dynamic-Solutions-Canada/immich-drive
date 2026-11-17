@@ -1,0 +1,397 @@
+{
+  "server_version": {
+    "major": 3,
+    "minor": 4,
+    "patch": 1,
+    "prerelease": null,
+    "featureLevel": 2
+  },
+  "responses": {
+    "users_me": {
+      "path": "/users/me",
+      "status": 200,
+      "content_type": "application/json; charset=utf-8",
+      "body": {
+        "id": "a423b4a5-3060-4eff-8e25-df14e898a428",
+        "email": "admin@example.invalid",
+        "name": "Contract Admin",
+        "profileImagePath": "",
+        "avatarColor": "red",
+        "profileChangedAt": "2026-11-17T20:53:12.733Z",
+        "clusterGroupId": "b960375a-ea6d-4a9a-8884-00ab280a354a",
+        "storageLabel": "admin",
+        "shouldChangePassword": true,
+        "isAdmin": true,
+        "createdAt": "2026-11-17T20:53:12.733Z",
+        "deletedAt": null,
+        "updatedAt": "2026-11-17T20:53:13.033Z",
+        "oauthId": "",
+        "quotaSizeInBytes": null,
+        "quotaUsageInBytes": 5800,
+        "status": "active",
+        "license": null
+      }
+    },
+    "timeline_buckets": {
+      "path": "/timeline/buckets?size=MONTH&isTrashed=false&isArchived=false",
+      "status": 200,
+      "content_type": "application/json; charset=utf-8",
+      "body": [
+        {
+          "timeBucket": "2026-10-01",
+          "count": 3
+        },
+        {
+          "timeBucket": "2026-09-01",
+          "count": 3
+        }
+      ]
+    },
+    "timeline_bucket": {
+      "path": "/timeline/bucket?size=MONTH&isTrashed=false&isArchived=false&timeBucket=2026-10-01",
+      "status": 200,
+      "content_type": "application/json; charset=utf-8",
+      "body": {
+        "duration": [
+          null,
+          null,
+          null
+        ],
+        "id": [
+          "d1e10d78-aa36-47fc-9206-5ac7e2a2831f",
+          "45a90238-41fb-42fc-90a8-7bce58896caa",
+          "8c7774ed-ae58-476e-9b98-a89b6303c4c5"
+        ],
+        "visibility": [
+          "timeline",
+          "timeline",
+          "timeline"
+        ],
+        "isFavorite": [
+          false,
+          false,
+          false
+        ],
+        "isImage": [
+          true,
+          true,
+          true
+        ],
+        "isTrashed": [
+          false,
+          false,
+          false
+        ],
+        "livePhotoVideoId": [
+          null,
+          null,
+          null
+        ],
+        "fileCreatedAt": [
+          "2026-10-15T10:00:00",
+          "2026-10-13T10:00:00",
+          "2026-10-11T10:00:00"
+        ],
+        "localOffsetHours": [
+          0,
+          0,
+          0
+        ],
+        "createdAt": [
+          "2026-11-17T20:53:13.030793",
+          "2026-11-17T20:53:13.008329",
+          "2026-11-17T20:53:12.974334"
+        ],
+        "ownerId": [
+          "a423b4a5-3060-4eff-8e25-df14e898a428",
+          "a423b4a5-3060-4eff-8e25-df14e898a428",
+          "a423b4a5-3060-4eff-8e25-df14e898a428"
+        ],
+        "projectionType": [
+          null,
+          null,
+          null
+        ],
+        "ratio": [
+          1.333,
+          1.333,
+          1.333
+        ],
+        "status": [
+          "active",
+          "active",
+          "active"
+        ],
+        "thumbhash": [
+          "pdcCBYCHh4h3eHhwd4d3h3h3j3j3",
+          "XjYCBYCHh4h4d3d/iId4d3eIcIgI",
+          "GJUBBYCHh4iIeIdwd4iIjHiHj3f4"
+        ],
+        "city": [
+          null,
+          null,
+          null
+        ],
+        "country": [
+          null,
+          null,
+          null
+        ]
+      }
+    },
+    "timeline_buckets_favorite": {
+      "path": "/timeline/buckets?size=MONTH&isTrashed=false&isArchived=false&isFavorite=true",
+      "status": 200,
+      "content_type": "application/json; charset=utf-8",
+      "body": [
+        {
+          "timeBucket": "2026-09-01",
+          "count": 1
+        }
+      ]
+    },
+    "partners": {
+      "path": "/partners?direction=shared-with",
+      "status": 200,
+      "content_type": "application/json; charset=utf-8",
+      "body": [
+        {
+          "id": "60cadf7c-85b9-4567-a446-9d3ed7bfa3ca",
+          "email": "partner@example.invalid",
+          "name": "Contract Partner",
+          "profileImagePath": "",
+          "avatarColor": "green",
+          "profileChangedAt": "2026-11-17T20:53:12.871822+00:00",
+          "inTimeline": false
+        }
+      ]
+    },
+    "timeline_buckets_partner": {
+      "path": "/timeline/buckets?size=MONTH&isTrashed=false&isArchived=false&userId=60cadf7c-85b9-4567-a446-9d3ed7bfa3ca",
+      "status": 200,
+      "content_type": "application/json; charset=utf-8",
+      "body": [
+        {
+          "timeBucket": "2026-10-01",
+          "count": 2
+        }
+      ]
+    },
+    "albums": {
+      "path": "/albums",
+      "status": 200,
+      "content_type": "application/json; charset=utf-8",
+      "body": [
+        {
+          "albumName": "Contract Album",
+          "description": "",
+          "albumThumbnailAssetId": "8c7774ed-ae58-476e-9b98-a89b6303c4c5",
+          "createdAt": "2026-11-17T20:53:13.070Z",
+          "updatedAt": "2026-11-17T20:53:13.070Z",
+          "id": "28561cd3-7ea4-4b14-88d4-a9adc781c611",
+          "albumUsers": [
+            {
+              "user": {
+                "id": "a423b4a5-3060-4eff-8e25-df14e898a428",
+                "email": "admin@example.invalid",
+                "name": "Contract Admin",
+                "profileImagePath": "",
+                "avatarColor": "red",
+                "profileChangedAt": "2026-11-17T20:53:12.733846+00:00"
+              },
+              "role": "owner"
+            }
+          ],
+          "shared": false,
+          "hasSharedLink": false,
+          "startDate": "2026-09-10T00:00:00.000Z",
+          "endDate": "2026-10-11T00:00:00.000Z",
+          "assetCount": 2,
+          "isActivityEnabled": true,
+          "order": "desc",
+          "lastModifiedAssetTimestamp": "2026-11-17T20:53:13.185Z"
+        }
+      ]
+    },
+    "timeline_buckets_album": {
+      "path": "/timeline/buckets?size=MONTH&albumId=28561cd3-7ea4-4b14-88d4-a9adc781c611",
+      "status": 200,
+      "content_type": "application/json; charset=utf-8",
+      "body": [
+        {
+          "timeBucket": "2026-10-01",
+          "count": 1
+        },
+        {
+          "timeBucket": "2026-09-01",
+          "count": 1
+        }
+      ]
+    },
+    "timeline_bucket_album": {
+      "path": "/timeline/bucket?size=MONTH&albumId=28561cd3-7ea4-4b14-88d4-a9adc781c611&timeBucket=2026-10-01",
+      "status": 200,
+      "content_type": "application/json; charset=utf-8",
+      "body": {
+        "duration": [
+          null
+        ],
+        "id": [
+          "8c7774ed-ae58-476e-9b98-a89b6303c4c5"
+        ],
+        "visibility": [
+          "timeline"
+        ],
+        "isFavorite": [
+          false
+        ],
+        "isImage": [
+          true
+        ],
+        "isTrashed": [
+          false
+        ],
+        "livePhotoVideoId": [
+          null
+        ],
+        "fileCreatedAt": [
+          "2026-10-11T10:00:00"
+        ],
+        "localOffsetHours": [
+          0
+        ],
+        "createdAt": [
+          "2026-11-17T20:53:12.974334"
+        ],
+        "ownerId": [
+          "a423b4a5-3060-4eff-8e25-df14e898a428"
+        ],
+        "projectionType": [
+          null
+        ],
+        "ratio": [
+          1.333
+        ],
+        "status": [
+          "active"
+        ],
+        "thumbhash": [
+          "GJUBBYCHh4iIeIdwd4iIjHiHj3f4"
+        ],
+        "city": [
+          null
+        ],
+        "country": [
+          null
+        ]
+      }
+    },
+    "asset": {
+      "path": "/assets/4f3bee21-36ed-47b9-b5f6-4491360fdba6",
+      "status": 200,
+      "content_type": "application/json; charset=utf-8",
+      "body": {
+        "id": "4f3bee21-36ed-47b9-b5f6-4491360fdba6",
+        "createdAt": "2026-11-17T20:53:12.949Z",
+        "ownerId": "a423b4a5-3060-4eff-8e25-df14e898a428",
+        "owner": {
+          "id": "a423b4a5-3060-4eff-8e25-df14e898a428",
+          "email": "admin@example.invalid",
+          "name": "Contract Admin",
+          "profileImagePath": "",
+          "avatarColor": "red",
+          "profileChangedAt": "2026-11-17T20:53:12.733846+00:00"
+        },
+        "libraryId": null,
+        "type": "IMAGE",
+        "originalPath": "/data/upload/a423b4a5-3060-4eff-8e25-df14e898a428/c2/10/c210b475-6876-45ea-b256-4202587bcb2d.png",
+        "originalFileName": "IMG_00.png",
+        "originalMimeType": "image/png",
+        "thumbhash": "VUQBBYCHh4h4eIdwiIeHhHiIgHf4",
+        "fileCreatedAt": "2026-09-10T10:00:00.000Z",
+        "fileModifiedAt": "2026-09-10T10:00:00.000Z",
+        "localDateTime": "2026-09-10T10:00:00.000Z",
+        "updatedAt": "2026-11-17T20:53:13.154Z",
+        "isFavorite": true,
+        "isArchived": false,
+        "isTrashed": false,
+        "visibility": "timeline",
+        "duration": null,
+        "exifInfo": {
+          "make": null,
+          "model": null,
+          "exifImageWidth": 320,
+          "exifImageHeight": 240,
+          "fileSizeInByte": 867,
+          "orientation": null,
+          "dateTimeOriginal": "2026-09-10T10:00:00+00:00",
+          "modifyDate": "2026-09-10T10:00:00+00:00",
+          "timeZone": null,
+          "lensModel": null,
+          "fNumber": null,
+          "focalLength": null,
+          "iso": null,
+          "exposureTime": null,
+          "latitude": null,
+          "longitude": null,
+          "city": null,
+          "state": null,
+          "country": null,
+          "description": "",
+          "projectionType": null,
+          "rating": null
+        },
+        "livePhotoVideoId": null,
+        "tags": [],
+        "people": [],
+        "checksum": "rOtBVZFH44OH/ImDVp/UINfwL8E=",
+        "stack": null,
+        "isOffline": false,
+        "hasMetadata": true,
+        "duplicateId": null,
+        "resized": true,
+        "width": 320,
+        "height": 240,
+        "isEdited": false
+      }
+    },
+    "asset_thumbnail": {
+      "path": "/assets/4f3bee21-36ed-47b9-b5f6-4491360fdba6/thumbnail?size=preview",
+      "status": 200,
+      "content_type": "image/jpeg",
+      "bytes": 1613,
+      "content_range": null
+    },
+    "asset_original_range": {
+      "path": "/assets/4f3bee21-36ed-47b9-b5f6-4491360fdba6/original",
+      "status": 206,
+      "content_type": "image/png",
+      "bytes": 100,
+      "content_range": "bytes 0-99/867"
+    },
+    "users_me_bad_key": {
+      "path": "/users/me",
+      "status": 401,
+      "content_type": "application/json; charset=utf-8",
+      "body": {
+        "message": "Invalid API key"
+      }
+    },
+    "partners_without_permission": {
+      "path": "/partners?direction=shared-with",
+      "status": 403,
+      "content_type": "application/json; charset=utf-8",
+      "body": {
+        "message": "Missing required permission: partner.read"
+      }
+    },
+    "albums_without_permission": {
+      "path": "/albums",
+      "status": 403,
+      "content_type": "application/json; charset=utf-8",
+      "body": {
+        "message": "Missing required permission: album.read"
+      }
+    }
+  }
+}
