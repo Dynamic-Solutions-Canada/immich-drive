@@ -21,7 +21,9 @@ This app's own interface conventions. The shared family rules are in the standar
   `FontIcon Style="{StaticResource ButtonGlyphStyle}"` then the label. Such a button gets no
   screen-reader name from its content, so give it one: `l10n:Localize.Name` with the label's key, or
   `AutomationProperties.SetName` in code when the label changes (UI-14). Secondary text uses
-  `Foreground="{ThemeResource TextFillColorSecondaryBrush}"`, not `Opacity`.
+  `Foreground="{ThemeResource TextFillColorSecondaryBrush}"`, not `Opacity`. Text built in code uses
+  `SecondaryText.Create` or `SecondaryText.Caption`, never a brush looked up in
+  `Application.Current.Resources`, which ignores the window's theme.
 - **SettingsPage** is the kit's shared rows (UI-4): `StartupSetting` (Windows' real startup state,
   TRAY-10), `LanguageSetting` and `ThemeSetting`, which apply at once and raise an event the page saves, and
   `ResetSetting` (CONF-4) in its own card, which runs `SettingsManager.ResetSettings` and names what it keeps in `KeptNote`. The kit's

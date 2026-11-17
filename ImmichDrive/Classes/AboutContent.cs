@@ -1,7 +1,6 @@
 using ImmichDrive.Services;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
-using Microsoft.UI.Xaml.Media;
 using WinUIAppKit.Localization;
 using WinUIAppKit.Pages;
 
@@ -77,13 +76,7 @@ internal static class AboutContent
             Text = UiText.Get(titleKey),
             Style = (Style)Application.Current.Resources["BodyStrongTextBlockStyle"],
         });
-        text.Children.Add(new TextBlock
-        {
-            Text = UiText.Get(descriptionKey),
-            TextWrapping = TextWrapping.Wrap,
-            Style = (Style)Application.Current.Resources["CaptionTextBlockStyle"],
-            Foreground = (Brush)Application.Current.Resources["TextFillColorSecondaryBrush"],
-        });
+        text.Children.Add(SecondaryText.Caption(UiText.Get(descriptionKey)));
         Grid.SetColumn(text, 1);
         grid.Children.Add(text);
 

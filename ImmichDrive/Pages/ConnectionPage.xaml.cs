@@ -1,3 +1,4 @@
+using ImmichDrive.Classes;
 using ImmichDrive.Classes.Settings;
 using ImmichDrive.Services;
 using Microsoft.UI.Xaml;
@@ -186,13 +187,7 @@ public sealed partial class ConnectionPage : Page
             paths.Add(path);
             var panel = new StackPanel();
             panel.Children.Add(new TextBlock { Text = label });
-            panel.Children.Add(new TextBlock
-            {
-                Text = path,
-                TextWrapping = TextWrapping.Wrap,
-                Style = (Style)Application.Current.Resources["CaptionTextBlockStyle"],
-                Foreground = (Microsoft.UI.Xaml.Media.Brush)Application.Current.Resources["TextFillColorSecondaryBrush"],
-            });
+            panel.Children.Add(SecondaryText.Caption(path));
             radios.Items.Add(new RadioButton { Content = panel });
             if (select)
             {
@@ -231,13 +226,9 @@ public sealed partial class ConnectionPage : Page
         var content = new StackPanel { Spacing = 4 };
         if (online)
         {
-            content.Children.Add(new TextBlock
-            {
-                Text = UiText.Get("connection.move-note"),
-                Foreground = (Microsoft.UI.Xaml.Media.Brush)Application.Current.Resources["TextFillColorSecondaryBrush"],
-                TextWrapping = TextWrapping.Wrap,
-                Margin = new Thickness(0, 0, 0, 8),
-            });
+            var note = SecondaryText.Create(UiText.Get("connection.move-note"));
+            note.Margin = new Thickness(0, 0, 0, 8);
+            content.Children.Add(note);
         }
 
         content.Children.Add(radios);
