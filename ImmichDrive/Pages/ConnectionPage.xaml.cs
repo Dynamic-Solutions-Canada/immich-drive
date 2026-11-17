@@ -33,6 +33,7 @@ public sealed partial class ConnectionPage : Page
         ShowUserReadNote();
         var s = SettingsManager.Current;
         ServerBox.Text = s.ServerUrl;
+        UpdateInsecureUrlWarning();
         ApiKeyBox.Password = ApiKeyStore.ApiKey;
         FolderBox.Text = s.EffectiveSyncRootPath;
         UpdateButtons();
@@ -57,7 +58,37 @@ public sealed partial class ConnectionPage : Page
     private void OnLanguageChanged()
     {
         ShowUserReadNote();
+        UpdateInsecureUrlWarning();
         RenderResult();
+    }
+
+    private void ServerBox_TextChanged(object sender, TextChangedEventArgs e) => UpdateInsecureUrlWarning();
+
+    /// <summary>
+    /// Warns, without blocking, when the server address is plain http:// and not this PC (FIX-064):
+    /// the API key and photos would then cross the network unencrypted. Many home servers only offer
+    /// http:// on the local network, so the address is still accepted.
+    /// </summary>
+    private void UpdateInsecureUrlWarning()
+    {
+        bool insecure = IsUnencryptedRemote(ServerBox.Text);
+        InsecureUrlBar.Title = UiText.Get("connection.http-warning-title");
+        InsecureUrlBar.Message = UiText.Get("connection.http-warning");
+        InsecureUrlBar.IsOpen = insecure;
+    }
+
+    /// <summary>
+    /// True for an absolute http:// address whose host is not loopback (localhost, 127.0.0.0/8, ::1).
+    /// Anything that does not parse is left to the connection test to report.
+    /// </summary>
+    private static bool IsUnencryptedRemote(string address)
+    {
+        if (!Uri.TryCreate(address.Trim(), UriKind.Absolute, out var uri))
+        {
+            return false;
+        }
+
+        return uri.Scheme == Uri.UriSchemeHttp && !uri.IsLoopback;
     }
 
     /// <summary>The note that even a connection test needs the user.read permission.</summary>

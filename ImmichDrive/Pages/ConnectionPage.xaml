@@ -24,7 +24,12 @@
             <Border Style="{StaticResource CardBorderStyle}">
                 <StackPanel Spacing="16">
                     <TextBox x:Name="ServerBox" l10n:Localize.Header="connection.server-url"
-                             PlaceholderText="https://photos.example.com" />
+                             PlaceholderText="https://photos.example.com"
+                             TextChanged="ServerBox_TextChanged" />
+                    <!-- Shown for a plain http:// address that isn't this PC (FIX-064): allowed, but the
+                         API key travels unencrypted. Title and message are set in code. -->
+                    <InfoBar x:Name="InsecureUrlBar" Severity="Warning" IsOpen="False" IsClosable="False"
+                             l10n:Localize.Name="connection.http-warning-title" />
                     <PasswordBox x:Name="ApiKeyBox" l10n:Localize.Header="connection.api-key"
                                  l10n:Localize.Placeholder="connection.api-key-placeholder" />
                     <StackPanel Spacing="8">

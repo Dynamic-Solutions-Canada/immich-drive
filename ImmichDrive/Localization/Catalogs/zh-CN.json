@@ -28,6 +28,8 @@
   "connection.folder-current": "当前位置",
   "connection.folder-home": "个人文件夹",
   "connection.folder-pictures": "图片",
+  "connection.http-warning": "服务器地址以 http:// 开头，因此你的 API 密钥和照片会以未加密方式在网络中传输，同一网络中的任何人都可能读取。如果你的服务器支持，请使用 https:// 地址。",
+  "connection.http-warning-title": "此连接未加密",
   "connection.key-not-saved": "无法保存你的 API 密钥，ImmichDrive 重启后你需要重新输入。",
   "connection.key-unreadable": "无法在此 Windows 帐户中读取已保存的 API 密钥。",
   "connection.key-unreadable-title": "请重新输入 API 密钥",

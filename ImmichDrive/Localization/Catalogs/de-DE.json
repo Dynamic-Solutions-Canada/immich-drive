@@ -28,6 +28,8 @@
   "connection.folder-current": "Aktueller Speicherort",
   "connection.folder-home": "Benutzerordner",
   "connection.folder-pictures": "Bilder",
+  "connection.http-warning": "Die Serveradresse beginnt mit http://. Dein API-Schlüssel und deine Fotos werden daher unverschlüsselt übertragen, und jeder im selben Netzwerk könnte sie mitlesen. Verwende eine https://-Adresse, wenn dein Server eine hat.",
+  "connection.http-warning-title": "Diese Verbindung ist nicht verschlüsselt",
   "connection.key-not-saved": "Dein API-Schlüssel konnte nicht gespeichert werden. Du musst ihn nach einem Neustart von ImmichDrive erneut eingeben.",
   "connection.key-unreadable": "Dein gespeicherter API-Schlüssel konnte in diesem Windows-Konto nicht gelesen werden.",
   "connection.key-unreadable-title": "API-Schlüssel erneut eingeben",

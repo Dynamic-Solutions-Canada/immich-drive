@@ -28,6 +28,8 @@
   "connection.folder-current": "Local atual",
   "connection.folder-home": "Pasta pessoal",
   "connection.folder-pictures": "Imagens",
+  "connection.http-warning": "O endereço do servidor começa com http://, então sua chave de API e suas fotos trafegam pela rede sem criptografia, e qualquer pessoa na mesma rede poderia lê-las. Use um endereço https:// se o seu servidor tiver um.",
+  "connection.http-warning-title": "Esta conexão não é criptografada",
   "connection.key-not-saved": "Não foi possível salvar sua chave de API, então você precisará digitá-la de novo quando o ImmichDrive reiniciar.",
   "connection.key-unreadable": "Não foi possível ler a chave de API salva nesta conta do Windows.",
   "connection.key-unreadable-title": "Digite sua chave de API novamente",

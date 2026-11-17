@@ -28,6 +28,8 @@
   "connection.folder-current": "Emplacement actuel",
   "connection.folder-home": "Dossier personnel",
   "connection.folder-pictures": "Images",
+  "connection.http-warning": "L’adresse du serveur commence par http:// : votre clé d’API et vos photos circulent sur le réseau sans chiffrement, et toute personne sur le même réseau pourrait les lire. Utilisez une adresse https:// si votre serveur en propose une.",
+  "connection.http-warning-title": "Cette connexion n’est pas chiffrée",
   "connection.key-not-saved": "Votre clé d’API n’a pas pu être enregistrée : vous devrez la saisir de nouveau au redémarrage d’ImmichDrive.",
   "connection.key-unreadable": "Votre clé d’API enregistrée n’a pas pu être lue sur ce compte Windows.",
   "connection.key-unreadable-title": "Saisissez de nouveau votre clé d’API",

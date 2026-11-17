@@ -28,6 +28,8 @@
   "connection.folder-current": "Ubicación actual",
   "connection.folder-home": "Carpeta personal",
   "connection.folder-pictures": "Imágenes",
+  "connection.http-warning": "La dirección del servidor empieza por http://, así que tu clave de API y tus fotos viajan por la red sin cifrar y cualquiera en la misma red podría leerlas. Usa una dirección https:// si tu servidor la tiene.",
+  "connection.http-warning-title": "Esta conexión no está cifrada",
   "connection.key-not-saved": "No se pudo guardar tu clave de API, así que tendrás que volver a introducirla cuando ImmichDrive se reinicie.",
   "connection.key-unreadable": "No se pudo leer la clave de API guardada en esta cuenta de Windows.",
   "connection.key-unreadable-title": "Vuelve a introducir tu clave de API",

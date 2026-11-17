@@ -28,6 +28,8 @@
   "connection.folder-current": "現在の場所",
   "connection.folder-home": "ホーム フォルダー",
   "connection.folder-pictures": "ピクチャ",
+  "connection.http-warning": "サーバー アドレスが http:// で始まっているため、API キーと写真は暗号化されずにネットワーク上を送信され、同じネットワーク上の誰でも読み取れる可能性があります。サーバーが対応している場合は https:// のアドレスを使ってください。",
+  "connection.http-warning-title": "この接続は暗号化されていません",
   "connection.key-not-saved": "API キーを保存できませんでした。ImmichDrive の再起動後にもう一度入力する必要があります。",
   "connection.key-unreadable": "この Windows アカウントでは、保存された API キーを読み取れませんでした。",
   "connection.key-unreadable-title": "API キーをもう一度入力してください",
