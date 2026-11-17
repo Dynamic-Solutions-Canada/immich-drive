@@ -32,8 +32,11 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 20
     steps:
+      # The gate runs winui-app-kit's scripts (dotnet, pwsh, run-tests, check-listing, check-gitignore).
       - name: Checkout
         uses: actions/checkout@v7
+        with:
+          submodules: true
 
       - name: Setup .NET
         uses: actions/setup-dotnet@v6
