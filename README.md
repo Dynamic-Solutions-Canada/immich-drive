@@ -45,7 +45,7 @@ ImmichDrive collects no telemetry or crash reports.
 
 ### Requirements
 
-- **Windows 10 22H2** (build 19045) or **Windows 11**, on x64 or ARM64. Windows 10 support is enabled but has not yet been fully tested on Windows 10.
+- **Windows 10 22H2 with updates from October 2024 or later** (build 19045.5011 or newer) or **Windows 11**, on x64 or ARM64. Older Windows 10 builds can't run apps built on .NET 10, so Windows refuses the install there; install Windows updates first.
 - **An Immich server** you can reach (any reasonably recent version), and an **API key** from it.
 
 Windows 10 22H2 reached [Microsoft's end of standard support](https://learn.microsoft.com/en-us/windows/release-health/release-information) on October 14, 2025. ImmichDrive running there does not extend Microsoft's support; see the [developer notes](docs/development.md#compatibility-verification) for runtime and edition limits.

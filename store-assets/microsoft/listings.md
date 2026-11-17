@@ -24,7 +24,7 @@ A listing-only Store submission made on 2026-11-16 (submission 11529215057024224
 | --- | --- | --- |
 | `title` | Must be the reserved product name | "ImmichDrive" |
 | `shortDescription` | 270 characters | 150 |
-| `fullDescription` | 4,000 characters | 1,338 |
+| `fullDescription` | 4,000 characters | 1,365 |
 | `features` | Up to 20, each up to 200 characters | 12, longest 77 |
 | `keywords` | Up to 7, each up to 40 characters, 21 words combined | 7, longest 21 characters, 21 words (at the limit) |
 | `screenshotCaptions` | One per screenshot, each up to 200 characters | 5, longest 81 |
@@ -34,7 +34,7 @@ A listing-only Store submission made on 2026-11-16 (submission 11529215057024224
 
 - **Name:** "ImmichDrive", one word, in every field (D-012).
 - **Tagline:** the first sentence of `shortDescription` is the README header tagline (LIST-12). Change both together.
-- **Requirements:** Windows 10 22H2 (build 19045) or Windows 11, matching the manifest's minimum version (D-018, PLAT-6). An Immich server and an API key are needed and not included.
+- **Requirements:** Windows 10 22H2 with updates from October 2024 or later (build 19045.5011, the manifest's `MinVersion`) or Windows 11 (D-018, PLAT-6). Earlier Windows 10 builds lack the CET support .NET 10 needs; see docs/development.md, "Compatibility verification". An Immich server and an API key are needed and not included.
 - **Language:** the interface is in nine languages and follows the Windows display language unless the user picks one in Settings; the drive's folder names stay English. The listing itself is English only (D-111).
 - **Read-only mirror:** only `Upload` is writable; the rest of the drive cannot change or delete server content.
 - **On demand:** files download only when opened; thumbnails never download the original.
