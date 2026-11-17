@@ -1,0 +1,25 @@
+# The fake Immich server for ImmichDrive's VM checks (README.md). It joins a test VM's own Docker
+# network, so the guest reaches it through the VM's NAT and nothing is published on the host.
+#   FAKE_IMMICH_NETWORK=windows-dev_default docker compose -f tests/fake-immich/compose.yml up -d
+#   docker compose -f tests/fake-immich/compose.yml down
+# Default network: windows10-test_default. Start the VM first, since its compose project creates the network.
+name: fake-immich
+services:
+  fake-immich:
+    # Current stable slim image, checked 2026-11-17; check Docker Hub before bumping.
+    image: python:3.15.2-slim
+    container_name: fake-immich
+    command: ["python3", "-I", "/app/fake_immich.py", "--port", "2283", "--key", "test-key",
+              "--fail-thumbnail", "asset-0007"]
+    volumes:
+      - ./fake_immich.py:/app/fake_immich.py:ro
+    read_only: true
+    mem_limit: 128m
+    memswap_limit: 128m
+    networks:
+      - vm
+    restart: "no"
+networks:
+  vm:
+    name: ${FAKE_IMMICH_NETWORK:-windows10-test_default}
+    external: true
