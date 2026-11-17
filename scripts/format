@@ -3,8 +3,8 @@
 #   scripts/format          rewrite files
 #   scripts/format --check  fail on any difference (used by `npm run validate`)
 # Projects are found by walking the tree, never listed by hand. Submodules under external/ are
-# never formatted here (KIT-8): they are checked in their own repos. Runs through scripts/dotnet,
-# so it works on Linux with either the pinned SDK or Docker.
+# never formatted here (KIT-8): they are checked in their own repos. Runs through the kit's
+# scripts/dotnet, so it works on Linux with either the pinned SDK or Docker.
 set -euo pipefail
 
 repo_root="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.." && pwd)"
@@ -22,7 +22,7 @@ mapfile -t projects < <(
 failures=0
 for project in "${projects[@]}"; do
     printf 'format: %s\n' "$project"
-    scripts/dotnet format "$project" --exclude external/ "${verify[@]}" || failures=$((failures + 1))
+    external/winui-app-kit/scripts/dotnet format "$project" --exclude external/ "${verify[@]}" || failures=$((failures + 1))
 done
 
 if [[ $failures -gt 0 ]]; then

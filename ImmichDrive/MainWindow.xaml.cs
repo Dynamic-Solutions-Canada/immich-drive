@@ -96,12 +96,14 @@ public sealed partial class MainWindow : Window
 
         _ = RegisterStartupOnFirstRunAsync();
 
-        // First run, or no usable configuration: show settings. Otherwise connect in the background.
+        // Connect in the background when configured. Show settings on first run or with no usable
+        // configuration, and when settings were reset, because the notice is only shown this launch.
         if (DriveManager.Current.IsConfigured)
         {
             _ = DriveManager.Current.ConnectAsync();
         }
-        else
+
+        if (!DriveManager.Current.IsConfigured || App.SettingsLoad?.NeedsResetNotice == true)
         {
             ShowSettings();
         }

@@ -7,12 +7,12 @@
     "verify:desktop": "scripts/windows-build --build-only --configuration Debug",
     "install:desktop": "scripts/windows-build --install",
     "package:desktop": "scripts/windows-build --no-sign",
-    "test": "scripts/run-tests",
-    "test:scripts": "scripts/run-tests scripts",
-    "validate": "npm run format:check && npm run check:gitignore && npm run check:listings && npm test",
+    "test": "external/winui-app-kit/scripts/run-tests && npm run test:store-scripts",
+    "validate": "npm run format:check && npm run check:gitignore && npm run check:listing && npm test",
     "format": "scripts/format",
     "format:check": "scripts/format --check",
-    "check:listings": "node scripts/check-listings.mjs",
-    "check:gitignore": "external/winui-app-kit/scripts/check-gitignore ."
+    "check:gitignore": "external/winui-app-kit/scripts/check-gitignore .",
+    "test:store-scripts": "for test in .github/scripts/tests/*.Tests.ps1; do external/winui-app-kit/scripts/pwsh -NoProfile -File \"$test\" || exit 1; done",
+    "check:listing": "python3 external/winui-app-kit/scripts/check-listing.py"
   }
 }

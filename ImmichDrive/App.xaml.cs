@@ -2,6 +2,7 @@ using ImmichDrive.Classes.Settings;
 using ImmichDrive.Services;
 using Microsoft.UI.Dispatching;
 using Microsoft.UI.Xaml;
+using Microsoft.UI.Xaml.Controls;
 using System.IO;
 using ImmichDrive.ViewModels;
 using WinUIAppKit.Hosting;
@@ -39,6 +40,24 @@ public partial class App : Application
 
     /// <summary>What loading settings found at this launch, for the first-run and reset notices.</summary>
     internal static SettingsLoadResult<UserSettings>? SettingsLoad { get; private set; }
+
+    private static bool _resetNoticeTaken;
+
+    /// <summary>
+    /// The kit's "settings were reset" bar when settings could not be read at this launch (CONF-2), or
+    /// null. Returns it once: the store has already written defaults, so the notice belongs to this
+    /// launch's first page only and must not reappear when the user navigates back.
+    /// </summary>
+    internal static InfoBar? TakeResetNotice()
+    {
+        if (_resetNoticeTaken || SettingsLoad?.NeedsResetNotice != true)
+        {
+            return null;
+        }
+
+        _resetNoticeTaken = true;
+        return SettingsResetNotice.Create(SettingsLoad.BackupPath);
+    }
 
     public App()
     {

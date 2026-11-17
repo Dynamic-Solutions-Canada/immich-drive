@@ -4,7 +4,7 @@
 
 The file holds `en-US` only, because the app is English only (LIST-7, LOC-11). The other eight locales are added in the same change that localizes the app (package 10), and not before.
 
-`npm run check:listings` validates the file, and `npm run validate` runs it.
+`npm run check:listing` (winui-app-kit's shared listing check, configured by the `listing` block in `windows-build.json`) validates the file and the current version's release notes, and `npm run validate` runs it.
 
 ## Where this text came from
 

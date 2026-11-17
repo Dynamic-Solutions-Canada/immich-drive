@@ -9,5 +9,12 @@
   "trusted_certificate": true,
   "store_identity": "27766TechnicallyReal.ImmichDrive",
   "store_publisher": "CN=C21E6CEF-D0D1-4497-93F9-3718D054DA0E",
-  "store_identity_switch": "-UseStoreIdentity"
+  "store_identity_switch": "-UseStoreIdentity",
+  "listing": {
+    "product_name": "ImmichDrive",
+    "retired_names": [
+      "Drive for Immich",
+      "Immich Drive"
+    ]
+  }
 }

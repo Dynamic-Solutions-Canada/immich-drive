@@ -51,7 +51,7 @@ This repo follows the shared standards at https://github.com/Dynamic-Solutions-C
 | `npm run package:desktop:dev` | A signed dev package builds | That it installs or runs |
 | `npm run install:desktop` | The dev package updates in place and launches | Behaviour; check it in the running app |
 | `npm test` | Every portable harness under `tests/` and every Store workflow script test pass, on Linux (host .NET SDK or Docker; run as a non-root user) | Windows data protection, the shell, the installed app; each harness README says what it leaves out |
-| `npm run validate` | The whole Linux gate passes: `format:check`, `check:listings`, then `npm test` | A Windows compile; also run `verify:desktop` |
+| `npm run validate` | The whole Linux gate passes: `format:check`, `check:gitignore`, `check:listing`, then `npm test` | A Windows compile; also run `verify:desktop` |
 | `npm run format` | Rewrites every C# project (not `external/`) to the root `.editorconfig`, which is winui-app-kit's copied unchanged | Behaviour; review the diff |
 
 Before finishing a change, run `npm run validate` and `npm run verify:desktop`, plus `npm run package:desktop:dev` when the thumbnail provider or a file linked into it changed. Use the `desktop` skill for build and install requests.

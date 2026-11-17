@@ -111,12 +111,9 @@ The SDK target remains Windows build 22000; it does not set the runtime minimum.
 
 ## Tests
 
-`npm test` runs every portable test and `npm run validate` runs the whole Linux gate: `npm run format:check`, then the tests. `npm run format` rewrites every C# project outside `external/` to the root `.editorconfig`, which is winui-app-kit's file copied unchanged from the tag the app pins; never hand-edit it. Both work on Linux with either the .NET SDK pinned in `global.json` or Docker; `scripts/dotnet` and `scripts/pwsh` pick whichever is present, and Docker runs are capped at 3 GB (`KIT_DOTNET_MEMORY`). Run them as a non-root user. `npm run test:scripts` runs only the PowerShell script tests.
+`npm test` runs every portable test and `npm run validate` runs the whole Linux gate: `npm run format:check`, `check:gitignore`, `check:listing`, then the tests. `npm run format` rewrites every C# project outside `external/` to the root `.editorconfig`, which is winui-app-kit's file copied unchanged from the tag the app pins; never hand-edit it. Both run through winui-app-kit's `scripts/dotnet` and `scripts/pwsh`, which work on Linux with either the .NET SDK pinned in `global.json` or Docker; Docker runs are capped at 3 GB (`KIT_DOTNET_MEMORY`). Run them as a non-root user. `npm run check:listing` is the kit's Store listing check, configured by the `listing` block in `windows-build.json`.
 
-`scripts/run-tests` finds the tests itself, so a new harness needs no registration:
-
-- Every project under `tests/` is a portable harness (`tests/<App>.<Area>.Tests/`, run with `dotnet run`), and each has a README saying what it covers and does not prove: API key migration, Upload folder status, and the Cloud Files structure layout.
-- Every `*.Tests.ps1` under `.github/scripts/` tests a Store workflow helper.
+The kit's `scripts/run-tests` finds the harnesses itself, so a new one needs no registration: every project under `tests/` is a portable harness (`tests/<App>.<Area>.Tests/`, run with `dotnet run`), and each has a README saying what it covers and does not prove: API key migration, Upload folder status, and the Cloud Files structure layout. `npm run test:store-scripts` runs the `*.Tests.ps1` tests of the Store workflow helpers under `.github/scripts/`; it goes away when the app moves to the kit's shared Store workflow.
 
 Neither proves anything about the installed app; see the compatibility checks below.
 
