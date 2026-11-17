@@ -115,7 +115,8 @@ jobs:
         run: |
           foreach ($plat in @('x64', 'ARM64')) {
             Write-Host "::group::Build $plat MSIX"
-            & "$env:GITHUB_WORKSPACE\ImmichDriveMSIX\build-msix.ps1" -Platform $plat -NoSign
+            # winui-app-kit's packaging script, driven by windows-build.json, run from the repo root.
+            & "$env:GITHUB_WORKSPACE\external\winui-app-kit\build\build-msix.ps1" -Platform $plat -NoSign -RepoRoot $env:GITHUB_WORKSPACE
             if ($LASTEXITCODE -ne 0) { throw "build-msix.ps1 failed for $plat (exit $LASTEXITCODE)" }
             Write-Host "::endgroup::"
           }

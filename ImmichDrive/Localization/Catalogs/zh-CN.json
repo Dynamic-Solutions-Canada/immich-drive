@@ -1,10 +1,10 @@
 {
+  "AppDescription": "在文件资源管理器中浏览你的 Immich 照片和视频，带缩略图，文件按需下载。",
   "about.how-it-works": "工作原理",
   "about.how-it-works-desc": "ImmichDrive 使用 Windows Cloud Files API 将你的照片显示为占位文件。它们在文件资源管理器中显示真实的缩略图，但在你打开之前不占用空间；打开时，ImmichDrive 只从你的服务器下载该文件。",
   "about.immich": "Immich",
   "about.immich-desc": "ImmichDrive 在文件资源管理器中显示的自托管照片和视频备份。",
   "about.immich-link": "immich.app",
-  "app.description": "在文件资源管理器中浏览你的 Immich 照片和视频，带缩略图，文件按需下载。",
   "common.checking": "正在检查…",
   "common.connect": "连接",
   "common.disconnect": "断开连接",

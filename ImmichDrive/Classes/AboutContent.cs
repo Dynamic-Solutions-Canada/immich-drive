@@ -32,7 +32,7 @@ internal static class AboutContent
         return new AboutInfo
         {
             ProductName = "ImmichDrive",
-            DescriptionKey = "app.description",
+            DescriptionKey = "AppDescription",
             IconPngPath = App.IconImagePath,
             PrivacyPolicy = PrivacyPolicy,
             Updates = SourceRepository.Updates,

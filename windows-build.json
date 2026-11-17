@@ -1,8 +1,16 @@
 {
   "project": "ImmichDrive/ImmichDrive.csproj",
   "msix_dir": "ImmichDriveMSIX",
-  "package_script": "ImmichDriveMSIX/build-msix.ps1",
+  "package_script": "external/winui-app-kit/build/build-msix.ps1",
   "package_output": "ImmichDriveMSIX/bin/msix-output",
+  "companions": [
+    {
+      "project": "ImmichDrive.ThumbnailProvider/ImmichDrive.ThumbnailProvider.csproj"
+    }
+  ],
+  "manifest_strings": {
+    "catalog_dir": "ImmichDrive/Localization/Catalogs"
+  },
   "certificate": ".windows-build/signing.pfx",
   "version_file": "Directory.Build.props",
   "dev_identity": "ImmichDrive",
@@ -10,7 +18,7 @@
   "trusted_certificate": true,
   "store_identity": "27766TechnicallyReal.ImmichDrive",
   "store_publisher": "CN=C21E6CEF-D0D1-4497-93F9-3718D054DA0E",
-  "store_identity_switch": "-UseStoreIdentity",
+  "store_identity_switch": "-StoreIdentity",
   "listing": {
     "product_name": "ImmichDrive",
     "retired_names": [

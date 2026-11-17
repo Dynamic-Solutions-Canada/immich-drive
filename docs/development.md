@@ -7,7 +7,7 @@
 
 - Windows 11 on x64 or ARM64 for the established build workflow. Building on Windows 10 22H2 has not been validated; the app's configured runtime minimum is separate from the build host.
 - [.NET 10 SDK](https://dotnet.microsoft.com/download/dotnet/10.0)
-- Windows SDK packaging tools (`makeappx` / `makepri` / `signtool`); `build-msix.ps1` auto-acquires
+- Windows SDK packaging tools (`makeappx` / `makepri` / `signtool`); winui-app-kit's packaging script auto-acquires
   them via the `Microsoft.Windows.SDK.BuildTools` NuGet package if they aren't already installed.
 - [lefthook](https://lefthook.dev) for the git hooks in `lefthook.yml` (they block committing signing material, credentials, app data files and files over 5 MB). Install it once per machine, then run `lefthook install` once per clone; the Paseo worktree setup runs it for you.
 - The `external/` submodules (`git submodule update --init`): winui-app-kit supplies the shared build
@@ -62,7 +62,7 @@ npm run package:desktop     # Store build (unsigned; the Store re-signs)
   runner and are uploaded to Partner Center as a draft with the notes attached; a second,
   manual run on the tag submits it (see the packaging guide). The
   workflow uses `Tier1012` for the US $0.99 base price and can change regional prices. See
-  [the packaging guide](packaging.md). The local `build-msix.ps1 -NoSign` path
+  [the packaging guide](packaging.md). The kit's packaging script with `-NoSign`
   remains available for manual uploads.
 
 ## Architecture & internals
@@ -85,7 +85,7 @@ npm run package:desktop     # Store build (unsigned; the Store re-signs)
 ## Versioning
 
 - `<Version>` in `Directory.Build.props` is the single source of truth. The assembly version, the
-  MSIX manifest (`VERSION_PLACEHOLDER`, stamped by `build-msix.ps1`) and the release tag all derive
+  MSIX manifest (`VERSION_PLACEHOLDER`, stamped by winui-app-kit's packaging script) and the release tag all derive
   from it. MSIX needs four parts, so the script appends `.0`; the Store requires that fourth part
   to be `0`. Local dev builds raise it only in the staged copy.
 - `DriveManager.CurrentLayoutVersion` is separate from `<Version>`. Bump it only when the on-disk

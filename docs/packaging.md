@@ -20,15 +20,19 @@ declaratively (no manual HKCR writes).
 
   `VERSION_PLACEHOLDER` / `ARCH_PLACEHOLDER` are stamped by the build script. Capabilities:
   `internetClient` (reach the Immich server) + `runFullTrust`.
-- `build-msix.ps1`: reads the version, publishes `ImmichDrive` (self-contained,
-  `WindowsPackageType=MSIX`) **and** `ImmichDrive.ThumbnailProvider` (self-contained, so the
-  out-of-proc comhost resolves the .NET runtime from its own folder when the shell activates it),
-  assembles the layout (exe + extension EXE/DLLs + compiled XAML `.xbf` + stamped manifest +
-  `Images`), runs `makepri`, packages with `makeappx`, signs with `signtool`. It auto-acquires
-  the SDK BuildTools (`makeappx`/`makepri`/`signtool`) via NuGet if they aren't already on the
-  machine. Signing material is always a parameter (`-TrustedPfxPath`/`-TrustedPfxPassword`,
-  which the shared bridge supplies); without one the script fails with a clear message, and it
-  never generates a certificate. **ASCII only.** `-NoSign` for Store uploads or an unsigned check.
+- **Packaging script:** winui-app-kit's `external/winui-app-kit/build/build-msix.ps1`, the family's one
+  MSIX script (KIT-9, DIST-1), driven by `windows-build.json`; the app keeps no script of its own.
+  It reads the version, publishes `ImmichDrive` (self-contained, `WindowsPackageType=MSIX`) and the
+  `companions` entry `ImmichDrive.ThumbnailProvider` (self-contained, so the out-of-proc comhost
+  resolves the .NET runtime from its own folder when the shell activates it), assembles the layout
+  (exe + extension EXE/DLLs + compiled XAML `.xbf` + stamped manifest + `Images`), builds one
+  `resources.pri` for the nine declared languages, packages with `makeappx` and signs with
+  `signtool`. The manifest's `ms-resource:Resources/AppDescription` is written for every language
+  from the `manifest_strings` catalogs (`ImmichDrive/Localization/Catalogs`). It auto-acquires the
+  SDK BuildTools via NuGet when missing. Signing material is always a parameter
+  (`-TrustedPfxPath`/`-TrustedPfxPassword`, which the shared bridge supplies); it never generates a
+  certificate. `-NoSign` for Store uploads or an unsigned check. The README's "Packaging" section in
+  the kit lists every `windows-build.json` key.
 - `generate-msix-images.ps1`: renders **one** master icon (the "Photo Panes" mark: a dark
   slate rounded tile with a 2x2 grid of three tiny photo scenes plus a white cloud pane; an
   original design, deliberately NOT Immich's iris logo, which got the app rejected under
@@ -51,11 +55,11 @@ the installed package, app, thumbnail server, and startup task as **ImmichDrive*
 visible-name distinction separate from `<Identity>`: changing the identity would create a
 different package family and break in-place updates for existing Store installs.
 
-- **Signed (sideload) builds**: `build-msix.ps1` swaps `Name` → `ImmichDrive` and `Publisher`
+- **Signed (sideload) builds**: the packaging script sets `Name` to `dev_identity` (`ImmichDrive`) and `Publisher`
   → the signing cert's subject so sideload installs form a stable local package family that
   updates in place.
 - **Explicit Store-identity test builds**: `npm run install:desktop -- --store-identity`
-  passes `-UseStoreIdentity`, creates a signed `.msixbundle` to match Store distribution,
+  passes `-StoreIdentity` (`store_identity_switch`), creates a signed `.msixbundle` to match Store distribution,
   retains the Store name, and requires the signing certificate
   to match its publisher. The shared bridge allocates the dev revision against the Store
   family and updates it in place, preserving package data. A higher Store version is needed
@@ -106,8 +110,8 @@ from the published Base schedule. At that verification it was in certification w
 
 The [v0.1.50 Store run](https://github.com/Dynamic-Solutions-Canada/immich-drive/actions/runs/41944626406) replaced failed v0.1.49 submission `1152921505702318922` and committed submission `1152921505702319184`. The accepted `0.1.50.0` upload bundles x64 and ARM64, retains `Tier1012`, and reached `Certification` with publishing mode `Immediate`. The publisher display name is now `Dynamic Solutions (CA)`. Windows builds, layout checks, recovery tests, and packaging passed; Windows 10 end-to-end runtime validation remains pending. The [v0.1.50 GitHub release](https://github.com/Dynamic-Solutions-Canada/immich-drive/releases/tag/v0.1.50) contains notes and no binaries.
 
-For manual fallback, run `build-msix.ps1 -Platform x64 -NoSign` and
-`-Platform ARM64 -NoSign`, then upload both individual `.msix` files in Partner Center.
+For manual fallback, run `pwsh -File external/winui-app-kit/build/build-msix.ps1 -Platform x64 -NoSign` and
+`-Platform ARM64 -NoSign` from the repo root on Windows, then upload both individual `.msix` files in Partner Center.
 
 `.github/workflows/build-msix.yml` publishes **no binary at all**: no release asset, no Actions
 artifact. Two reasons, and both have to stop being true before that changes:

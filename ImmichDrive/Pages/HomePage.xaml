@@ -7,7 +7,7 @@
     <ScrollViewer>
         <StackPanel Style="{StaticResource PageContentStyle}">
             <TextBlock Text="ImmichDrive" Style="{StaticResource PageTitleStyle}" />
-            <TextBlock l10n:Localize.Text="app.description" TextWrapping="Wrap"
+            <TextBlock l10n:Localize.Text="AppDescription" TextWrapping="Wrap"
                        Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
 
             <InfoBar x:Name="StatusBar" IsOpen="True" IsClosable="False" />

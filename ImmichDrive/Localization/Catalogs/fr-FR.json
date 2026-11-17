@@ -1,10 +1,10 @@
 {
+  "AppDescription": "Parcourez vos photos et vidéos Immich dans l’Explorateur de fichiers, avec des miniatures et des fichiers téléchargés à la demande.",
   "about.how-it-works": "Fonctionnement",
   "about.how-it-works-desc": "ImmichDrive utilise l’API Cloud Files de Windows pour afficher vos photos sous forme de fichiers d’espace réservé. Elles apparaissent dans l’Explorateur de fichiers avec de vraies miniatures, mais n’occupent aucun espace tant que vous n’en ouvrez pas une ; ImmichDrive télécharge alors uniquement ce fichier depuis votre serveur.",
   "about.immich": "Immich",
   "about.immich-desc": "La sauvegarde de photos et de vidéos auto-hébergée qu’ImmichDrive affiche dans l’Explorateur de fichiers.",
   "about.immich-link": "immich.app",
-  "app.description": "Parcourez vos photos et vidéos Immich dans l’Explorateur de fichiers, avec des miniatures et des fichiers téléchargés à la demande.",
   "common.checking": "Vérification…",
   "common.connect": "Connecter",
   "common.disconnect": "Déconnecter",

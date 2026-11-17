@@ -1,10 +1,10 @@
 {
+  "AppDescription": "Durchsuche deine Immich-Fotos und -Videos im Datei-Explorer, mit Miniaturansichten und Dateien, die bei Bedarf heruntergeladen werden.",
   "about.how-it-works": "So funktioniert es",
   "about.how-it-works-desc": "ImmichDrive nutzt die Cloud Files API von Windows, um deine Fotos als Platzhalterdateien anzuzeigen. Sie erscheinen im Datei-Explorer mit echten Miniaturansichten, belegen aber keinen Speicherplatz, bis du eine öffnest; dann lädt ImmichDrive nur diese Datei von deinem Server herunter.",
   "about.immich": "Immich",
   "about.immich-desc": "Die selbst gehostete Foto- und Videosicherung, die ImmichDrive im Datei-Explorer anzeigt.",
   "about.immich-link": "immich.app",
-  "app.description": "Durchsuche deine Immich-Fotos und -Videos im Datei-Explorer, mit Miniaturansichten und Dateien, die bei Bedarf heruntergeladen werden.",
   "common.checking": "Wird geprüft…",
   "common.connect": "Verbinden",
   "common.disconnect": "Trennen",

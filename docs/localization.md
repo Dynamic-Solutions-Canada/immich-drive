@@ -8,6 +8,7 @@ ImmichDrive's interface is in the family's nine languages (LOC-1): English (Unit
 - `en-CA` reads the `en-US` catalog and `fr-CA` reads `fr-FR` (LOC-5), through `Classes/AppLanguages.cs`. Keep that list, the catalog files and the manifest's `<Resource Language>` entries in step with `external/winui-app-kit/build/languages.json`.
 - XAML labels use `l10n:Localize` and relabel themselves when the language changes. Text built in code relabels on `UiText.Changed`. Status and error text that services produce is stored as a `LocalizedMessage`, never as finished text, so it follows a language change too.
 - Shared labels (Settings, About, Cancel, Open logs folder and the rest) are the kit's `kit.*` keys, translated in the kit. Never define a `kit.` key in the app's catalogs.
+- The package manifest's description is `ms-resource:Resources/AppDescription`, written for every language from these catalogs by winui-app-kit's packaging script (`manifest_strings` in `windows-build.json`). It is the one key without dots, because the manifest's resource syntax allows only word characters; the About and Home pages use it too.
 - Numbers and times follow the Windows region, not the interface language (LOC-4), through `DriveStatusText.Count`, `ShortTime` and `ShortDateTime`.
 - `npm run check:l10n` (in `validate`) fails on a missing or extra key, a placeholder mismatch, an em dash, a key the code uses that no catalog defines, a catalog key nothing uses, or a manifest language list that differs from the family's (LOC-9). A literal inside a `UiText.Format` call counts as a key, so format strings such as `"N0"` belong in a helper, not in the call.
 
@@ -39,6 +40,5 @@ Update a row when a native speaker reviews that catalog.
 - **Immich's own names:** permission identifiers (`user.read`, `asset.read` and the rest), and the menu path "Account Settings → API Keys", which is quoted as Immich labels it in English.
 - **Content from the server:** album names, the user's name and email, and error details that come from Windows, .NET or the server, shown inside a translated sentence ("Something went wrong: {{reason}}").
 - **Logs and diagnostics:** the log files and the thumbnail provider's diagnostic log.
-- **The package manifest's description**, until packaging moves to winui-app-kit's script, which generates its translations from the catalogs.
 - **The Microsoft Store listing and Store release notes**, under [D-111](https://github.com/Dynamic-Solutions-Canada/app-standards/blob/main/DECISIONS.md#d-111-immichdrive-listing-stays-english-while-the-interface-is-localized): the listing is English only until a separate listing-translation step. `windows-build.json` sets `listing.catalog_dir` to null so `check:listing` expects en-US alone.
 - **Legal text:** the licence and the third-party notices.

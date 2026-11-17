@@ -1,10 +1,10 @@
 {
+  "AppDescription": "Immich の写真と動画をエクスプローラーで閲覧できます。サムネイル付きで、ファイルは必要なときにダウンロードされます。",
   "about.how-it-works": "しくみ",
   "about.how-it-works-desc": "ImmichDrive は Windows の Cloud Files API を使って、写真をプレースホルダー ファイルとして表示します。エクスプローラーでは実際のサムネイル付きで表示されますが、開くまでディスク容量を使いません。開いたときに、そのファイルだけをサーバーからダウンロードします。",
   "about.immich": "Immich",
   "about.immich-desc": "ImmichDrive がエクスプローラーに表示する、セルフホスト型の写真と動画のバックアップです。",
   "about.immich-link": "immich.app",
-  "app.description": "Immich の写真と動画をエクスプローラーで閲覧できます。サムネイル付きで、ファイルは必要なときにダウンロードされます。",
   "common.checking": "確認しています…",
   "common.connect": "接続",
   "common.disconnect": "切断",
