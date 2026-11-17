@@ -32,6 +32,14 @@
 
   <Resources>
     <Resource Language="en-US" />
+    <Resource Language="en-CA" />
+    <Resource Language="es-ES" />
+    <Resource Language="fr-FR" />
+    <Resource Language="fr-CA" />
+    <Resource Language="de-DE" />
+    <Resource Language="zh-CN" />
+    <Resource Language="pt-BR" />
+    <Resource Language="ja-JP" />
   </Resources>
 
   <Applications>

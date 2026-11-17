@@ -58,7 +58,8 @@ This app's own interface conventions. The shared family rules are in the standar
 - In page code-behind, fully-qualify `Microsoft.UI.Xaml.Visibility` and `FocusState` (they
   collide with WinRT `Windows.UI.Xaml.*`). `global::` does not parse inside interpolated
   strings; assign to a local first.
-- Interface text is moving into winui-app-kit's catalogs (LOC-6): `Localization/Catalogs/en-US.json`,
-  read through `UiText` and `l10n:Localize`, with dotted keys (`nav.home`). The shell, About and
-  Settings pages and the navigation already use it; other text stays inline until the app is
-  localized. Shared labels are the kit's `kit.*` keys; never define one in the app's catalog.
+- No user-facing literal in code or XAML (LOC-6): text comes from `Localization/Catalogs/*.json`
+  through `UiText` in code and `l10n:Localize` in XAML, with dotted keys. Text built in code
+  relabels on `UiText.Changed`; status text from services is a `LocalizedMessage`. Shared labels are
+  the kit's `kit.*` keys; never define one in the app's catalog. See
+  [docs/localization.md](../../docs/localization.md), including what stays English.

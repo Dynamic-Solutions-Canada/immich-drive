@@ -4,16 +4,33 @@ using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using System.Collections.Generic;
 using System.IO;
+using WinUIAppKit.Localization;
 using Windows.Storage.Pickers;
 using WinRT.Interop;
 
 namespace ImmichDrive.Pages;
 
+/// <summary>
+/// The server URL, API key and drive folder, with Test, Connect and Disconnect. Results show in one
+/// bar, kept as keys rather than finished text so a language change relabels the last result too.
+/// </summary>
 public sealed partial class ConnectionPage : Page
 {
+    /// <summary>The permission every API key needs, named in several messages; never translated.</summary>
+    private const string UserReadPermission = "user.read";
+
+    // The result on show, so it can be rendered again in a new language.
+    private InfoBarSeverity _resultSeverity;
+    private string? _resultTitleKey;
+    private LocalizedMessage? _resultMessage;
+    private bool _resultKeyNotSaved;
+
     public ConnectionPage()
     {
         InitializeComponent();
+        Loaded += (_, _) => UiText.Changed += OnLanguageChanged;
+        Unloaded += (_, _) => UiText.Changed -= OnLanguageChanged;
+        ShowUserReadNote();
         var s = SettingsManager.Current;
         ServerBox.Text = s.ServerUrl;
         ApiKeyBox.Password = ApiKeyStore.ApiKey;
@@ -33,10 +50,56 @@ public sealed partial class ConnectionPage : Page
             return;
         }
 
+        ShowResult(InfoBarSeverity.Warning, "connection.key-unreadable-title", new LocalizedMessage("connection.key-unreadable"));
+    }
+
+    /// <summary>Re-renders the text this page builds in code; XAML labels relabel themselves.</summary>
+    private void OnLanguageChanged()
+    {
+        ShowUserReadNote();
+        RenderResult();
+    }
+
+    /// <summary>The note that even a connection test needs the user.read permission.</summary>
+    private void ShowUserReadNote() =>
+        UserReadNote.Text = UiText.Format("connection.user-read-note", ("permission", UserReadPermission));
+
+    /// <summary>
+    /// Shows a result in the bar. The key-not-saved warning is cleared; <see cref="NoteKeyNotSaved"/>
+    /// adds it after.
+    /// </summary>
+    /// <param name="severity">The bar's severity.</param>
+    /// <param name="titleKey">Catalog key of the title.</param>
+    /// <param name="message">The message, or null for none.</param>
+    private void ShowResult(InfoBarSeverity severity, string titleKey, LocalizedMessage? message)
+    {
+        _resultSeverity = severity;
+        _resultTitleKey = titleKey;
+        _resultMessage = message;
+        _resultKeyNotSaved = false;
+        RenderResult();
+    }
+
+    /// <summary>Renders the stored result in the current language; does nothing before the first one.</summary>
+    private void RenderResult()
+    {
+        if (_resultTitleKey is null)
+        {
+            return;
+        }
+
+        // A key that could not be saved turns a success into a warning and says so after the message.
+        bool downgrade = _resultKeyNotSaved && _resultSeverity == InfoBarSeverity.Success;
+        string message = _resultMessage?.Text ?? "";
+        if (_resultKeyNotSaved)
+        {
+            message = $"{message} {UiText.Get("connection.key-not-saved")}".Trim();
+        }
+
         ResultBar.IsOpen = true;
-        ResultBar.Severity = InfoBarSeverity.Warning;
-        ResultBar.Title = "Enter your API key again";
-        ResultBar.Message = "Your saved API key could not be read on this Windows account.";
+        ResultBar.Severity = downgrade ? InfoBarSeverity.Warning : _resultSeverity;
+        ResultBar.Title = UiText.Get(_resultTitleKey);
+        ResultBar.Message = message;
     }
 
     /// <summary>
@@ -45,13 +108,8 @@ public sealed partial class ConnectionPage : Page
     /// </summary>
     private void NoteKeyNotSaved()
     {
-        ResultBar.IsOpen = true;
-        if (ResultBar.Severity == InfoBarSeverity.Success)
-        {
-            ResultBar.Severity = InfoBarSeverity.Warning;
-        }
-
-        ResultBar.Message = $"{ResultBar.Message} Your API key could not be saved, so you will need to enter it again after ImmichDrive restarts.".Trim();
+        _resultKeyNotSaved = true;
+        RenderResult();
     }
 
     private void UpdateButtons()
@@ -97,7 +155,13 @@ public sealed partial class ConnectionPage : Page
             paths.Add(path);
             var panel = new StackPanel();
             panel.Children.Add(new TextBlock { Text = label });
-            panel.Children.Add(new TextBlock { Text = path, Opacity = 0.7, FontSize = 12, TextWrapping = TextWrapping.Wrap });
+            panel.Children.Add(new TextBlock
+            {
+                Text = path,
+                TextWrapping = TextWrapping.Wrap,
+                Style = (Style)Application.Current.Resources["CaptionTextBlockStyle"],
+                Foreground = (Microsoft.UI.Xaml.Media.Brush)Application.Current.Resources["TextFillColorSecondaryBrush"],
+            });
             radios.Items.Add(new RadioButton { Content = panel });
             if (select)
             {
@@ -108,13 +172,13 @@ public sealed partial class ConnectionPage : Page
         // Surface the current location first (pre-selected) when it isn't one of the presets.
         if (!PathsEqual(current, home) && !PathsEqual(current, pics))
         {
-            AddOption("Current location", current, select: true);
+            AddOption(UiText.Get("connection.folder-current"), current, select: true);
         }
 
-        AddOption("Home folder", home, select: PathsEqual(current, home));
-        AddOption("Pictures", pics, select: PathsEqual(current, pics));
+        AddOption(UiText.Get("connection.folder-home"), home, select: PathsEqual(current, home));
+        AddOption(UiText.Get("connection.folder-pictures"), pics, select: PathsEqual(current, pics));
 
-        var browseButton = new Button { Content = "Browse for another folder…", Margin = new Thickness(0, 8, 0, 0) };
+        var browseButton = new Button { Content = UiText.Get("connection.folder-browse"), Margin = new Thickness(0, 8, 0, 0) };
         browseButton.Click += async (object _, RoutedEventArgs __) =>
         {
             var picker = new FolderPicker { SuggestedStartLocation = PickerLocationId.PicturesLibrary };
@@ -129,7 +193,7 @@ public sealed partial class ConnectionPage : Page
             var folder = await picker.PickSingleFolderAsync();
             if (folder != null)
             {
-                AddOption("Chosen folder", folder.Path, select: true);
+                AddOption(UiText.Get("connection.folder-chosen"), folder.Path, select: true);
             }
         };
 
@@ -138,9 +202,8 @@ public sealed partial class ConnectionPage : Page
         {
             content.Children.Add(new TextBlock
             {
-                Text = "Your photos re-appear at the new location and the old folder is removed. " +
-                       "Nothing is deleted from Immich.",
-                Opacity = 0.7,
+                Text = UiText.Get("connection.move-note"),
+                Foreground = (Microsoft.UI.Xaml.Media.Brush)Application.Current.Resources["TextFillColorSecondaryBrush"],
                 TextWrapping = TextWrapping.Wrap,
                 Margin = new Thickness(0, 0, 0, 8),
             });
@@ -151,10 +214,10 @@ public sealed partial class ConnectionPage : Page
 
         var dialog = new ContentDialog
         {
-            Title = online ? "Move drive folder" : "Choose drive folder",
+            Title = UiText.Get(online ? "connection.move-title" : "connection.choose-title"),
             Content = content,
-            PrimaryButtonText = online ? "Move drive here" : "Use this folder",
-            CloseButtonText = "Cancel",
+            PrimaryButtonText = UiText.Get(online ? "connection.move-confirm" : "connection.choose-confirm"),
+            CloseButtonText = UiText.Get("kit.dialog.cancel"),
             DefaultButton = ContentDialogButton.Primary,
             XamlRoot = XamlRoot,
         };
@@ -197,13 +260,15 @@ public sealed partial class ConnectionPage : Page
         {
             await DriveManager.Current.ConnectAsync();
             var dm = DriveManager.Current;
-            ResultBar.IsOpen = true;
-            bool ok = dm.Status == DriveStatus.Online;
-            ResultBar.Severity = ok ? InfoBarSeverity.Success : InfoBarSeverity.Error;
-            ResultBar.Title = ok ? "Drive moved" : "Move failed";
-            ResultBar.Message = ok
-                ? $"The drive is now at {SettingsManager.Current.EffectiveSyncRootPath}."
-                : (dm.StatusDetail ?? "");
+            if (dm.Status == DriveStatus.Online)
+            {
+                ShowResult(InfoBarSeverity.Success, "connection.moved-title",
+                    new LocalizedMessage("connection.moved", ("path", SettingsManager.Current.EffectiveSyncRootPath)));
+            }
+            else
+            {
+                ShowResult(InfoBarSeverity.Error, "connection.move-failed-title", dm.StatusDetail);
+            }
         }
         finally
         {
@@ -235,26 +300,20 @@ public sealed partial class ConnectionPage : Page
             using var client = new ImmichClient(SettingsManager.Current.ServerUrl, ApiKeyStore.ApiKey,
                 TimeSpan.FromSeconds(15));
             var (reachability, who) = await client.ProbeAsync();
-            ResultBar.IsOpen = true;
             if (reachability == ImmichReachability.Ok)
             {
-                ResultBar.Severity = InfoBarSeverity.Success;
-                ResultBar.Title = "Connected";
-                ResultBar.Message = $"Reached Immich as {who}. This checks your URL and user.read permission; " +
-                                    "select the permissions listed above for the features you use.";
+                ShowResult(InfoBarSeverity.Success, "connection.test-ok-title",
+                    new LocalizedMessage("connection.test-ok", ("user", who), ("permission", UserReadPermission)));
             }
             else if (reachability == ImmichReachability.Unauthorized)
             {
-                ResultBar.Severity = InfoBarSeverity.Error;
-                ResultBar.Title = "API key rejected";
-                ResultBar.Message = "Check that your API key is correct and includes user.read. " +
-                                    "Select the permissions listed above in Immich's API key settings.";
+                ShowResult(InfoBarSeverity.Error, "connection.test-rejected-title",
+                    new LocalizedMessage("connection.test-rejected", ("permission", UserReadPermission)));
             }
             else
             {
-                ResultBar.Severity = InfoBarSeverity.Error;
-                ResultBar.Title = "Could not connect";
-                ResultBar.Message = "Check the server URL and that your Immich server is reachable.";
+                ShowResult(InfoBarSeverity.Error, "connection.test-unreachable-title",
+                    new LocalizedMessage("connection.test-unreachable"));
             }
 
             if (!keySaved)
@@ -278,10 +337,11 @@ public sealed partial class ConnectionPage : Page
         {
             await DriveManager.Current.ConnectAsync();
             var dm = DriveManager.Current;
-            ResultBar.IsOpen = true;
-            ResultBar.Severity = dm.Status == DriveStatus.Online ? InfoBarSeverity.Success : InfoBarSeverity.Error;
-            ResultBar.Title = dm.Status == DriveStatus.Online ? "Drive connected" : "Connection failed";
-            ResultBar.Message = dm.StatusDetail ?? "";
+            bool online = dm.Status == DriveStatus.Online;
+            ShowResult(
+                online ? InfoBarSeverity.Success : InfoBarSeverity.Error,
+                online ? "connection.connected-title" : "connection.connect-failed-title",
+                dm.StatusDetail);
 
             if (!keySaved)
             {
@@ -299,10 +359,8 @@ public sealed partial class ConnectionPage : Page
     private void DisconnectButton_Click(object sender, RoutedEventArgs e)
     {
         DriveManager.Current.Disconnect();
-        ResultBar.IsOpen = true;
-        ResultBar.Severity = InfoBarSeverity.Informational;
-        ResultBar.Title = "Disconnected";
-        ResultBar.Message = "The drive has been disconnected.";
+        ShowResult(InfoBarSeverity.Informational, "connection.disconnected-title",
+            new LocalizedMessage("connection.disconnected"));
         UpdateButtons();
     }
 }

@@ -1,9 +1,11 @@
+using ImmichDrive.Classes;
 using ImmichDrive.Classes.Settings;
 using ImmichDrive.Services;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Media.Imaging;
 using System.Diagnostics;
 using System.IO;
+using WinUIAppKit.Localization;
 using WinUIAppKit.Theming;
 using WinUIAppKit.Tray;
 using WinUIAppKit.Windowing;
@@ -47,6 +49,9 @@ public sealed partial class StatusFlyout : Window
         _controller = new FlyoutController(this, Root, WidthDip);
         _controller.Opening += UpdateUi;
         DriveManager.Current.StatusChanged += OnStatusChanged;
+
+        // Static labels relabel themselves (l10n:Localize); the status lines are built here.
+        UiText.Changed += OnStatusChanged;
     }
 
     /// <summary>Opens the flyout by the tray icon, or closes it when it is open.</summary>
@@ -75,17 +80,10 @@ public sealed partial class StatusFlyout : Window
         bool syncing = dm.Status == DriveStatus.Online && dm.IsPopulating;
         bool checking = dm.IsCheckingConnection;
 
-        StatusText.Text = checking ? "Checking the connection…" : dm.Status switch
-        {
-            DriveStatus.Online when syncing && total > done => $"Syncing {done:N0} of about {total:N0}…",
-            DriveStatus.Online when syncing => "Finishing sync…",
-            DriveStatus.Online when dm.SyncIssue != null => "Some photos could not be synced",
-            DriveStatus.Online => "Up to date",
-            DriveStatus.Connecting => "Connecting…",
-            DriveStatus.Offline => "Can't reach Immich",
-            DriveStatus.Error => dm.StatusDetail ?? "Problem connecting",
-            _ => "Disconnected",
-        };
+        // An error shows its own detail; every other state shares the tray's wording.
+        StatusText.Text = !checking && dm.Status == DriveStatus.Error && dm.StatusDetail is { } error
+            ? error.Text
+            : DriveStatusText.Summary(dm, includeChecking: true);
 
         StatusDot.Fill = (Microsoft.UI.Xaml.Media.Brush)Root.Resources[
             checking || dm.Status == DriveStatus.Connecting ? "DotBusy" : dm.Status switch
@@ -102,8 +100,8 @@ public sealed partial class StatusFlyout : Window
         string? detail = dm.Status switch
         {
             DriveStatus.Offline when checking => null,
-            DriveStatus.Offline => $"Your photos are still listed{LastContactSuffix(dm)}. Retrying in the background.",
-            DriveStatus.Online when dm.SyncIssue != null => dm.SyncIssue,
+            DriveStatus.Offline => OfflineDetail(dm),
+            DriveStatus.Online when dm.SyncIssue != null => dm.SyncIssue.Text,
             _ => null,
         };
         DetailText.Text = detail ?? "";
@@ -112,20 +110,20 @@ public sealed partial class StatusFlyout : Window
         SyncProgress.Visibility = syncing ? Visibility.Visible : Visibility.Collapsed;
         if (syncing) { SyncProgress.Maximum = Math.Max(total, 1); SyncProgress.Value = Math.Min(done, total); }
 
-        var (pinDone, pinTotal, pinActive) = dm.PinProgress;
-        bool downloadingPins = dm.Status == DriveStatus.Online && pinActive && pinTotal > 0;
-        PinProgressText.Visibility = downloadingPins ? Visibility.Visible : Visibility.Collapsed;
-        PinProgress.Visibility = downloadingPins ? Visibility.Visible : Visibility.Collapsed;
-        if (downloadingPins)
+        string? pins = DriveStatusText.PinProgress(dm);
+        PinProgressText.Visibility = pins is null ? Visibility.Collapsed : Visibility.Visible;
+        PinProgress.Visibility = pins is null ? Visibility.Collapsed : Visibility.Visible;
+        if (pins is not null)
         {
-            PinProgressText.Text = $"Downloading {pinDone:N0} of {pinTotal:N0} pinned photos…";
+            var (pinDone, pinTotal, _) = dm.PinProgress;
+            PinProgressText.Text = pins;
             PinProgress.Maximum = pinTotal;
             PinProgress.Value = pinDone;
         }
 
         RetryButton.Visibility = dm.CanRetry || checking ? Visibility.Visible : Visibility.Collapsed;
         RetryButton.IsEnabled = !checking;
-        RetryText.Text = checking ? "Checking…" : "Try again";
+        RetryText.Text = UiText.Get(checking ? "common.checking" : "common.try-again");
         RefreshButton.IsEnabled = dm.Status == DriveStatus.Online;
 
         RefitIfResized();
@@ -149,11 +147,14 @@ public sealed partial class StatusFlyout : Window
         _controller.UpdateSize();
     }
 
-    /// <summary>", last updated 12:04" when we ever got through this session, otherwise nothing.</summary>
-    private static string LastContactSuffix(DriveManager dm) =>
+    /// <summary>
+    /// The offline line: how stale the listed photos are when the server answered earlier this
+    /// session ("last updated 12:04"), otherwise just that retries continue.
+    /// </summary>
+    private static string OfflineDetail(DriveManager dm) =>
         dm.LastContactUtc > DateTimeOffset.MinValue
-            ? $", last updated {dm.LastContactUtc.ToLocalTime():t}"
-            : "";
+            ? UiText.Format("flyout.offline-since", ("time", DriveStatusText.ShortTime(dm.LastContactUtc)))
+            : UiText.Get("flyout.offline");
 
     private void RefreshButton_Click(object sender, RoutedEventArgs e) =>
         DriveManager.Current.Refresh();   // stays open; progress shows live

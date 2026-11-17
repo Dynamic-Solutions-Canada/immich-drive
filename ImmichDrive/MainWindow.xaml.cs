@@ -1,3 +1,4 @@
+using ImmichDrive.Classes;
 using ImmichDrive.Classes.Settings;
 using ImmichDrive.Services;
 using ImmichDrive.Windows;
@@ -8,6 +9,7 @@ using System.Drawing.Drawing2D;
 using System.IO;
 using WinUIAppKit;
 using WinUIAppKit.Hosting;
+using WinUIAppKit.Localization;
 using WinUIAppKit.Logging;
 using WinUIAppKit.Settings;
 using WinUIAppKit.Startup;
@@ -89,8 +91,15 @@ public sealed partial class MainWindow : Window
 
         DriveManager.Current.StatusChanged += OnDriveStatusChanged;
 
+        // A language change relabels the tooltip now; the menu is built when it opens, so it follows.
+        UiText.Changed += OnLanguageChanged;
+
         // Teardown runs on Exit, in this order (kit HostWindow).
-        _host.AddExitStep("stop tray updates", () => DriveManager.Current.StatusChanged -= OnDriveStatusChanged);
+        _host.AddExitStep("stop tray updates", () =>
+        {
+            DriveManager.Current.StatusChanged -= OnDriveStatusChanged;
+            UiText.Changed -= OnLanguageChanged;
+        });
         _host.AddExitStep("save settings", SettingsManager.SaveSettings);
         _host.AddExitStep("remove the tray icon", _tray.Dispose);
 
@@ -195,22 +204,11 @@ public sealed partial class MainWindow : Window
         });
     }
 
-    private static string TrayTooltip()
-    {
-        var dm = DriveManager.Current;
-        return dm.Status switch
-        {
-            DriveStatus.Online when dm.IsPopulating && dm.Progress.Total > dm.Progress.Done
-                => $"ImmichDrive: syncing {dm.Progress.Done}/{dm.Progress.Total}",
-            DriveStatus.Online when dm.IsPopulating => "ImmichDrive: finishing sync",
-            DriveStatus.Online when dm.SyncIssue != null => "ImmichDrive: sync needs attention",
-            DriveStatus.Online => "ImmichDrive: online",
-            DriveStatus.Connecting => "ImmichDrive: connecting…",
-            DriveStatus.Offline => "ImmichDrive: can't reach Immich, retrying…",
-            DriveStatus.Error => $"ImmichDrive: {dm.StatusDetail}",
-            _ => "ImmichDrive: disconnected",
-        };
-    }
+    /// <summary>Relabels the tray tooltip in the new interface language.</summary>
+    private void OnLanguageChanged() => UpdateTray();
+
+    /// <summary>The tray tooltip in the current language (shared wording with the menu and flyout).</summary>
+    private static string TrayTooltip() => DriveStatusText.Tooltip(DriveManager.Current);
 
     // Throttle tray updates: during a sync, StatusChanged fires once per asset (thousands of times).
     // Rewriting the tray that fast makes the icon flicker. Coalesce to about one a second, with a
@@ -252,18 +250,7 @@ public sealed partial class MainWindow : Window
     private void ShowTrayMenu(int x, int y)
     {
         var dm = DriveManager.Current;
-        var (done, total) = dm.Progress;
-        string status = dm.Status switch
-        {
-            DriveStatus.Online when dm.IsPopulating && total > done => $"Syncing {done:N0} of about {total:N0}…",
-            DriveStatus.Online when dm.IsPopulating => "Finishing sync…",
-            DriveStatus.Online when dm.SyncIssue != null => "Some photos could not be synced",
-            DriveStatus.Online => "Up to date",
-            DriveStatus.Connecting => "Connecting…",
-            DriveStatus.Offline => "Can't reach Immich",
-            DriveStatus.Error => "Problem connecting",
-            _ => "Disconnected",
-        };
+        string status = DriveStatusText.Summary(dm);
 
         // Offline still counts as "on": Disconnect is how the user stops the drive and its retries.
         bool driveOn = dm.Status is DriveStatus.Online or DriveStatus.Offline;
@@ -274,20 +261,20 @@ public sealed partial class MainWindow : Window
 
         if (dm.CanRetry)
         {
-            menu.Add(dm.IsCheckingConnection ? "Checking…" : "Try again",
+            menu.Add(UiText.Get(dm.IsCheckingConnection ? "common.checking" : "common.try-again"),
                     () => _ = dm.RetryConnectionAsync(),
                     enabled: !dm.IsCheckingConnection)
                 .AddSeparator();
         }
 
-        menu.Add("Open drive folder", OpenDriveFolder)
-            .Add("Refresh", dm.Refresh, enabled: dm.Status == DriveStatus.Online)
-            .Add(driveOn ? "Disconnect" : "Connect", () => ToggleDrive(driveOn))
+        menu.Add(UiText.Get("common.open-drive-folder"), OpenDriveFolder)
+            .Add(UiText.Get("common.refresh"), dm.Refresh, enabled: dm.Status == DriveStatus.Online)
+            .Add(UiText.Get(driveOn ? "common.disconnect" : "common.connect"), () => ToggleDrive(driveOn))
             .AddSeparator()
-            .Add("Settings", ShowSettingsPage)
-            .Add("Open logs folder", AppLogging.OpenLogsFolder)
+            .Add(UiText.Get("kit.settings.title"), ShowSettingsPage)
+            .Add(UiText.Get("kit.about.open-logs-folder"), AppLogging.OpenLogsFolder)
             .AddSeparator()
-            .Add("Exit", _host.Exit)
+            .Add(UiText.Get("tray.exit"), _host.Exit)
             .Show(_host.Hwnd, x, y);
     }
 

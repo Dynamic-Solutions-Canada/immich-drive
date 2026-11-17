@@ -17,7 +17,7 @@
                     <StackPanel Orientation="Horizontal" Spacing="12">
                         <FontIcon Glyph="&#xE8B7;" FontSize="22" VerticalAlignment="Center" AutomationProperties.AccessibilityView="Raw" />
                         <StackPanel VerticalAlignment="Center">
-                            <TextBlock Text="Drive folder" Style="{StaticResource CaptionTextBlockStyle}" Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
+                            <TextBlock l10n:Localize.Text="home.drive-folder" Style="{StaticResource CaptionTextBlockStyle}" Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
                             <TextBlock x:Name="FolderText" Style="{StaticResource SubtitleTextBlockStyle}" TextWrapping="Wrap" />
                         </StackPanel>
                     </StackPanel>
@@ -29,22 +29,22 @@
                         <Button x:Name="OpenFolderButton" Click="OpenFolderButton_Click" Style="{StaticResource AccentButtonStyle}">
                             <StackPanel Style="{StaticResource IconLabelStyle}">
                                 <FontIcon Glyph="&#xE838;" Style="{StaticResource ButtonGlyphStyle}" />
-                                <TextBlock Text="Open drive folder" />
+                                <TextBlock l10n:Localize.Text="common.open-drive-folder" />
                             </StackPanel>
                         </Button>
                         <Button x:Name="RefreshButton" Click="RefreshButton_Click">
                             <StackPanel Style="{StaticResource IconLabelStyle}">
                                 <FontIcon Glyph="&#xE72C;" Style="{StaticResource ButtonGlyphStyle}" />
-                                <TextBlock Text="Refresh" />
+                                <TextBlock l10n:Localize.Text="common.refresh" />
                             </StackPanel>
                         </Button>
                         <Button x:Name="RetryButton" Click="RetryButton_Click" Visibility="Collapsed">
                             <StackPanel Style="{StaticResource IconLabelStyle}">
                                 <FontIcon Glyph="&#xE72C;" Style="{StaticResource ButtonGlyphStyle}" />
-                                <TextBlock x:Name="RetryText" Text="Try again" />
+                                <TextBlock x:Name="RetryText" />
                             </StackPanel>
                         </Button>
-                        <Button x:Name="ConfigureButton" Click="ConfigureButton_Click" Content="Set up connection" />
+                        <Button x:Name="ConfigureButton" Click="ConfigureButton_Click" l10n:Localize.Content="home.set-up" />
                     </StackPanel>
                 </StackPanel>
             </Border>

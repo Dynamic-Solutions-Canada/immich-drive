@@ -1,5 +1,6 @@
 {
   "project": "ImmichDrive/ImmichDrive.csproj",
+  "msix_dir": "ImmichDriveMSIX",
   "package_script": "ImmichDriveMSIX/build-msix.ps1",
   "package_output": "ImmichDriveMSIX/bin/msix-output",
   "certificate": ".windows-build/signing.pfx",
@@ -20,5 +21,8 @@
   },
   "notices": {
     "about_source": "ImmichDrive/Classes/AboutContent.cs"
+  },
+  "localization": {
+    "catalog_dir": "ImmichDrive/Localization/Catalogs"
   }
 }

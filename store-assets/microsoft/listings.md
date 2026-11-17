@@ -2,7 +2,7 @@
 
 `listings.json` is the source of every field a user can read on the ImmichDrive Store listing (LIST-1): title, short and full description, features, keywords and screenshot captions, in the shared `schemaVersion: 1` / `locales` shape. Partner Center is an output; change the wording here first. Field names are semantic, not Partner Center import IDs. Release notes are not in this file: they come from `release-notes/<version>.md` (REL-6).
 
-The file holds `en-US` only, because the app is English only (LIST-7, LOC-11). The other eight locales are added in the same change that localizes the app (package 10), and not before.
+The file holds `en-US` only, although the app's interface is in nine languages: under [D-111](https://github.com/Dynamic-Solutions-Canada/app-standards/blob/main/DECISIONS.md#d-111-immichdrive-listing-stays-english-while-the-interface-is-localized), the listing and Store release notes stay English until a separate listing-translation step. `windows-build.json` sets `listing.catalog_dir` to null, so `check:listing` expects `en-US` alone. See [docs/localization.md](../../docs/localization.md).
 
 `npm run check:listing` (winui-app-kit's shared listing check, configured by the `listing` block in `windows-build.json`) validates the file and the current version's release notes, and `npm run validate` runs it.
 
@@ -24,7 +24,7 @@ A listing-only Store submission made on 2026-11-16 (submission 11529215057024224
 | --- | --- | --- |
 | `title` | Must be the reserved product name | "ImmichDrive" |
 | `shortDescription` | 270 characters | 150 |
-| `fullDescription` | 4,000 characters | 1,174 |
+| `fullDescription` | 4,000 characters | 1,338 |
 | `features` | Up to 20, each up to 200 characters | 12, longest 77 |
 | `keywords` | Up to 7, each up to 40 characters, 21 words combined | 7, longest 21 characters, 21 words (at the limit) |
 | `screenshotCaptions` | One per screenshot, each up to 200 characters | 5, longest 81 |
@@ -35,7 +35,7 @@ A listing-only Store submission made on 2026-11-16 (submission 11529215057024224
 - **Name:** "ImmichDrive", one word, in every field (D-012).
 - **Tagline:** the first sentence of `shortDescription` is the README header tagline (LIST-12). Change both together.
 - **Requirements:** Windows 10 22H2 (build 19045) or Windows 11, matching the manifest's minimum version (D-018, PLAT-6). An Immich server and an API key are needed and not included.
-- **Language:** English only until the app is localized; then this file gains all nine locales in the same change.
+- **Language:** the interface is in nine languages and follows the Windows display language unless the user picks one in Settings; the drive's folder names stay English. The listing itself is English only (D-111).
 - **Read-only mirror:** only `Upload` is writable; the rest of the drive cannot change or delete server content.
 - **On demand:** files download only when opened; thumbnails never download the original.
 - **Privacy:** the library stays on the user's server; the API key is stored encrypted for the Windows account and never written to the settings file or logs; no telemetry or crash reporting. Network requests go to the configured Immich server, the public "Our other apps" catalog, and, in development builds only, GitHub's release check.

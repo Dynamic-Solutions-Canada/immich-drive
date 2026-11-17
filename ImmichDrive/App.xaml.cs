@@ -93,14 +93,13 @@ public partial class App : Application
         InitializeApiKey();
         SettingsLoad = SettingsManager.RestoreSettings();
 
-        // Interface text before any window or tray label is built. English only until the app is
-        // localized, so no language override is read yet.
-        UiText.Configure(typeof(App).Assembly, AppLanguages.CatalogPrefix, AppLanguages.Supported, null);
+        // Interface text before any window or tray label is built: Windows' languages, or the user's
+        // choice from Settings (LOC-4).
+        UiText.Configure(typeof(App).Assembly, AppLanguages.CatalogPrefix, AppLanguages.Supported, SettingsManager.Current.Language);
 
-        // The app is English only, so the shared "Our other apps" page is too (PROMO-7), rather than
-        // following a Windows language the rest of the app does not speak. Package 10 points this at
-        // the app's own language once the app is localized.
-        TechnicallyReal.Promo.PromoLocalization.LocaleProvider = static () => "en-US";
+        // The shared "Our other apps" page follows the app's language, not Windows' (PROMO-7).
+        TechnicallyReal.Promo.PromoLocalization.LocaleProvider = static () => UiText.Locale;
+        UiText.Changed += TechnicallyReal.Promo.PromoLocalization.Refresh;
         AppTheme.Set((AppThemeChoice)SettingsManager.Current.AppTheme);
     }
 

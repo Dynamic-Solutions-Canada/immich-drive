@@ -42,6 +42,7 @@ provider reads `ServerUrl` and `SyncRootPath` by name), defaults written, nulls 
 | `LayoutVersion` | On-disk layout/naming revision; a bump triggers a one-time clean rebuild. |
 | `RegisteredVersion` | App version the sync root was last registered with; a change re-registers to refresh the icon. |
 | `AppTheme` | 0 = system, 1 = light, 2 = dark (the kit's `AppThemeChoice`); its side-effect applies it to every window. |
+| `Language` | The interface language picked in Settings (an identity such as `fr-CA`), or null to follow Windows (LOC-4); the kit's language row applies it. |
 | `LastKnownVersion` | For update/"what's new" detection. |
 | `SettingsWindowPlacement` | The settings window's last normal size and position (kit `WindowPlacement`), or null to centre it. |
 | `PendingLegacyApiKey` | Written as `ApiKey`, and only while the protected store refuses the key during the one-time migration; null and omitted otherwise. Never set it anywhere else. |

@@ -41,7 +41,7 @@ Take a photo on your phone, let it sync to Immich, and then pick it straight fro
 
 Install ImmichDrive from the [Microsoft Store](https://apps.microsoft.com/detail/9MWC6165N7DH), where it is currently listed as **Drive for Immich**.
 
-ImmichDrive collects no telemetry or crash reports. The app is in English only for now.
+ImmichDrive collects no telemetry or crash reports.
 
 ### Requirements
 
@@ -90,6 +90,10 @@ These permissions match [Immich's endpoint declarations](https://github.com/immi
 ImmichDrive uses the same Windows mechanism as OneDrive and Dropbox, the **Cloud Files API**, to create *placeholder* files. They look and behave like normal files in Explorer, with correct names, dates and **thumbnails**, but take up **0 bytes** until you open one. Opening a file streams the original from your Immich server in the background; freeing up space turns it back into a placeholder.
 
 Your API key is stored encrypted for your Windows account, never in plain text.
+
+## Languages
+
+ImmichDrive is available in English (United States and Canada), Spanish, French (France and Canada), German, Simplified Chinese, Brazilian Portuguese and Japanese. It follows Windows' language unless you pick one in Settings. The folders it creates in File Explorer (Albums, Favorites, Partners, Upload and the month folders) keep their English names in every language, and the Microsoft Store listing is in English for now.
 
 ## Developers
 

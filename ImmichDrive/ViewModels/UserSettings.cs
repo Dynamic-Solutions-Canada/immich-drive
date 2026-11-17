@@ -55,6 +55,12 @@ public partial class UserSettings : ObservableObject
     /// <summary>0 = system, 1 = light, 2 = dark: the values of WinUIAppKit's AppThemeChoice.</summary>
     [ObservableProperty] public partial int AppTheme { get; set; }
 
+    /// <summary>
+    /// The interface language the user picked in Settings (an identity such as "fr-CA"), or null to
+    /// follow Windows (LOC-4). The kit's language row applies it; the caller saves.
+    /// </summary>
+    [ObservableProperty] public partial string? Language { get; set; }
+
     // Start at sign-in is not stored here: Windows owns it (the startup task, or the Run key when
     // unpackaged), and the Settings page reads the real state through the kit's StartupRegistration.
 

@@ -12,10 +12,12 @@
             <!-- The kit's "settings were reset" notice goes here, after an unreadable settings file (CONF-2) -->
             <ContentPresenter x:Name="NoticeHost" />
 
-            <!-- The kit's shared rows (UI-4): Windows' real startup state (TRAY-10), and the app theme -->
+            <!-- The kit's shared rows (UI-4): Windows' real startup state (TRAY-10), the interface
+                 language (LOC-4) and the app theme -->
             <Border Style="{StaticResource CardBorderStyle}">
                 <StackPanel Spacing="12">
                     <kitc:StartupSetting x:Name="StartupRow" />
+                    <kitc:LanguageSetting x:Name="LanguageRow" />
                     <kitc:ThemeSetting x:Name="ThemeRow" />
                 </StackPanel>
             </Border>

@@ -51,7 +51,7 @@ This repo follows the shared standards at https://github.com/Dynamic-Solutions-C
 | `npm run package:desktop:dev` | A signed dev package builds | That it installs or runs |
 | `npm run install:desktop` | The dev package updates in place and launches | Behaviour; check it in the running app |
 | `npm test` | Every portable harness under `tests/` and every Store workflow script test pass, on Linux (host .NET SDK or Docker; run as a non-root user) | Windows data protection, the shell, the installed app; each harness README says what it leaves out |
-| `npm run validate` | The whole Linux gate passes: `format:check`, `check:gitignore`, `check:listing`, `check:notices`, then `npm test` | A Windows compile; also run `verify:desktop` |
+| `npm run validate` | The whole Linux gate passes: `format:check`, `check:gitignore`, `check:l10n`, `check:listing`, `check:notices`, then `npm test` | A Windows compile; also run `verify:desktop` |
 | `npm run generate:notices` | Rewrites `ImmichDrive/THIRD-PARTY-NOTICES.txt` from the NuGet restore graph (kit script); run after a package change and commit the result | That the notices are complete for files outside NuGet |
 | `npm run format` | Rewrites every C# project (not `external/`) to the root `.editorconfig`, which is winui-app-kit's copied unchanged | Behaviour; review the diff |
 
@@ -72,6 +72,7 @@ Releases are tag-driven: a `v*` tag makes `build-msix.yml` create a notes-only G
 | [docs/thumbnails.md](docs/thumbnails.md) | Changing the thumbnail provider or a file it links | `ImmichDrive.ThumbnailProvider/**` |
 | [docs/read-only.md](docs/read-only.md) | Changing folder permissions or the Upload flow | `DriveSecurity.cs`, `UploadService.cs` |
 | [docs/packaging.md](docs/packaging.md) | Changing the manifest, packaging script or release workflows | `ImmichDriveMSIX/**`, `.github/workflows/**` |
+| [docs/localization.md](docs/localization.md) | Adding or changing any user-facing text, or a language | `ImmichDrive/Localization/**`, `Classes/AppLanguages.cs` |
 | [store-assets/microsoft/listings.md](store-assets/microsoft/listings.md) | Changing Store listing text or anything a listing claim depends on | `store-assets/microsoft/**` |
 | [.agents/guides/user-settings.md](.agents/guides/user-settings.md) | Adding or changing a setting | `UserSettings.cs`, `Classes/Settings/**` |
 | [.agents/guides/ui-conventions.md](.agents/guides/ui-conventions.md) | Any window, page, flyout or card | `ImmichDrive/**/*.xaml(.cs)` |
@@ -95,6 +96,7 @@ Releases are tag-driven: a `v*` tag makes `build-msix.yml` create a notes-only G
 | Manifest, packaging script or workflows | `docs/packaging.md`, the `release` skill |
 | An npm command | This file's Commands table, the `desktop` skill, `docs/development.md`, `paseo.json` |
 | A test harness added or changed | Its README; `npm test` finds it by itself |
+| User-facing text added or changed | All seven catalogs in `ImmichDrive/Localization/Catalogs/` in the same change, and the review status in `docs/localization.md` |
 | A feature, requirement, language or privacy behaviour users can see | `store-assets/microsoft/listings.json` and the claims in `listings.md`; the README header tagline must stay the first sentence of the short description |
 | winui-app-kit pin bumped | Copy the kit's `.editorconfig` at that tag unchanged, run `npm run format`, follow the tag's release notes, and check `.gitignore` with `npm run check:gitignore` |
 | A file, guide or skill moved or removed | The guidance map above and every skill that names it |

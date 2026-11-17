@@ -1,9 +1,11 @@
+using ImmichDrive.Classes;
 using ImmichDrive.Classes.Settings;
 using ImmichDrive.Services;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using System.Diagnostics;
 using System.IO;
+using WinUIAppKit.Localization;
 
 namespace ImmichDrive.Pages;
 
@@ -15,9 +17,14 @@ public sealed partial class HomePage : Page
         Loaded += (s, e) =>
         {
             DriveManager.Current.StatusChanged += OnStatusChanged;
+            UiText.Changed += UpdateUi;   // the status lines are built here; XAML labels relabel themselves
             UpdateUi();
         };
-        Unloaded += (s, e) => DriveManager.Current.StatusChanged -= OnStatusChanged;
+        Unloaded += (s, e) =>
+        {
+            DriveManager.Current.StatusChanged -= OnStatusChanged;
+            UiText.Changed -= UpdateUi;
+        };
     }
 
     private void OnStatusChanged() => DispatcherQueue.TryEnqueue(UpdateUi);
@@ -34,40 +41,58 @@ public sealed partial class HomePage : Page
             ? Microsoft.UI.Xaml.Visibility.Visible
             : Microsoft.UI.Xaml.Visibility.Collapsed;
         RetryButton.IsEnabled = !dm.IsCheckingConnection;
-        RetryText.Text = dm.IsCheckingConnection ? "Checking…" : "Try again";
+        RetryText.Text = UiText.Get(dm.IsCheckingConnection ? "common.checking" : "common.try-again");
 
         (StatusBar.Severity, StatusBar.Title, StatusBar.Message) = dm.Status switch
         {
             DriveStatus.Online when dm.SyncIssue != null =>
-                (InfoBarSeverity.Warning, "Some photos could not be synced", dm.SyncIssue),
-            DriveStatus.Online => (InfoBarSeverity.Success, "Online", dm.StatusDetail ?? "Your drive is connected."),
-            DriveStatus.Connecting => (InfoBarSeverity.Informational, "Connecting…", dm.StatusDetail ?? ""),
-            DriveStatus.Offline => (InfoBarSeverity.Warning, "Can't reach Immich",
-                  "Your photos are still listed, but they can't be opened until the server answers. "
-                  + "Retrying in the background."),
-            DriveStatus.Error => (InfoBarSeverity.Error, "Problem", dm.StatusDetail ?? "Something went wrong."),
-            _ => (InfoBarSeverity.Warning, "Not connected",
-                  dm.IsConfigured ? "The drive is disconnected." : "Add your Immich server to get started."),
+                (InfoBarSeverity.Warning, UiText.Get("status.sync-issue"), dm.SyncIssue.Text),
+            DriveStatus.Online => (InfoBarSeverity.Success, UiText.Get("home.online"),
+                dm.StatusDetail?.Text ?? UiText.Get("home.connected")),
+            DriveStatus.Connecting => (InfoBarSeverity.Informational, UiText.Get("status.connecting"),
+                dm.StatusDetail?.Text ?? ""),
+            DriveStatus.Offline => (InfoBarSeverity.Warning, UiText.Get("status.offline"), UiText.Get("home.offline")),
+            DriveStatus.Error => (InfoBarSeverity.Error, UiText.Get("home.problem"),
+                dm.StatusDetail?.Text ?? UiText.Get("home.something-wrong")),
+            _ => (InfoBarSeverity.Warning, UiText.Get("home.not-connected"),
+                UiText.Get(dm.IsConfigured ? "home.disconnected" : "home.get-started")),
         };
 
         var (done, total) = dm.Progress;
         bool syncing = dm.Status == DriveStatus.Online && dm.IsPopulating;
         SyncProgress.Visibility = syncing ? Microsoft.UI.Xaml.Visibility.Visible : Microsoft.UI.Xaml.Visibility.Collapsed;
         if (syncing) { SyncProgress.Maximum = Math.Max(total, 1); SyncProgress.Value = Math.Min(done, total); }
-        DetailText.Text = syncing ? total > done ? $"Syncing {done:N0} of about {total:N0} photos…" : "Finishing sync…"
-            : SettingsManager.Current.LastSyncUtc > DateTimeOffset.MinValue
-                ? $"Last updated {SettingsManager.Current.LastSyncUtc.ToLocalTime():g}" : "";
+        DetailText.Text = SyncDetail(syncing, done, total);
 
-        var (pinDone, pinTotal, pinActive) = dm.PinProgress;
-        bool downloadingPins = dm.Status == DriveStatus.Online && pinActive && pinTotal > 0;
-        PinProgressText.Visibility = downloadingPins ? Microsoft.UI.Xaml.Visibility.Visible : Microsoft.UI.Xaml.Visibility.Collapsed;
-        PinProgress.Visibility = downloadingPins ? Microsoft.UI.Xaml.Visibility.Visible : Microsoft.UI.Xaml.Visibility.Collapsed;
-        if (downloadingPins)
+        string? pins = DriveStatusText.PinProgress(dm);
+        PinProgressText.Visibility = pins is null ? Microsoft.UI.Xaml.Visibility.Collapsed : Microsoft.UI.Xaml.Visibility.Visible;
+        PinProgress.Visibility = pins is null ? Microsoft.UI.Xaml.Visibility.Collapsed : Microsoft.UI.Xaml.Visibility.Visible;
+        if (pins is not null)
         {
-            PinProgressText.Text = $"Downloading {pinDone:N0} of {pinTotal:N0} pinned photos…";
+            var (pinDone, pinTotal, _) = dm.PinProgress;
+            PinProgressText.Text = pins;
             PinProgress.Maximum = pinTotal;
             PinProgress.Value = pinDone;
         }
+    }
+
+    /// <summary>
+    /// The line under the drive folder: sync progress while syncing, otherwise when the drive was last
+    /// updated, or nothing before the first sync.
+    /// </summary>
+    private static string SyncDetail(bool syncing, int done, int total)
+    {
+        if (syncing)
+        {
+            return total > done
+                ? UiText.Format("home.syncing", ("done", DriveStatusText.Count(done)), ("total", DriveStatusText.Count(total)))
+                : UiText.Get("status.finishing");
+        }
+
+        var lastSync = SettingsManager.Current.LastSyncUtc;
+        return lastSync > DateTimeOffset.MinValue
+            ? UiText.Format("home.last-updated", ("time", DriveStatusText.ShortDateTime(lastSync)))
+            : "";
     }
 
     private void OpenFolderButton_Click(object sender, RoutedEventArgs e)

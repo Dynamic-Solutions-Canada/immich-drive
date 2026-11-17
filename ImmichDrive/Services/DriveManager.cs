@@ -2,6 +2,7 @@ using ImmichDrive.Classes.Settings;
 using System.IO;
 using System.Net.Http;
 using System.Threading;
+using WinUIAppKit.Localization;
 
 namespace ImmichDrive.Services;
 
@@ -55,7 +56,7 @@ public sealed class DriveManager
     private Timer? _slowTimer;
     private UploadService? _upload;
     private PinHydrationService? _pins;
-    private string? _populateIssue;
+    private LocalizedMessage? _populateIssue;
 
     // Offline watchdog: while the server is unreachable we stop polling the timeline and instead
     // re-probe on a backing-off schedule until it answers again. Passive by design — no balloon,
@@ -67,12 +68,14 @@ public sealed class DriveManager
     private string? _connectedAs;
 
     public DriveStatus Status { get; private set; } = DriveStatus.Disconnected;
-    public string? StatusDetail { get; private set; }
+    /// <summary>The detail behind <see cref="Status"/>, rendered in the current language when shown.</summary>
+    public LocalizedMessage? StatusDetail { get; private set; }
     public (int Done, int Total) Progress { get; private set; }
     public (int Done, int Total, bool Active) PinProgress => _pins?.Progress ?? default;
     public bool IsPopulating { get; private set; }
-    public string? SyncIssue => _populateIssue ?? (_pins?.HasFailures == true
-        ? "Some pinned photos could not be downloaded. Retrying in the background."
+    /// <summary>Why some photos are missing while the drive is otherwise online, or null.</summary>
+    public LocalizedMessage? SyncIssue => _populateIssue ?? (_pins?.HasFailures == true
+        ? new LocalizedMessage("drive.pin-issue")
         : null);
 
     /// <summary>When the server last answered us, or <see cref="DateTimeOffset.MinValue"/> if it never has
@@ -88,12 +91,15 @@ public sealed class DriveManager
     /// <summary>Raised (on a thread-pool thread) whenever Status/Progress changes.</summary>
     public event Action? StatusChanged;
 
-    private void Set(DriveStatus status, string? detail = null)
+    private void Set(DriveStatus status, LocalizedMessage? detail = null)
     {
         Status = status;
         StatusDetail = detail;
         StatusChanged?.Invoke();
     }
+
+    /// <summary>The status detail for a key Immich refused; names the permission every key needs.</summary>
+    private static LocalizedMessage KeyRejected() => new("drive.key-rejected", ("permission", "user.read"));
 
     public bool IsConfigured =>
         !string.IsNullOrWhiteSpace(SettingsManager.Current.ServerUrl) &&
@@ -117,9 +123,7 @@ public sealed class DriveManager
 
             // A saved key that no longer decrypts (restored profile, other Windows user) needs a
             // different instruction from a drive that was simply never set up.
-            string detail = ApiKeyStore.StoredKeyUnreadable
-                ? "Your saved API key could not be read. Enter it again in Settings."
-                : "Not configured";
+            var detail = new LocalizedMessage(ApiKeyStore.StoredKeyUnreadable ? "drive.key-unreadable" : "drive.not-configured");
             Set(DriveStatus.Disconnected, detail);
             return;
         }
@@ -128,7 +132,7 @@ public sealed class DriveManager
         {
             if (announce)
             {
-                Set(DriveStatus.Connecting, "Verifying server…");
+                Set(DriveStatus.Connecting, new LocalizedMessage("drive.verifying"));
             }
 
             SharedPaths.WriteBreadcrumb();
@@ -154,7 +158,7 @@ public sealed class DriveManager
             {
                 // The user has to fix this, so don't burn retries on it.
                 StopWatchdog();
-                Set(DriveStatus.Error, "Immich rejected the API key. Check the key and its user.read permission in Settings.");
+                Set(DriveStatus.Error, KeyRejected());
                 return;
             }
             if (reachability != ImmichReachability.Ok)
@@ -188,7 +192,7 @@ public sealed class DriveManager
             // size/name instead of re-enriching the entire library over the network.
             if (s.LayoutVersion != CurrentLayoutVersion)
             {
-                Set(DriveStatus.Connecting, "Updating drive layout…");
+                Set(DriveStatus.Connecting, new LocalizedMessage("drive.updating-layout"));
                 try
                 {
                     var old = new AssetIndex();
@@ -223,7 +227,7 @@ public sealed class DriveManager
 
             s.Connected = true;
             SettingsManager.SaveSettings();
-            Set(DriveStatus.Online, $"Connected as {who}");
+            Set(DriveStatus.Online, new LocalizedMessage("drive.connected-as", ("user", who)));
 
             // Populate in the background; the drive is usable as buckets land (newest first).
             _populateCts?.Cancel();
@@ -242,7 +246,7 @@ public sealed class DriveManager
             }
             else
             {
-                Set(DriveStatus.Error, ex.Message);
+                Set(DriveStatus.Error, new LocalizedMessage("drive.failed", ("reason", ex.Message)));
             }
         }
     }
@@ -310,7 +314,7 @@ public sealed class DriveManager
                     break;
                 case ImmichReachability.Unauthorized:
                     StopWatchdog();   // retrying won't help; the user has to replace the key
-                    Set(DriveStatus.Error, "Immich rejected the API key. Check the key and its user.read permission in Settings.");
+                    Set(DriveStatus.Error, KeyRejected());
                     break;
                 default:
                     GoOffline();
@@ -342,7 +346,9 @@ public sealed class DriveManager
             _ = ConnectAsync(announce: false);
             return;
         }
-        Set(DriveStatus.Online, _connectedAs != null ? $"Connected as {_connectedAs}" : "Connected");
+        Set(DriveStatus.Online, _connectedAs != null
+            ? new LocalizedMessage("drive.connected-as", ("user", _connectedAs))
+            : new LocalizedMessage("drive.connected"));
         _ = RunPopulate(newestOnly: false, skipIfBusy: true, CancellationToken.None);
     }
 
@@ -370,7 +376,7 @@ public sealed class DriveManager
         if (Status != DriveStatus.Offline)
         {
             Logger.Info("Immich unreachable — going offline, will keep retrying");
-            Set(DriveStatus.Offline, "Can't reach the Immich server");
+            Set(DriveStatus.Offline, new LocalizedMessage("drive.unreachable"));
         }
         StartWatchdog();
     }
@@ -519,7 +525,7 @@ public sealed class DriveManager
                 Progress = (result.Processed, result.Processed);
                 if (result.Failures > 0)
                 {
-                    _populateIssue = "Some photos could not be synced. Refresh to retry.";
+                    _populateIssue = new LocalizedMessage("drive.sync-issue");
                 }
 
                 _migrationCache = null; // consumed: the rebuilt index is now authoritative
@@ -537,7 +543,7 @@ public sealed class DriveManager
             Logger.Warn(ex, "Populate failed (newestOnly={0})", newestOnly);
             if (!newestOnly)
             {
-                _populateIssue = "Some photos could not be synced. Refresh to retry.";
+                _populateIssue = new LocalizedMessage("drive.sync-issue");
             }
 
             NoteServerUnreachable(ex);
@@ -871,6 +877,6 @@ public sealed class DriveManager
 
         SettingsManager.Current.Connected = false;
         SettingsManager.SaveSettings();
-        Set(DriveStatus.Disconnected, "Disconnected");
+        Set(DriveStatus.Disconnected, new LocalizedMessage("drive.disconnected"));
     }
 }
