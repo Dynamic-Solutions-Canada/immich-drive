@@ -24,6 +24,8 @@ ImmichDrive's interface is in the family's nine languages (LOC-1): English (Unit
 | pt-BR | AI-drafted, not reviewed by a native speaker |
 | ja-JP | AI-drafted, not reviewed by a native speaker |
 
+The Store listing (`store-assets/microsoft/listings.json`) and each version's release notes (`release-notes/<version>.<catalog>.md`) carry the same six languages, translated 2026-11-17 and likewise unreviewed. A review covers the catalog, its listing record and the notes together.
+
 Update a row when a native speaker reviews that catalog.
 
 ### Terms to translate consistently
@@ -41,5 +43,4 @@ Update a row when a native speaker reviews that catalog.
 - **Content from the server:** album names, the user's name and email, and error details that come from Windows, .NET or the server, shown inside a translated sentence ("Something went wrong: {{reason}}").
 - **WinUI's own control text** (a text box's Cut, Copy, Paste and Select All menu, and similar built-in labels) follows the Windows display language, not the language picked in Settings. This is winui-app-kit's decision (LOC-13): setting the process-wide language override would make "Use system setting" keep the last language chosen.
 - **Logs and diagnostics:** the log files and the thumbnail provider's diagnostic log.
-- **The Microsoft Store listing and Store release notes**, under [D-111](https://github.com/Dynamic-Solutions-Canada/app-standards/blob/main/DECISIONS.md#d-111-immichdrive-listing-stays-english-while-the-interface-is-localized): the listing is English only until a separate listing-translation step. `windows-build.json` sets `listing.catalog_dir` to null so `check:listing` expects en-US alone.
 - **Legal text:** the licence and the third-party notices.

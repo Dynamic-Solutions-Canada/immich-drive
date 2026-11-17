@@ -35,6 +35,222 @@
         "Tray icon and flyout",
         "Browse by date, album, favorites, or partner shares, and add files through Upload"
       ]
+    },
+    "en-CA": {
+      "copyFrom": "en-US"
+    },
+    "es-ES": {
+      "title": "ImmichDrive",
+      "shortDescription": "Explora tus fotos y vídeos de Immich en el Explorador de archivos, con miniaturas y archivos que se descargan cuando los necesitas. Necesitas tu propio servidor de Immich y una clave de API.",
+      "fullDescription": "ImmichDrive lleva tu biblioteca de fotos y vídeos de Immich al Explorador de archivos de Windows como una unidad en la nube nativa. Recorre tu línea de tiempo, consulta miniaturas y adjunta fotos desde el selector de archivos de cualquier aplicación sin exportar tu biblioteca a mano. Los archivos completos se descargan cuando los abres.\n\nExplora por fecha o usa las carpetas Albums, Favorites y Partners para encontrar tus fotos. La sincronización en segundo plano mantiene la unidad al día con los cambios de tu servidor.\n\nPara añadir fotos y vídeos, suéltalos en la carpeta Upload. El resto de la unidad es una copia de solo lectura que protege la biblioteca de tu servidor frente a cambios y eliminaciones locales.\n\nImmichDrive se ejecuta en la bandeja del sistema y se conecta al servidor de Immich que elijas con tu clave de API. Tu biblioteca se queda en tu propio servidor; no necesitas ningún otro servicio de alojamiento de fotos. Tu clave de API se guarda cifrada para tu cuenta de Windows.\n\nLa aplicación está disponible en inglés, español, francés, alemán, chino simplificado, portugués de Brasil y japonés. Sigue el idioma de Windows, salvo que elijas otro en Configuración.\n\nRequisitos: Windows 10 22H2 con las actualizaciones de octubre de 2024 o posteriores, o Windows 11, acceso a un servidor de Immich y una clave de API de Immich con los permisos necesarios. No incluye un servidor de Immich. ImmichDrive es un cliente independiente de terceros y no está afiliado al proyecto Immich ni cuenta con su respaldo.",
+      "features": [
+        "Explora tu biblioteca de Immich en el Explorador de archivos sin abrir la interfaz web",
+        "Los archivos completos se descargan cuando los abres",
+        "Miniaturas de fotos y vídeos sin descargar el archivo completo",
+        "Recorre tu línea de tiempo en carpetas por fecha",
+        "Las carpetas Albums, Favorites y Partners reflejan tu biblioteca de Immich",
+        "Adjunta fotos directamente desde el selector de archivos de una aplicación",
+        "La sincronización automática en segundo plano sigue los cambios de tu servidor",
+        "Añade fotos y vídeos soltándolos en la carpeta Upload",
+        "La copia de solo lectura protege la biblioteca frente a cambios y eliminaciones locales",
+        "Aplicación en la bandeja del sistema con estado de sincronización y acciones rápidas",
+        "Se inicia con Windows para mantener tu unidad disponible",
+        "Se conecta al servidor de Immich que elijas con tu propia clave de API"
+      ],
+      "keywords": [
+        "cliente immich windows",
+        "immich explorador archivos",
+        "unidad immich",
+        "immich bajo demanda",
+        "aplicación immich escritorio",
+        "acceso fotos immich",
+        "unidad virtual immich"
+      ],
+      "screenshotCaptions": [
+        "Configuración de la aplicación",
+        "Configuración de la aplicación",
+        "Miniaturas en el Explorador sin descargar fotos ni vídeos completos",
+        "Icono de la bandeja y panel flotante",
+        "Explora por fecha, álbum, favoritos o elementos compartidos, y añade archivos con Upload"
+      ]
+    },
+    "fr-FR": {
+      "title": "ImmichDrive",
+      "shortDescription": "Parcourez vos photos et vidéos Immich dans l’Explorateur de fichiers, avec des miniatures et des fichiers téléchargés à la demande. Nécessite votre propre serveur Immich et une clé d’API.",
+      "fullDescription": "ImmichDrive intègre votre bibliothèque de photos et de vidéos Immich à l’Explorateur de fichiers de Windows sous la forme d’un lecteur cloud natif. Parcourez votre chronologie, affichez les miniatures et joignez des photos depuis le sélecteur de fichiers de n’importe quelle application sans exporter votre bibliothèque à la main. Les fichiers complets sont téléchargés lorsque vous les ouvrez.\n\nParcourez par date, ou utilisez les dossiers Albums, Favorites et Partners pour retrouver vos photos. La synchronisation en arrière-plan tient le lecteur à jour avec les modifications de votre serveur.\n\nPour ajouter des photos et des vidéos, déposez-les dans le dossier Upload. Le reste du lecteur est une copie en lecture seule qui protège la bibliothèque de votre serveur contre les modifications et suppressions locales.\n\nImmichDrive s’exécute dans la zone de notification et se connecte au serveur Immich de votre choix avec votre clé d’API. Votre bibliothèque reste sur votre propre serveur ; aucun autre service d’hébergement de photos n’est nécessaire. Votre clé d’API est stockée chiffrée pour votre compte Windows.\n\nL’application est disponible en anglais, espagnol, français, allemand, chinois simplifié, portugais du Brésil et japonais. Elle suit la langue d’affichage de Windows, sauf si vous en choisissez une autre dans Paramètres.\n\nConfiguration requise : Windows 10 22H2 avec les mises à jour d’octobre 2024 ou ultérieures, ou Windows 11, l’accès à un serveur Immich et une clé d’API Immich avec les autorisations requises. Aucun serveur Immich n’est inclus. ImmichDrive est un client tiers indépendant, ni affilié au projet Immich ni approuvé par celui-ci.",
+      "features": [
+        "Parcourez votre bibliothèque Immich dans l’Explorateur de fichiers sans ouvrir l’interface web",
+        "Les fichiers complets sont téléchargés lorsque vous les ouvrez",
+        "Miniatures des photos et vidéos sans télécharger le fichier complet",
+        "Parcourez votre chronologie dans des dossiers classés par date",
+        "Les dossiers Albums, Favorites et Partners reflètent votre bibliothèque Immich",
+        "Joignez des photos directement depuis le sélecteur de fichiers d’une application",
+        "La synchronisation automatique en arrière-plan suit les modifications de votre serveur",
+        "Ajoutez des photos et des vidéos en les déposant dans le dossier Upload",
+        "La copie en lecture seule protège la bibliothèque contre les modifications et suppressions locales",
+        "Application de la zone de notification avec état de synchronisation et actions rapides",
+        "Démarrage avec Windows pour garder votre lecteur disponible",
+        "Connexion au serveur Immich de votre choix avec votre propre clé d’API"
+      ],
+      "keywords": [
+        "client immich windows",
+        "immich explorateur fichiers",
+        "lecteur immich",
+        "immich à la demande",
+        "application immich bureau",
+        "accès photos immich",
+        "lecteur virtuel immich"
+      ],
+      "screenshotCaptions": [
+        "Paramètres de l’application",
+        "Paramètres de l’application",
+        "Miniatures dans l’Explorateur sans télécharger les photos ou vidéos complètes",
+        "Icône de la zone de notification et panneau",
+        "Parcourez par date, album, favoris ou partages, et ajoutez des fichiers avec Upload"
+      ]
+    },
+    "fr-CA": {
+      "copyFrom": "fr-FR"
+    },
+    "de-DE": {
+      "title": "ImmichDrive",
+      "shortDescription": "Durchsuche deine Immich-Fotos und -Videos im Datei-Explorer, mit Miniaturansichten und Dateien, die bei Bedarf heruntergeladen werden. Erfordert einen eigenen Immich-Server und einen API-Schlüssel.",
+      "fullDescription": "ImmichDrive bringt deine Immich-Foto- und Videobibliothek als natives Cloud-Laufwerk in den Windows-Datei-Explorer. Durchsuche deine Zeitachse, sieh dir Miniaturansichten an und hänge Fotos über die Dateiauswahl jeder App an, ohne deine Bibliothek von Hand zu exportieren. Vollständige Dateien werden beim Öffnen heruntergeladen.\n\nDurchsuche nach Datum oder nutze die Ordner Albums, Favorites und Partners, um deine Fotos zu finden. Die Synchronisierung im Hintergrund hält das Laufwerk mit den Änderungen auf deinem Server auf dem neuesten Stand.\n\nUm Fotos und Videos hinzuzufügen, lege sie im Ordner Upload ab. Der Rest des Laufwerks ist eine schreibgeschützte Kopie, die die Bibliothek auf deinem Server vor lokalen Änderungen und Löschungen schützt.\n\nImmichDrive läuft im Infobereich der Taskleiste und verbindet sich mit deinem API-Schlüssel mit dem Immich-Server deiner Wahl. Deine Bibliothek bleibt auf deinem eigenen Server; ein weiterer Foto-Hosting-Dienst ist nicht nötig. Dein API-Schlüssel wird für dein Windows-Konto verschlüsselt gespeichert.\n\nDie App ist auf Englisch, Spanisch, Französisch, Deutsch, vereinfachtem Chinesisch, brasilianischem Portugiesisch und Japanisch verfügbar. Sie folgt der Anzeigesprache von Windows, sofern du in den Einstellungen keine andere wählst.\n\nVoraussetzungen: Windows 10 22H2 mit Updates ab Oktober 2024 oder Windows 11, Zugriff auf einen Immich-Server und ein Immich-API-Schlüssel mit den nötigen Berechtigungen. Ein Immich-Server ist nicht enthalten. ImmichDrive ist ein unabhängiger Drittanbieter-Client und steht in keiner Verbindung zum Immich-Projekt, das ihn auch nicht unterstützt.",
+      "features": [
+        "Durchsuche deine Immich-Bibliothek im Datei-Explorer, ohne die Weboberfläche zu öffnen",
+        "Vollständige Dateien werden beim Öffnen heruntergeladen",
+        "Miniaturansichten von Fotos und Videos, ohne die ganze Datei herunterzuladen",
+        "Durchsuche deine Zeitachse in Ordnern nach Datum",
+        "Die Ordner Albums, Favorites und Partners spiegeln deine Immich-Bibliothek",
+        "Hänge Fotos direkt über die Dateiauswahl einer App an",
+        "Automatische Hintergrundsynchronisierung folgt den Änderungen auf deinem Server",
+        "Füge Fotos und Videos hinzu, indem du sie im Ordner Upload ablegst",
+        "Die schreibgeschützte Kopie schützt die Bibliothek vor lokalen Änderungen und Löschungen",
+        "App im Infobereich mit Synchronisierungsstatus und Schnellaktionen",
+        "Startet mit Windows, damit dein Laufwerk verfügbar bleibt",
+        "Verbindung zum Immich-Server deiner Wahl mit deinem eigenen API-Schlüssel"
+      ],
+      "keywords": [
+        "immich windows client",
+        "immich datei-explorer",
+        "immich laufwerk",
+        "immich bei bedarf",
+        "immich desktop-app",
+        "immich fotozugriff",
+        "immich virtuelles laufwerk"
+      ],
+      "screenshotCaptions": [
+        "App-Einstellungen",
+        "App-Einstellungen",
+        "Miniaturansichten im Explorer, ohne ganze Fotos oder Videos herunterzuladen",
+        "Taskleistensymbol und Flyout",
+        "Nach Datum, Album, Favoriten oder Partnerfreigaben durchsuchen und Dateien über Upload hinzufügen"
+      ]
+    },
+    "zh-CN": {
+      "title": "ImmichDrive",
+      "shortDescription": "在文件资源管理器中浏览你的 Immich 照片和视频，带缩略图，文件按需下载。需要你自己的 Immich 服务器和 API 密钥。",
+      "fullDescription": "ImmichDrive 将你的 Immich 照片和视频库以原生云驱动器的形式带入 Windows 文件资源管理器。浏览你的时间线、预览缩略图，并可在任意应用的文件选择器中直接附加照片，无需手动导出图库。打开文件时才会下载完整文件。\n\n可以按日期浏览，也可以使用 Albums、Favorites 和 Partners 文件夹查找照片。后台同步会让驱动器与服务器上的更改保持一致。\n\n要添加照片和视频，只需将它们放入 Upload 文件夹。驱动器的其余部分是只读镜像，可防止本地更改和删除影响服务器上的图库。\n\nImmichDrive 在系统托盘中运行，并使用你的 API 密钥连接到你选择的 Immich 服务器。你的图库保存在你自己的服务器上，无需其他照片托管服务。你的 API 密钥会针对你的 Windows 帐户加密存储。\n\n应用提供英语、西班牙语、法语、德语、简体中文、巴西葡萄牙语和日语版本。默认跟随 Windows 显示语言，你也可以在设置中选择其他语言。\n\n系统要求：已安装 2024 年 10 月或之后更新的 Windows 10 22H2，或 Windows 11；可访问的 Immich 服务器；以及具有所需权限的 Immich API 密钥。不含 Immich 服务器。ImmichDrive 是独立的第三方客户端，与 Immich 项目无关，也未获得其认可。",
+      "features": [
+        "无需打开网页界面，即可在文件资源管理器中浏览 Immich 图库",
+        "打开文件时才下载完整文件",
+        "无需下载完整文件即可查看照片和视频缩略图",
+        "在按日期整理的文件夹中浏览时间线",
+        "Albums、Favorites 和 Partners 文件夹与你的 Immich 图库保持一致",
+        "直接从应用的文件选择器中附加照片",
+        "后台自动同步，跟进服务器上的更改",
+        "将照片和视频放入 Upload 文件夹即可添加",
+        "只读镜像可防止本地更改和删除影响图库",
+        "系统托盘应用，显示同步状态并提供快捷操作",
+        "随 Windows 启动，保持驱动器可用",
+        "使用你自己的 API 密钥连接到你选择的 Immich 服务器"
+      ],
+      "keywords": [
+        "immich windows 客户端",
+        "immich 文件资源管理器",
+        "immich 驱动器",
+        "immich 按需下载",
+        "immich 桌面应用",
+        "immich 照片访问",
+        "immich 虚拟驱动器"
+      ],
+      "screenshotCaptions": [
+        "应用设置",
+        "应用设置",
+        "在资源管理器中查看缩略图，无需下载完整照片或视频",
+        "托盘图标和弹出面板",
+        "按日期、相册、收藏或伙伴共享浏览，并通过 Upload 添加文件"
+      ]
+    },
+    "pt-BR": {
+      "title": "ImmichDrive",
+      "shortDescription": "Navegue pelas suas fotos e vídeos do Immich no Explorador de Arquivos, com miniaturas e arquivos baixados quando você precisa. Requer seu próprio servidor Immich e uma chave de API.",
+      "fullDescription": "O ImmichDrive leva sua biblioteca de fotos e vídeos do Immich para o Explorador de Arquivos do Windows como uma unidade de nuvem nativa. Navegue pela sua linha do tempo, veja miniaturas e anexe fotos pelo seletor de arquivos de qualquer aplicativo sem exportar sua biblioteca manualmente. Os arquivos completos são baixados quando você os abre.\n\nNavegue por data ou use as pastas Albums, Favorites e Partners para encontrar suas fotos. A sincronização em segundo plano mantém a unidade em dia com as alterações no seu servidor.\n\nPara adicionar fotos e vídeos, solte-os na pasta Upload. O restante da unidade é uma cópia somente leitura que protege a biblioteca do seu servidor contra alterações e exclusões locais.\n\nO ImmichDrive é executado na bandeja do sistema e se conecta ao servidor Immich que você escolher usando sua chave de API. Sua biblioteca fica no seu próprio servidor; nenhum outro serviço de hospedagem de fotos é necessário. Sua chave de API é armazenada criptografada para sua conta do Windows.\n\nO aplicativo está disponível em inglês, espanhol, francês, alemão, chinês simplificado, português do Brasil e japonês. Ele segue o idioma de exibição do Windows, a menos que você escolha outro em Configurações.\n\nRequisitos: Windows 10 22H2 com atualizações de outubro de 2024 ou posteriores, ou Windows 11, acesso a um servidor Immich e uma chave de API do Immich com as permissões necessárias. Não inclui um servidor Immich. O ImmichDrive é um cliente independente de terceiros e não é afiliado ao projeto Immich nem endossado por ele.",
+      "features": [
+        "Navegue pela sua biblioteca do Immich no Explorador de Arquivos sem abrir a interface web",
+        "Os arquivos completos são baixados quando você os abre",
+        "Miniaturas de fotos e vídeos sem baixar o arquivo completo",
+        "Navegue pela sua linha do tempo em pastas organizadas por data",
+        "As pastas Albums, Favorites e Partners espelham sua biblioteca do Immich",
+        "Anexe fotos diretamente pelo seletor de arquivos de um aplicativo",
+        "A sincronização automática em segundo plano acompanha as alterações no seu servidor",
+        "Adicione fotos e vídeos soltando-os na pasta Upload",
+        "A cópia somente leitura protege a biblioteca contra alterações e exclusões locais",
+        "Aplicativo na bandeja do sistema com status de sincronização e ações rápidas",
+        "Inicia com o Windows para manter sua unidade disponível",
+        "Conecte-se ao servidor Immich que você escolher com sua própria chave de API"
+      ],
+      "keywords": [
+        "cliente immich windows",
+        "immich explorador de arquivos",
+        "unidade immich",
+        "immich sob demanda",
+        "aplicativo immich desktop",
+        "acesso fotos immich",
+        "unidade virtual immich"
+      ],
+      "screenshotCaptions": [
+        "Configurações do aplicativo",
+        "Configurações do aplicativo",
+        "Miniaturas no Explorador sem baixar fotos ou vídeos completos",
+        "Ícone da bandeja e painel",
+        "Navegue por data, álbum, favoritos ou compartilhamentos de parceiros, e adicione arquivos pela pasta Upload"
+      ]
+    },
+    "ja-JP": {
+      "title": "ImmichDrive",
+      "shortDescription": "Immich の写真と動画をエクスプローラーで閲覧できます。サムネイル付きで、ファイルは必要なときにダウンロードされます。ご自身の Immich サーバーと API キーが必要です。",
+      "fullDescription": "ImmichDrive は、Immich の写真と動画のライブラリを、ネイティブのクラウド ドライブとして Windows のエクスプローラーに表示します。タイムラインを閲覧し、サムネイルを確認し、ライブラリを手動でエクスポートすることなく、アプリのファイル選択画面から写真を添付できます。ファイル全体は開いたときにダウンロードされます。\n\n日付で閲覧するほか、Albums、Favorites、Partners の各フォルダーから写真を探せます。バックグラウンド同期により、ドライブはサーバー上の変更に合わせて最新の状態に保たれます。\n\n写真や動画を追加するには、Upload フォルダーにドロップします。ドライブのそれ以外の部分は読み取り専用のミラーで、ローカルでの変更や削除からサーバーのライブラリを保護します。\n\nImmichDrive は通知領域で動作し、API キーを使って選択した Immich サーバーに接続します。ライブラリはご自身のサーバーに保存されたままで、別の写真ホスティング サービスは不要です。API キーは Windows アカウント用に暗号化して保存されます。\n\nアプリは英語、スペイン語、フランス語、ドイツ語、簡体字中国語、ブラジル ポルトガル語、日本語に対応しています。設定で言語を選ばない限り、Windows の表示言語に従います。\n\n動作環境: 2024 年 10 月以降の更新プログラムを適用した Windows 10 22H2、または Windows 11、Immich サーバーへのアクセス、必要な権限を持つ Immich API キー。Immich サーバーは含まれません。ImmichDrive は独立したサードパーティ製クライアントであり、Immich プロジェクトとは提携しておらず、同プロジェクトの承認も受けていません。",
+      "features": [
+        "Web 画面を開かずに、エクスプローラーで Immich ライブラリを閲覧",
+        "ファイル全体は開いたときにダウンロード",
+        "ファイル全体をダウンロードせずに写真と動画のサムネイルを表示",
+        "日付ごとのフォルダーでタイムラインを閲覧",
+        "Albums、Favorites、Partners フォルダーが Immich ライブラリを反映",
+        "アプリのファイル選択画面から写真を直接添付",
+        "バックグラウンドの自動同期でサーバー上の変更に追従",
+        "Upload フォルダーにドロップして写真と動画を追加",
+        "読み取り専用のミラーがローカルでの変更や削除からライブラリを保護",
+        "同期状態とクイック操作を備えた通知領域のアプリ",
+        "Windows と同時に起動してドライブをいつでも利用可能に",
+        "ご自身の API キーで選択した Immich サーバーに接続"
+      ],
+      "keywords": [
+        "immich windows クライアント",
+        "immich エクスプローラー",
+        "immich ドライブ",
+        "immich オンデマンド",
+        "immich デスクトップ アプリ",
+        "immich 写真 アクセス",
+        "immich 仮想ドライブ"
+      ],
+      "screenshotCaptions": [
+        "アプリの設定",
+        "アプリの設定",
+        "写真や動画全体をダウンロードせずにエクスプローラーでサムネイルを表示",
+        "通知領域のアイコンとフライアウト",
+        "日付、アルバム、お気に入り、パートナーの共有で閲覧し、Upload からファイルを追加"
+      ]
     }
   }
 }

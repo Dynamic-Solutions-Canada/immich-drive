@@ -2,7 +2,7 @@
 
 `listings.json` is the source of every field a user can read on the ImmichDrive Store listing (LIST-1): title, short and full description, features, keywords and screenshot captions, in the shared `schemaVersion: 1` / `locales` shape. Partner Center is an output; change the wording here first. Field names are semantic, not Partner Center import IDs. Release notes are not in this file: they come from `release-notes/<version>.md` (REL-6).
 
-The file holds `en-US` only, although the app's interface is in nine languages: under [D-111](https://github.com/Dynamic-Solutions-Canada/app-standards/blob/main/DECISIONS.md#d-111-immichdrive-listing-stays-english-while-the-interface-is-localized), the listing and Store release notes stay English until a separate listing-translation step. `windows-build.json` sets `listing.catalog_dir` to null, so `check:listing` expects `en-US` alone. See [docs/localization.md](../../docs/localization.md).
+The file holds all nine identities (LIST-3, LIST-7, LOC-11): full records for `en-US` and the six other wording catalogs, and `en-CA` and `fr-CA` as `{"copyFrom": ...}` of `en-US` and `fr-FR`. The six translations were drafted on 2026-11-17 from the `en-US` text, using the interface catalogs' terms (see [docs/localization.md](../../docs/localization.md)); they are AI-drafted and not yet reviewed by a native speaker (LOC-12). `check:listing` holds the full records to the app's wording catalogs.
 
 `npm run check:listing` (winui-app-kit's shared listing check, configured by the `listing` block in `windows-build.json`) validates the file and the current version's release notes, and `npm run validate` runs it.
 
@@ -16,7 +16,7 @@ It starts from the live listing as published on 2026-11-16, read from the public
 - "Screenshots show the English interface." is dropped, since the app has only one language.
 - One sentence is added: the API key is stored encrypted for the Windows account. That is true from the release that ships the protected key store; do not publish this text with an older build.
 
-A listing-only Store submission made on 2026-11-16 (submission 1152921505702422473) published this text for `en-US` and `en-CA`. The Store's seven translated listings had only the name corrected in that submission; their Windows-version and language wording waits for the translation step (package 10).
+A listing-only Store submission made on 2026-11-16 (submission 1152921505702422473) published this text for `en-US` and `en-CA`. The Store's seven translated listings had only the name corrected in that submission. The translated text in this file reaches the Store at the next submission.
 
 ## Limits
 
@@ -35,7 +35,7 @@ A listing-only Store submission made on 2026-11-16 (submission 11529215057024224
 - **Name:** "ImmichDrive", one word, in every field (D-012).
 - **Tagline:** the first sentence of `shortDescription` is the README header tagline (LIST-12). Change both together.
 - **Requirements:** Windows 10 22H2 with updates from October 2024 or later (build 19045.5011, the manifest's `MinVersion`) or Windows 11 (D-018, PLAT-6). Earlier Windows 10 builds lack the CET support .NET 10 needs; see docs/development.md, "Compatibility verification". An Immich server and an API key are needed and not included.
-- **Language:** the interface is in nine languages and follows the Windows display language unless the user picks one in Settings; the drive's folder names stay English. The listing itself is English only (D-111).
+- **Language:** the interface is in nine languages and follows the Windows display language unless the user picks one in Settings; the drive's folder names stay English, and every locale's listing says so by naming the folders as they appear.
 - **Read-only mirror:** only `Upload` is writable; the rest of the drive cannot change or delete server content.
 - **On demand:** files download only when opened; thumbnails never download the original.
 - **Privacy:** the library stays on the user's server; the API key is stored encrypted for the Windows account and never written to the settings file or logs; no telemetry or crash reporting. Network requests go to the configured Immich server, the public "Our other apps" catalog, and, in development builds only, GitHub's release check.

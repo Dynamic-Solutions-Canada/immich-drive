@@ -93,7 +93,7 @@ Your API key is stored encrypted for your Windows account, never in plain text.
 
 ## Languages
 
-ImmichDrive is available in English (United States and Canada), Spanish, French (France and Canada), German, Simplified Chinese, Brazilian Portuguese and Japanese. It follows Windows' language unless you pick one in Settings. The folders it creates in File Explorer (Albums, Favorites, Partners, Upload and the month folders) keep their English names in every language, and the Microsoft Store listing is in English for now.
+ImmichDrive is available in English (United States and Canada), Spanish, French (France and Canada), German, Simplified Chinese, Brazilian Portuguese and Japanese. It follows Windows' language unless you pick one in Settings. The folders it creates in File Explorer (Albums, Favorites, Partners, Upload and the month folders) keep their English names in every language.
 
 ## Developers
 
