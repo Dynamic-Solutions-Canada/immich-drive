@@ -240,7 +240,13 @@ public sealed class DriveManager
             // The read-only ACE before the first sync: a drive from an older version still carries the
             // delete-blocking ACE, which would make the sync's prune fail until it is replaced. Checking
             // a correct ACE is quick; the one-time replacement runs here, off the UI thread.
-            await Task.Run(() => DriveSecurity.EnsureReadOnly(syncRoot));
+            // The folder icon goes first: the ACE denies creating files, so a new drive's desktop.ini
+            // must exist before it applies.
+            await Task.Run(() =>
+            {
+                DriveSecurity.SetFolderIcon(syncRoot, Path.Combine(StableIconDir, "ImmichDrive.ico"));
+                DriveSecurity.EnsureReadOnly(syncRoot);
+            });
 
             // Populate in the background; the drive is usable as buckets land (newest first).
             _populateCts?.Cancel();
@@ -449,9 +455,9 @@ public sealed class DriveManager
     };
 
     /// <summary>
-    /// Sets the folder icon, creates a writable <c>Upload\</c> folder, and starts watching it for
-    /// uploads. ACL work runs off the connect path (icacls over the tree takes a few seconds); the
-    /// read-only ACE is applied earlier, before the first sync.
+    /// Creates a writable <c>Upload\</c> folder and starts watching it for uploads. ACL work runs off
+    /// the connect path (icacls over the tree takes a few seconds); the folder icon and the read-only
+    /// ACE are set earlier, before the first sync.
     /// </summary>
     private void SetUpSecurityAndUpload(string syncRoot)
     {
@@ -461,11 +467,7 @@ public sealed class DriveManager
         {
             try
             {
-                // The stable desktop.ini normally needs no rewrite. Preserve the existing deny
-                // instead of propagating a remove-and-add ACL cycle over a large library.
-                DriveSecurity.SetFolderIcon(syncRoot, Path.Combine(StableIconDir, "ImmichDrive.ico"));
-
-                // The read-only ACE itself is applied before the first sync (ConnectAsync).
+                // The folder icon and the read-only ACE are set before the first sync (ConnectAsync).
                 DriveSecurity.EnsureUploadWritable(uploadDir);  // the Upload folder stays writable
             }
             catch (Exception ex) { Logger.Warn(ex, "Security setup failed"); }

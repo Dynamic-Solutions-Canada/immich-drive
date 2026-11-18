@@ -65,11 +65,7 @@ unrelated rules. An `icacls` timeout in cleanup terminates the process before re
 cannot continue changing permissions after the next step. The drive is always read-only (no
 setting). `RemoveReadOnly` remains for disconnect and layout-migration cleanup.
 
-**Connect ordering:** `EnsureReadOnly` runs on connect before the first sync starts (awaited off the
-UI thread), so a drive from an older version has its delete-blocking ACE replaced before the sync's
-prune deletes anything. Checking a correct ACE is quick. Then, in the background, `SetFolderIcon`
-checks the root `desktop.ini` content and avoids rewriting it if the stable icon path is already set,
-and `EnsureUploadWritable` gives `Upload\` its own writable ACL. `desktop.ini` remains Hidden and
+**Connect ordering:** on connect, before the first sync starts (awaited off the UI thread), `SetFolderIcon` writes the root `desktop.ini` (or leaves it alone if the stable icon path is already set), then `EnsureReadOnly` applies the ACE. The icon must come first: the ACE denies creating files, so on a new drive `desktop.ini` could not be written afterwards. A drive from an older version has its delete-blocking ACE replaced here, before the sync's prune deletes anything. Checking a correct ACE is quick. Then, in the background, `EnsureUploadWritable` gives `Upload\` its own writable ACL. `desktop.ini` remains Hidden and
 System; excluding it from the ACL is unnecessary. The root ReadOnly *attribute* makes Explorer read
 the icon file and does not change the ACL.
 
