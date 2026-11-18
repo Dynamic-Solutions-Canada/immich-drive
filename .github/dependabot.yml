@@ -14,10 +14,10 @@ updates:
       nuget:
         patterns: ["*"]
     ignore:
-      # The app ships with a Package.appxmanifest dependency on Microsoft.WindowsAppRuntime.1.8;
-      # moving off the 1.8 line means updating that dependency and retesting the Store package.
+      # The app's Package.appxmanifest depends on the Microsoft.WindowsAppRuntime.2 framework;
+      # 2.x minors update that framework in place, 3.0 needs the manifest dependency changed.
       - dependency-name: Microsoft.WindowsAppSDK
-        update-types: ["version-update:semver-major", "version-update:semver-minor"]
+        update-types: ["version-update:semver-major"]
 
   - package-ecosystem: github-actions
     directory: "/"

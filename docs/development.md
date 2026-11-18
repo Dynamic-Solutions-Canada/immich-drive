@@ -100,7 +100,7 @@ npm run package:desktop     # Store build (unsigned; the Store re-signs)
 ## Tech stack
 
 - .NET 10, target `net10.0-windows10.0.22000.0`, platforms `x64` and `ARM64`
-- WinUI 3 / Windows App SDK 1.8
+- WinUI 3 / Windows App SDK 2.6 (the manifest depends on the `Microsoft.WindowsAppRuntime.2` framework, MinVersion 2.6.5.0)
 - CommunityToolkit.Mvvm (`[ObservableProperty]`), Microsoft.Data.Sqlite index, NLog
 - [winui-app-kit](https://github.com/Dynamic-Solutions-Canada/winui-app-kit) for the tray, flyout,
   settings store, protected store, startup, theme, window chrome, update check, logging and the
