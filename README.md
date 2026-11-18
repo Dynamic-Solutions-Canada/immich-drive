@@ -87,9 +87,9 @@ These permissions match [Immich's endpoint declarations](https://github.com/immi
 
 ### Uninstall
 
-Before uninstalling, open ImmichDrive and select **Disconnect** on the Connection page. Disconnecting lifts the drive's read-only protection and removes it from Explorer, and Windows then removes the photos you never opened; uninstall afterwards leaves at most an empty `ImmichDrive` folder that you can delete normally.
+Uninstall ImmichDrive like any app. Windows removes the photos you never opened, and what's left of the `ImmichDrive` folder (its folders, and any photo you opened or kept on the device) can be deleted normally.
 
-If you uninstalled without disconnecting, the drive folder stays behind: its photos can't be opened ("The cloud file provider is not running") and Windows refuses to delete it ("Access is denied"), because the read-only protection is still on it. To remove it, open a Command Prompt (no administrator rights needed) and run:
+If you uninstalled ImmichDrive 0.1.50 or earlier without disconnecting first, the drive folder may stay behind: its photos can't be opened ("The cloud file provider is not running") and Windows refuses to delete it ("Access is denied"). To remove it, open a Command Prompt (no administrator rights needed) and run:
 
 ```
 icacls "%USERPROFILE%\ImmichDrive" /reset /t /c /q

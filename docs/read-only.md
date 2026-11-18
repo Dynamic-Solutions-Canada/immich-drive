@@ -4,52 +4,74 @@
 # Read-only drive + Upload folder
 
 The drive mirrors Immich one-way (Immich → PC). To stop the user from corrupting that mirror, it's
-made **read-only** via a deny ACE; the one writable spot is the **Upload** folder, which pushes
-files to Immich.
+**read-only** in two layers; the one writable spot is the **Upload** folder, which pushes files to
+Immich.
 
-## Read-only (deny ACE)
+## Read-only: the running provider refuses deletes and renames
 
-**Uninstall consequence:** the ACE outlives the app. MSIX runs no code at uninstall, so after an
-uninstall without Disconnect the drive folder keeps the deny ACE: Windows can't remove the
-placeholders when it unregisters the sync root, and the user can't delete the folder until the
-permissions are reset (README, "Uninstall"). Moving the protection from the ACL to the provider's
-delete and rename callbacks is under consideration.
+While ImmichDrive runs, `CloudProviderService` registers the Cloud Files callbacks
+`CF_CALLBACK_TYPE_NOTIFY_DELETE` and `CF_CALLBACK_TYPE_NOTIFY_RENAME`. For both, Microsoft documents
+that "the user application that performs the deletion [rename/move] is blocked. A response is
+expected from the sync provider"
+([CF_CALLBACK_TYPE](https://learn.microsoft.com/en-us/windows/win32/api/cfapi/ne-cfapi-cf_callback_type)).
+The provider answers with `CfExecute` `ACK_DELETE` / `ACK_RENAME`:
+
+- **Allowed:** requests from ImmichDrive's own process (`CF_PROCESS_INFO.ProcessId`, available because
+  the root connects with `CF_CONNECT_FLAG_REQUIRE_PROCESS_INFO`), which covers prune and folder
+  retirement; and deletes or moves that stay inside `Upload\`.
+- **Refused** (`STATUS_ACCESS_DENIED`): every other delete, rename or move of a placeholder file or
+  folder, including moves out of the drive.
+- Every request gets an answer, even after an internal error (then a refusal), because an
+  unanswered one holds the user's app until the 60-second callback timeout.
+
+When ImmichDrive isn't running there is no provider to ask, and Windows does not refuse on its own:
+measured on a test VM (2026-11-17), with the provider stopped a delete, rename or new file succeeded
+and only opening a placeholder failed ("The cloud file provider is not running"). Local changes
+never reach the server either way; the next sync re-creates any placeholder that was removed.
+
+## Read-only: the folder ACE stops new files and edits
 
 `DriveSecurity.EnsureReadOnly(syncRoot)` installs an inheritable deny ACE equivalent to
-`(OI)(CI)(DE,DC,WD,WEA)` for the current user. That denies Delete, DeleteChild,
-WriteData/AddFile, WriteExtendedAttributes → **blocks edit, new files, delete, rename**.
-WriteAttributes stays allowed because Explorer uses it to set cloud-file pin attributes. This also
-means a user can alter ordinary file attributes; contents and deletions remain protected.
+`(OI)(CI)(WD,WEA)` for the current user: WriteData/AddFile and WriteExtendedAttributes. That
+**blocks new files and edits to file contents**, which no Cloud Files callback reports.
+WriteAttributes stays allowed because Explorer uses it to set cloud-file pin attributes.
+
+**Delete is deliberately not denied.** Earlier versions also denied Delete and DeleteChild. That
+ACE outlives the app: MSIX runs no code at uninstall, and Windows' own unregistration of the sync
+root could then not remove the placeholders, so uninstalling left a folder the user could not
+delete. With delete allowed, uninstall leaves at most empty folders, deletable normally (measured
+on a test VM, 2026-11-17). `EnsureReadOnly` replaces the older ACE once, the next time an existing
+drive connects, and logs it.
 
 **Why the provider still works:** cfapi placeholder ops (`CfCreatePlaceholders`) and hydration
-(`CfExecute`) are performed by the `cldflt` filter and **bypass the user's deny ACE** (verified on
-device: a deleted placeholder in a deny-folder heals on the next sync). This is the same way
-OneDrive's read-only folders behave.
+(`CfExecute`) are performed by the `cldflt` filter and **bypass the user's deny ACE**. This is the
+same way OneDrive's read-only folders behave. The provider's own prune and folder deletes are plain
+`File.Delete`/`Directory.Delete`; with delete no longer denied they need no ACL override, and the
+callback allows them because they come from ImmichDrive's process.
 
 Cloud folder badge updates convert ordinary populated directories to in-sync placeholders, then
 call `CfSetInSyncState` on later passes. These operations use `WRITE_DAC`, which is not denied by
 the content-write ACE. They do not grant permission to add or edit files.
 
-**Two deliberate gaps, handled:**
-- We do NOT deny `AD` (AddSubdirectory): the provider creates month/album/partner folders with a
-  normal `CreateDirectory` (cfapi only bypasses for *file* placeholders, not folders). The only leak
-  is the user can make an empty folder, but never put a file in it (WD denied).
-- The provider's **prune** uses `File.Delete` (user context, NOT cfapi) → blocked by the deny. So
-  `DeletePlaceholder` calls `DriveSecurity.AllowDeleteFile` (adds an explicit allow-Delete ACE, which
-  beats the inherited deny) before deleting; `PruneOrphanFolders`/wipe call `AllowDeleteTree`
-  (`icacls /grant … /T`).
+**Deliberate gap:** we do NOT deny `AD` (AddSubdirectory): the provider creates
+month/album/partner folders with a normal `CreateDirectory` (cfapi only bypasses for *file*
+placeholders, not folders). The only leak is the user can make an empty folder, but never put a
+file in it (WD denied).
 
 Checked on connect on a background thread. The correct existing ACE is left alone, avoiding a
-slow remove-and-add operation over large libraries. If an older ACE still denies WriteAttributes,
+slow remove-and-add operation over large libraries. If an older ACE still denies WriteAttributes or Delete,
 `EnsureReadOnly` replaces just the app's old ACE in one security-descriptor update, preserving
 unrelated rules. An `icacls` timeout in cleanup terminates the process before returning, so it
 cannot continue changing permissions after the next step. The drive is always read-only (no
 setting). `RemoveReadOnly` remains for disconnect and layout-migration cleanup.
 
-**Connect ordering:** `SetFolderIcon` checks the root `desktop.ini` content and avoids rewriting
-it if the stable icon path is already set. Then `EnsureReadOnly` validates or repairs the deny.
-`desktop.ini` remains Hidden and System; excluding it from the ACL is unnecessary. The root
-ReadOnly *attribute* makes Explorer read the icon file and does not change the ACL.
+**Connect ordering:** `EnsureReadOnly` runs on connect before the first sync starts (awaited off the
+UI thread), so a drive from an older version has its delete-blocking ACE replaced before the sync's
+prune deletes anything. Checking a correct ACE is quick. Then, in the background, `SetFolderIcon`
+checks the root `desktop.ini` content and avoids rewriting it if the stable icon path is already set,
+and `EnsureUploadWritable` gives `Upload\` its own writable ACL. `desktop.ini` remains Hidden and
+System; excluding it from the ACL is unnecessary. The root ReadOnly *attribute* makes Explorer read
+the icon file and does not change the ACL.
 
 ## Upload folder
 

@@ -7,10 +7,12 @@ using System.Security.Principal;
 namespace ImmichDrive.Services;
 
 /// <summary>
-/// Makes the drive read-only to the user via a deny ACE for the current account (block create /
-/// edit / delete / rename), while the cloud-files provider keeps working — cfapi placeholder and
-/// hydration operations are performed by the cldflt filter and bypass the user's deny ACE (the same
-/// way OneDrive's read-only folders behave). The <c>Upload</c> folder is excluded so the user can
+/// The folder half of the drive's read-only protection: a deny ACE for the current account that
+/// stops new files being added and file contents being changed, while the cloud-files provider
+/// keeps working (cfapi placeholder and hydration operations are performed by the cldflt filter and
+/// bypass the user's ACE). Deletes and renames are not denied here: the running provider refuses
+/// them (<see cref="CloudProviderService"/>), so nothing on the folder stops Windows removing the
+/// placeholders when the app is uninstalled. The <c>Upload</c> folder is excluded so the user can
 /// drop files there. See <c>docs/read-only.md</c>.
 /// </summary>
 public static partial class DriveSecurity
@@ -20,15 +22,16 @@ public static partial class DriveSecurity
     [LibraryImport("shell32.dll", StringMarshalling = StringMarshalling.Utf16)]
     private static partial void SHChangeNotify(int wEventId, uint uFlags, string dwItem1, IntPtr dwItem2);
 
-    // Deny content changes and deletion. WriteAttributes remains available so Explorer can set
-    // the pinned/unpinned cloud-file attributes for "Always keep on this device".
-    // We intentionally do NOT
-    // deny AddSubdirectory (AD) so the provider can still create month/album/partner folders with a
-    // normal CreateDirectory (cfapi only bypasses the deny for file placeholders, not folder creation).
-    // The only "leak" is that the user can make empty folders — but never put a file in one (WD denied).
-    private const FileSystemRights DeniedContentRights = FileSystemRights.Delete |
-        FileSystemRights.DeleteSubdirectoriesAndFiles | FileSystemRights.CreateFiles |
-        FileSystemRights.WriteExtendedAttributes;
+    // Deny adding files (CreateFiles is FILE_ADD_FILE on a folder and FILE_WRITE_DATA on a file, so
+    // it also stops edits to a downloaded file) and extended attributes. Delete is NOT denied: an
+    // ACE that denies it outlives an uninstall and stops Windows removing the placeholders, leaving
+    // a folder the user can't delete; the running provider refuses deletes and renames instead.
+    // WriteAttributes remains available so Explorer can set the pinned/unpinned cloud-file attributes
+    // for "Always keep on this device". AddSubdirectory (AD) is not denied either, so the provider can
+    // create month/album/partner folders with a normal CreateDirectory (cfapi only bypasses the deny
+    // for file placeholders). The only "leak" is that the user can make empty folders.
+    private const FileSystemRights DeniedContentRights =
+        FileSystemRights.CreateFiles | FileSystemRights.WriteExtendedAttributes;
 
     private static SecurityIdentifier CurrentUser => WindowsIdentity.GetCurrent().User!;
     private static string CurrentSid => CurrentUser.Value;
@@ -36,6 +39,8 @@ public static partial class DriveSecurity
     /// <summary>
     /// Keep a correct deny untouched, or replace only our older content-protection ACE. Updating
     /// the root security descriptor in one step preserves unrelated rules and avoids a writable gap.
+    /// It also migrates drives made by earlier versions, whose ACE also denied delete: that rule
+    /// contains these rights, so it is found here and replaced, once, the next time the drive connects.
     /// </summary>
     public static void EnsureReadOnly(string syncRoot)
     {
@@ -66,11 +71,14 @@ public static partial class DriveSecurity
                 security.RemoveAccessRuleSpecific(rule);
             }
 
+            bool replacedOlder = rules.Any(rule => (rule.FileSystemRights & FileSystemRights.Delete) != 0);
             security.AddAccessRule(new FileSystemAccessRule(CurrentUser, DeniedContentRights,
                 InheritanceFlags.ContainerInherit | InheritanceFlags.ObjectInherit,
                 PropagationFlags.None, AccessControlType.Deny));
             directory.SetAccessControl(security);
-            Logger.Info("Applied read-only deny ACE to {0}", syncRoot);
+            Logger.Info(replacedOlder
+                ? "Replaced the older delete-blocking read-only ACE on {0}; deletes are now refused by the running provider"
+                : "Applied read-only deny ACE to {0}", syncRoot);
         }
         catch (Exception ex) { Logger.Warn(ex, "Checking read-only ACL failed for {0}", syncRoot); }
     }
@@ -124,24 +132,6 @@ public static partial class DriveSecurity
     /// <summary>Ask Explorer to refresh a folder after its icon or Cloud Files state changes.</summary>
     public static void NotifyFolderChanged(string folder) =>
         SHChangeNotify(0x00001000, 0x0005, folder, IntPtr.Zero); // SHCNE_UPDATEDIR, SHCNF_PATHW
-
-    /// <summary>Grants the current user delete on a single file so the provider can prune it despite the deny.</summary>
-    public static void AllowDeleteFile(string path)
-    {
-        try
-        {
-            var fi = new FileInfo(path);
-            var sec = fi.GetAccessControl();
-            sec.AddAccessRule(new FileSystemAccessRule(CurrentUser,
-                FileSystemRights.Delete | FileSystemRights.Write, AccessControlType.Allow));
-            fi.SetAccessControl(sec);
-        }
-        catch (Exception ex) { Logger.Debug(ex, "AllowDeleteFile {0}", path); }
-    }
-
-    /// <summary>Grants full control recursively so the provider can delete a folder subtree despite the deny.</summary>
-    public static void AllowDeleteTree(string dir) =>
-        RunIcacls($"\"{dir}\" /grant *{CurrentSid}:(OI)(CI)F /T /C /Q");
 
     private static bool RunIcacls(string args)
     {

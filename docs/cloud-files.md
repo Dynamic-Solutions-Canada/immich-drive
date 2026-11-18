@@ -36,6 +36,7 @@ Register at least:
 
 - `CF_CALLBACK_TYPE_FETCH_DATA` → our hydration handler.
 - `CF_CALLBACK_TYPE_CANCEL_FETCH_DATA` → cooperatively cancel an in-flight download.
+- `CF_CALLBACK_TYPE_NOTIFY_DELETE` and `CF_CALLBACK_TYPE_NOTIFY_RENAME` → refuse the user's deletes, renames and moves outside `Upload\` (keeps the drive read-only; see [read-only.md](read-only.md)). Windows blocks the user's app until we answer, so every request gets an `ACK_DELETE` / `ACK_RENAME`.
 - (`CF_CALLBACK_TYPE_NONE` terminates the array.)
 
 Keep the connection key; call `CfDisconnectSyncRoot(key)` on shutdown. **The process must stay

@@ -27,6 +27,8 @@ internal static partial class CfApi
         CF_CALLBACK_TYPE_VALIDATE_DATA = 1,
         CF_CALLBACK_TYPE_CANCEL_FETCH_DATA = 2,
         CF_CALLBACK_TYPE_FETCH_PLACEHOLDERS = 3,
+        CF_CALLBACK_TYPE_NOTIFY_DELETE = 9,
+        CF_CALLBACK_TYPE_NOTIFY_RENAME = 11,
         CF_CALLBACK_TYPE_NONE = 0xffffffff,
     }
 
@@ -156,6 +158,36 @@ internal static partial class CfApi
         public uint LastDehydrationReason;
     }
 
+    // The NotifyDelete arm: only Flags (CF_CALLBACK_DELETE_FLAGS), after the union padding.
+    [StructLayout(LayoutKind.Sequential)]
+    public struct CF_CALLBACK_PARAMETERS_DELETE
+    {
+        public uint ParamSize;
+        public uint _pad0;                // union 8-byte alignment (arm starts at offset 8)
+        public uint Flags;                // CF_CALLBACK_DELETE_FLAGS
+    }
+
+    // The NotifyRename arm: Flags (CF_CALLBACK_RENAME_FLAGS), then the target path, which cfapi.h
+    // describes as the full rename/move target path relative to the volume.
+    [StructLayout(LayoutKind.Sequential)]
+    public struct CF_CALLBACK_PARAMETERS_RENAME
+    {
+        public uint ParamSize;
+        public uint _pad0;                // union 8-byte alignment (arm starts at offset 8)
+        public uint Flags;                // CF_CALLBACK_RENAME_FLAGS
+        public uint _pad1;                // align the pointer to 8
+        public IntPtr TargetPath;         // PCWSTR
+    }
+
+    /// <summary>CF_CALLBACK_RENAME_FLAG_TARGET_IN_SCOPE: the rename or move stays inside the sync root.</summary>
+    public const uint CF_CALLBACK_RENAME_FLAG_TARGET_IN_SCOPE = 0x4;
+
+    /// <summary>
+    /// CF_PROCESS_INFO starts with StructSize then ProcessId (both DWORD), so the process id of the
+    /// request is the 32-bit value at offset 4 of <see cref="CF_CALLBACK_INFO.ProcessInfo"/>.
+    /// </summary>
+    public const int CF_PROCESS_INFO_PROCESS_ID_OFFSET = 4;
+
     // ── Operation (CfExecute) ───────────────────────────────────────
     // cfapi.h places RequestKey after both pointers. Putting it before them passes
     // a request identifier as CorrelationVector and loses the operation's request key.
@@ -183,7 +215,19 @@ internal static partial class CfApi
         public long Length;
     }
 
+    // The AckDelete and AckRename arms share one shape: Flags, then the NTSTATUS completion status
+    // that allows (STATUS_SUCCESS) or refuses the operation.
+    [StructLayout(LayoutKind.Sequential)]
+    public struct CF_OPERATION_PARAMETERS_ACK
+    {
+        public uint ParamSize;
+        public uint _pad0;                // union 8-byte alignment (arm starts at offset 8)
+        public uint Flags;                // CF_OPERATION_ACK_DELETE_FLAGS / CF_OPERATION_ACK_RENAME_FLAGS
+        public int CompletionStatus;      // NTSTATUS
+    }
+
     public const int STATUS_SUCCESS = 0;
+    public const int STATUS_ACCESS_DENIED = unchecked((int)0xC0000022);
     public const int STATUS_UNSUCCESSFUL = unchecked((int)0xC0000001);
 
     // ── Functions ───────────────────────────────────────────────────
@@ -208,6 +252,9 @@ internal static partial class CfApi
 
     [DllImport(Dll)]
     public static extern int CfExecute(in CF_OPERATION_INFO opInfo, ref CF_OPERATION_PARAMETERS_TRANSFERDATA opParams);
+
+    [DllImport(Dll)]
+    public static extern int CfExecute(in CF_OPERATION_INFO opInfo, ref CF_OPERATION_PARAMETERS_ACK opParams);
 
     [DllImport(Dll, CharSet = CharSet.Unicode)]
     public static extern int CfGetSyncRootInfoByPath(

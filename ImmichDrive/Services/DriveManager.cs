@@ -237,6 +237,11 @@ public sealed class DriveManager
             SettingsManager.SaveSettings();
             Set(DriveStatus.Online, new LocalizedMessage("drive.connected-as", ("user", who)));
 
+            // The read-only ACE before the first sync: a drive from an older version still carries the
+            // delete-blocking ACE, which would make the sync's prune fail until it is replaced. Checking
+            // a correct ACE is quick; the one-time replacement runs here, off the UI thread.
+            await Task.Run(() => DriveSecurity.EnsureReadOnly(syncRoot));
+
             // Populate in the background; the drive is usable as buckets land (newest first).
             _populateCts?.Cancel();
             _populateCts = new CancellationTokenSource();
@@ -444,9 +449,9 @@ public sealed class DriveManager
     };
 
     /// <summary>
-    /// Applies the read-only deny ACE (per the setting), creates a writable <c>Upload\</c> folder, and
-    /// starts watching it for uploads. ACL work runs off the connect path (icacls over the tree takes a
-    /// few seconds).
+    /// Sets the folder icon, creates a writable <c>Upload\</c> folder, and starts watching it for
+    /// uploads. ACL work runs off the connect path (icacls over the tree takes a few seconds); the
+    /// read-only ACE is applied earlier, before the first sync.
     /// </summary>
     private void SetUpSecurityAndUpload(string syncRoot)
     {
@@ -460,8 +465,8 @@ public sealed class DriveManager
                 // instead of propagating a remove-and-add ACL cycle over a large library.
                 DriveSecurity.SetFolderIcon(syncRoot, Path.Combine(StableIconDir, "ImmichDrive.ico"));
 
-                DriveSecurity.EnsureReadOnly(syncRoot);         // the drive is always read-only
-                DriveSecurity.EnsureUploadWritable(uploadDir);  // …except the Upload folder
+                // The read-only ACE itself is applied before the first sync (ConnectAsync).
+                DriveSecurity.EnsureUploadWritable(uploadDir);  // the Upload folder stays writable
             }
             catch (Exception ex) { Logger.Warn(ex, "Security setup failed"); }
         });
