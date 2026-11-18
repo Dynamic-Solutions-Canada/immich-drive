@@ -2,7 +2,7 @@
 
 `listings.json` is the source of every field a user can read on the ImmichDrive Store listing (LIST-1): title, short and full description, features, keywords and screenshot captions, in the shared `schemaVersion: 1` / `locales` shape. Partner Center is an output; change the wording here first. Field names are semantic, not Partner Center import IDs. Release notes are not in this file: they come from `release-notes/<version>.md` (REL-6).
 
-The file holds all nine identities (LIST-3, LIST-7, LOC-11): full records for `en-US` and the six other wording catalogs, and `en-CA` and `fr-CA` as `{"copyFrom": ...}` of `en-US` and `fr-FR`. The six translations were drafted on 2026-11-17 from the `en-US` text, using the interface catalogs' terms (see [docs/localization.md](../../docs/localization.md)); they are AI-drafted and not yet reviewed by a native speaker (LOC-12). `check:listing` holds the full records to the app's wording catalogs.
+The file holds all nine identities (LIST-3, LIST-7, LOC-11): full records for `en-US` and the six other wording catalogs, and `en-CA` and `fr-CA` as `{"copyFrom": ...}` of `en-US` and `fr-FR`. The six translations were drafted on 2026-11-17 from the `en-US` text, using the interface catalogs' terms (see [docs/localization.md](../../docs/localization.md)); they are AI-drafted and not yet reviewed by a native speaker (LOC-12). The first two screenshot captions were rewritten on 2026-11-18 and translated the same way, also unreviewed. `check:listing` holds the full records to the app's wording catalogs.
 
 `npm run check:listing` (winui-app-kit's shared listing check, configured by the `listing` block in `windows-build.json`) validates the file and the current version's release notes, and `npm run validate` runs it.
 
@@ -54,5 +54,5 @@ A listing-only Store submission made on 2026-11-16 (submission 11529215057024224
 
 ## Open questions before the next submission
 
-- **Screenshots:** the live listing has five screenshots, with the captions in `listings.json`. Their image files are not in the repo, and the README set in `store-assets/web/screenshots/` shows personal details (LIST-8). Recapturing both sets with synthetic data, plus `store-assets/manifest.json`, is still to do; the caption count must then match the manifest.
+- **Screenshots:** the live listing has five screenshots. Their image files are not in the repo, and the first two captions in `listings.json` were rewritten on 2026-11-18 for a recaptured set, so keep the live captions until those images go up with them. The README set in `store-assets/web/screenshots/` was recaptured on 2026-11-18 with synthetic data (LIST-8). Committing the recaptured Store set, plus `store-assets/manifest.json`, is still to do; the caption count must then match the manifest.
 - **Publishing:** nothing yet pushes this file to Partner Center. The corrected text goes in by hand, or with a listing-sync step added to `store-publish.yml` later (LIST-6).

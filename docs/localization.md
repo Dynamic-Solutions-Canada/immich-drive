@@ -24,7 +24,7 @@ ImmichDrive's interface is in the family's nine languages (LOC-1): English (Unit
 | pt-BR | AI-drafted, not reviewed by a native speaker |
 | ja-JP | AI-drafted, not reviewed by a native speaker |
 
-The Store listing (`store-assets/microsoft/listings.json`) and each version's release notes (`release-notes/<version>.<catalog>.md`) carry the same six languages, translated 2026-11-17 and likewise unreviewed. A review covers the catalog, its listing record and the notes together.
+The Store listing (`store-assets/microsoft/listings.json`) and each version's release notes (`release-notes/<version>.<catalog>.md`) carry the same six languages, translated 2026-11-17 (the first two screenshot captions on 2026-11-18) and likewise unreviewed. A review covers the catalog, its listing record and the notes together.
 
 Update a row when a native speaker reviews that catalog.
 
