@@ -6,6 +6,7 @@ using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using System.IO;
 using ImmichDrive.ViewModels;
+using WinUIAppKit;
 using WinUIAppKit.Hosting;
 using WinUIAppKit.Localization;
 using WinUIAppKit.Logging;
@@ -87,7 +88,9 @@ public partial class App : Application
     {
         if (!MainWindow.ClaimSingleInstance())
         {
-            Environment.Exit(0);
+            // Ending this launch outright on the UI thread crashes Windows App SDK 2 on Windows 10;
+            // the kit ends it from a background thread instead.
+            SingleInstance.ExitThisLaunch();
         }
 
         InitializeApiKey();
