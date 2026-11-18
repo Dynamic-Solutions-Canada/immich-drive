@@ -54,5 +54,5 @@ A listing-only Store submission made on 2026-11-16 (submission 11529215057024224
 
 ## Open questions before the next submission
 
-- **Screenshots:** the live listing has five screenshots. Their image files are not in the repo, and the first two captions in `listings.json` were rewritten on 2026-11-18 for a recaptured set, so keep the live captions until those images go up with them. The README set in `store-assets/web/screenshots/` was recaptured on 2026-11-18 with synthetic data (LIST-8). Committing the recaptured Store set, plus `store-assets/manifest.json`, is still to do; the caption count must then match the manifest.
+- **Screenshots:** the five Store screenshots were recaptured on 2026-11-18 with synthetic data ([store-assets/README.md](../README.md)); nothing uploads them automatically, so they go into Partner Center with the next submission, listing-only or with a package, together with their captions (step 4 there). The README set in `store-assets/web/screenshots/` was recaptured in the same session (LIST-8).
 - **Publishing:** nothing yet pushes this file to Partner Center. The corrected text goes in by hand, or with a listing-sync step added to `store-publish.yml` later (LIST-6).
