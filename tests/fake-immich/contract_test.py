@@ -5,7 +5,10 @@ One spec says what ImmichDrive reads from each endpoint (ImmichClient: the field
 the response shapes, the status codes, the month-key format). The test checks the recorded real
 responses (contract/immich-v<version>.json, from contract/record_immich.py) against the spec, which
 shows the spec still describes Immich, and then starts the fake in-process and checks it against the
-same spec, which shows the fake has not drifted. Run by `npm run validate` as `check:fake-immich`.
+same spec, which shows the fake has not drifted. The fake is checked twice: with its synthetic library,
+and with a small sample library in the --library format (written to a temporary folder, the photos
+being placeholder bytes), so the Store screenshots' mode keeps the same shapes. Run by
+`npm run validate` as `check:fake-immich`.
 
 Standard library only; no server, no Docker. Exits 1 and lists every mismatch.
 """
@@ -15,6 +18,7 @@ import importlib.util
 import json
 import re
 import sys
+import tempfile
 import threading
 import urllib.error
 import urllib.request
@@ -112,10 +116,31 @@ def load_fake():
     return module
 
 
-def serve(fake, denied: set[str]):
+def write_sample_library(folder: Path) -> None:
+    """A minimal library in the --library format: two of the user's photos in an album, one partner's.
+
+    The bytes are not real JPEGs; the contract covers response shapes, not image decoding.
+    """
+    assets = [
+        {"file": "a.jpg", "name": "IMG_0001.jpg", "created": "2026-10-03T09:15:00.000Z", "favorite": True, "albums": ["Trip"]},
+        {"file": "b.jpg", "name": "IMG_0002.jpg", "created": "2026-09-20T17:40:00.000Z", "albums": ["Trip"]},
+        {"file": "c.jpg", "name": "IMG_0003.jpg", "created": "2026-10-11T12:00:00.000Z", "owner": "partner"},
+    ]
+    for entry in assets:
+        (folder / entry["file"]).write_bytes(b"\xff\xd8\xff\xe0" + entry["name"].encode() * 20 + b"\xff\xd9")
+    library = {
+        "user": {"name": "Sample User", "email": "sample.user@example.invalid"},
+        "partner": {"name": "Sample Partner", "email": "sample.partner@example.invalid"},
+        "albums": ["Trip"],
+        "assets": assets,
+    }
+    (folder / "library.json").write_text(json.dumps(library), encoding="utf-8")
+
+
+def serve(fake, denied: set[str], library_folder: Path | None = None):
     """Start the fake on a free local port; returns its base URL."""
     handler = type("ContractHandler", (fake.Handler,), {
-        "library": fake.Library(), "api_key": "test-key", "failing_thumbnails": set(), "denied_areas": denied,
+        "library": fake.Library(library_folder), "api_key": "test-key", "failing_thumbnails": set(), "denied_areas": denied,
         "log_message": lambda self, *args: None,
     })
     server = fake.Server(("127.0.0.1", 0), handler)
@@ -136,10 +161,10 @@ def fetch(base: str, path: str, key: str = "test-key", headers: dict | None = No
     return entry
 
 
-def fake_responses(fake) -> dict[str, dict]:
+def fake_responses(fake, library_folder: Path | None = None) -> dict[str, dict]:
     """The fake's answers to the same requests the recording made, with the fake's own ids."""
-    base, server = serve(fake, set())
-    denied_base, denied_server = serve(fake, {"albums", "partners"})
+    base, server = serve(fake, set(), library_folder)
+    denied_base, denied_server = serve(fake, {"albums", "partners"}, library_folder)
     query = "size=MONTH&isTrashed=false&isArchived=false"
     try:
         buckets = fetch(base, f"/timeline/buckets?{query}")
@@ -179,9 +204,16 @@ def main() -> int:
     for name in sorted(set(SPEC) & set(real)):
         check(f"Immich {version}", name, real[name], problems)
 
-    fake = fake_responses(load_fake())
+    module = load_fake()
+    fake = fake_responses(module)
     for name in sorted(SPEC):
         check("fake", name, fake[name], problems)
+
+    with tempfile.TemporaryDirectory() as folder:
+        write_sample_library(Path(folder))
+        sample = fake_responses(module, Path(folder))
+    for name in sorted(SPEC):
+        check("fake --library", name, sample[name], problems)
 
     for problem in problems:
         print("error:", problem, file=sys.stderr)

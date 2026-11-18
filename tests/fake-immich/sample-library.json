@@ -1,0 +1,793 @@
+{
+  "about": "The sample library the fake Immich server serves with --library, for the Store screenshots (README.md, \"Sample library\"). The people are synthetic; every photo is CC0 from Wikimedia Commons, with no recognisable people, and is downloaded by fetch_sample_library.py, never committed.",
+  "user": {
+    "name": "Alex Rivera",
+    "email": "alex.rivera@example.invalid"
+  },
+  "partner": {
+    "name": "Jordan Lee",
+    "email": "jordan.lee@example.invalid"
+  },
+  "albums": [
+    "Summer Trip",
+    "Garden",
+    "Pets"
+  ],
+  "assets": [
+    {
+      "file": "user-2041.jpg",
+      "name": "IMG_2041.jpg",
+      "created": "2026-06-14T10:42:00.000Z",
+      "favorite": true,
+      "albums": [
+        "Summer Trip"
+      ],
+      "source": {
+        "title": "Marmolada, Italy.jpg",
+        "page": "https://commons.wikimedia.org/wiki/File:Marmolada,_Italy.jpg",
+        "download": "https://thumb.wikimedia.org/wikipedia/commons/thumb/6/63/Marmolada%2C_Italy.jpg/1920px-Marmolada%2C_Italy.jpg",
+        "licence": "CC0",
+        "licence_url": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+        "author": "Marco Bonomo",
+        "sha256": "6d8d89542d4d164535f412daa6c74fcc698faacaa881b2cef27ce8e10d53be14"
+      }
+    },
+    {
+      "file": "user-2042.jpg",
+      "name": "IMG_2042.jpg",
+      "created": "2026-06-14T15:08:00.000Z",
+      "albums": [
+        "Summer Trip"
+      ],
+      "source": {
+        "title": "Cold-snow-winter-mountain (24243607271).jpg",
+        "page": "https://commons.wikimedia.org/wiki/File:Cold-snow-winter-mountain_(24243607271).jpg",
+        "download": "https://thumb.wikimedia.org/wikipedia/commons/thumb/3/31/Cold-snow-winter-mountain_%2824243607271%29.jpg/1920px-Cold-snow-winter-mountain_%2824243607271%29.jpg",
+        "licence": "CC0",
+        "licence_url": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+        "author": "www.Pixel.la Free Stock Photos",
+        "sha256": "7b2ea529d526b3703bc4263bc2c0f39528febe2a3e6054769f3f4fa271bfefb0"
+      }
+    },
+    {
+      "file": "user-2043.jpg",
+      "name": "IMG_2043.jpg",
+      "created": "2026-06-15T20:51:00.000Z",
+      "favorite": true,
+      "albums": [
+        "Summer Trip"
+      ],
+      "source": {
+        "title": "Matterhorn sunset 2016 (Unsplash).jpg",
+        "page": "https://commons.wikimedia.org/wiki/File:Matterhorn_sunset_2016_(Unsplash).jpg",
+        "download": "https://thumb.wikimedia.org/wikipedia/commons/thumb/2/21/Matterhorn_sunset_2016_%28Unsplash%29.jpg/1920px-Matterhorn_sunset_2016_%28Unsplash%29.jpg",
+        "licence": "CC0",
+        "licence_url": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+        "author": "Sam Ferrara samferrara",
+        "sha256": "e3d44f8f5cd58fc5fc0171f5e20f0cd71090b751deb485b7a9e9c1401a9a1fb9"
+      }
+    },
+    {
+      "file": "user-2044.jpg",
+      "name": "IMG_2044.jpg",
+      "created": "2026-08-03T07:55:00.000Z",
+      "albums": [
+        "Summer Trip"
+      ],
+      "source": {
+        "title": "Landscape-mountains-nature-lake (24326735085).jpg",
+        "page": "https://commons.wikimedia.org/wiki/File:Landscape-mountains-nature-lake_(24326735085).jpg",
+        "download": "https://thumb.wikimedia.org/wikipedia/commons/thumb/5/5c/Landscape-mountains-nature-lake_%2824326735085%29.jpg/1920px-Landscape-mountains-nature-lake_%2824326735085%29.jpg",
+        "licence": "CC0",
+        "licence_url": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+        "author": "www.Pixel.la Free Stock Photos",
+        "sha256": "5ef268b1428d483c478d0a3bef5a76a086b29419f1ce094d81d62fa80b050d70"
+      }
+    },
+    {
+      "file": "user-2045.jpg",
+      "name": "IMG_2045.jpg",
+      "created": "2026-08-03T09:20:00.000Z",
+      "favorite": true,
+      "albums": [
+        "Summer Trip"
+      ],
+      "source": {
+        "title": "Mountains reflected in a lake (Unsplash).jpg",
+        "page": "https://commons.wikimedia.org/wiki/File:Mountains_reflected_in_a_lake_(Unsplash).jpg",
+        "download": "https://thumb.wikimedia.org/wikipedia/commons/thumb/7/78/Mountains_reflected_in_a_lake_%28Unsplash%29.jpg/1920px-Mountains_reflected_in_a_lake_%28Unsplash%29.jpg",
+        "licence": "CC0",
+        "licence_url": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+        "author": "Sergei Akulich sakulich",
+        "sha256": "b5f3b2c0dc8241d5c80f73c50f33ba48e61171159c67cdb324cc71d2bbb10135"
+      }
+    },
+    {
+      "file": "user-2046.jpg",
+      "name": "IMG_2046.jpg",
+      "created": "2026-08-04T11:37:00.000Z",
+      "albums": [
+        "Summer Trip"
+      ],
+      "source": {
+        "title": "Clouds mirrored in a mountain lake (Unsplash).jpg",
+        "page": "https://commons.wikimedia.org/wiki/File:Clouds_mirrored_in_a_mountain_lake_(Unsplash).jpg",
+        "download": "https://thumb.wikimedia.org/wikipedia/commons/thumb/d/d1/Clouds_mirrored_in_a_mountain_lake_%28Unsplash%29.jpg/1920px-Clouds_mirrored_in_a_mountain_lake_%28Unsplash%29.jpg",
+        "licence": "CC0",
+        "licence_url": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+        "author": "Ales Krivec aleskrivec",
+        "sha256": "8621e1ad31ba5b5e0bc7559bad7b27cbbb3dc3ab861e091654e80b826453fe45"
+      }
+    },
+    {
+      "file": "user-2047.jpg",
+      "name": "IMG_2047.jpg",
+      "created": "2026-08-05T13:02:00.000Z",
+      "albums": [
+        "Summer Trip"
+      ],
+      "source": {
+        "title": "Peaceful waterfall (Unsplash).jpg",
+        "page": "https://commons.wikimedia.org/wiki/File:Peaceful_waterfall_(Unsplash).jpg",
+        "download": "https://thumb.wikimedia.org/wikipedia/commons/thumb/b/b1/Peaceful_waterfall_%28Unsplash%29.jpg/1920px-Peaceful_waterfall_%28Unsplash%29.jpg",
+        "licence": "CC0",
+        "licence_url": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+        "author": "Jeffrey Workman jeffreyp",
+        "sha256": "eec195439948dab2d490f457a0a2b31f86a1cb5bca6e4ccc892303809efa0b8c"
+      }
+    },
+    {
+      "file": "user-2048.jpg",
+      "name": "IMG_2048.jpg",
+      "created": "2026-08-05T14:26:00.000Z",
+      "source": {
+        "title": "Waterfall in forest.jpg",
+        "page": "https://commons.wikimedia.org/wiki/File:Waterfall_in_forest.jpg",
+        "download": "https://thumb.wikimedia.org/wikipedia/commons/thumb/8/8b/Waterfall_in_forest.jpg/1920px-Waterfall_in_forest.jpg",
+        "licence": "CC0",
+        "licence_url": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+        "author": "Martin Eklund",
+        "sha256": "6c7ce82ffc6e4bd6d8374d175551ae1cad8d7b0b669730006cbd8ebf4f9bb498"
+      }
+    },
+    {
+      "file": "user-2049.jpg",
+      "name": "IMG_2049.jpg",
+      "created": "2026-08-09T10:14:00.000Z",
+      "albums": [
+        "Summer Trip"
+      ],
+      "source": {
+        "title": "Komos site baie Crète.jpg",
+        "page": "https://commons.wikimedia.org/wiki/File:Komos_site_baie_Cr%C3%A8te.jpg",
+        "download": "https://thumb.wikimedia.org/wikipedia/commons/thumb/3/3f/Komos_site_baie_Cr%C3%A8te.jpg/1920px-Komos_site_baie_Cr%C3%A8te.jpg",
+        "licence": "CC0",
+        "licence_url": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+        "author": "Jebulon",
+        "sha256": "061465788aa93a8b0f6ec61a4839ed4e4c8a030cd5fc5b8d56073157d5d377fa"
+      }
+    },
+    {
+      "file": "user-2050.jpg",
+      "name": "IMG_2050.jpg",
+      "created": "2026-08-10T16:45:00.000Z",
+      "source": {
+        "title": "20190415 Yehliu geopark beach-2.jpg",
+        "page": "https://commons.wikimedia.org/wiki/File:20190415_Yehliu_geopark_beach-2.jpg",
+        "download": "https://thumb.wikimedia.org/wikipedia/commons/thumb/4/43/20190415_Yehliu_geopark_beach-2.jpg/1920px-20190415_Yehliu_geopark_beach-2.jpg",
+        "licence": "CC0",
+        "licence_url": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+        "author": "Balon Greyjoy",
+        "sha256": "9eff470b0d1e85b87142ac326c51660b5eea4decc93ac81fab96652f5e8e1b8a"
+      }
+    },
+    {
+      "file": "user-2051.jpg",
+      "name": "IMG_2051.jpg",
+      "created": "2026-08-12T09:33:00.000Z",
+      "favorite": true,
+      "albums": [
+        "Summer Trip"
+      ],
+      "source": {
+        "title": "Harbour of Mykonos.JPG",
+        "page": "https://commons.wikimedia.org/wiki/File:Harbour_of_Mykonos.JPG",
+        "download": "https://thumb.wikimedia.org/wikipedia/commons/thumb/6/6a/Harbour_of_Mykonos.JPG/1920px-Harbour_of_Mykonos.JPG",
+        "licence": "CC0",
+        "licence_url": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+        "author": "Dinkum",
+        "sha256": "86707083dae48c6a1f09747952fb4bab4cf149ff1cf71c6b8f11f6965eeacee4"
+      }
+    },
+    {
+      "file": "user-2052.jpg",
+      "name": "IMG_2052.jpg",
+      "created": "2026-08-12T11:50:00.000Z",
+      "albums": [
+        "Summer Trip"
+      ],
+      "source": {
+        "title": "Aegina harbour embankment.jpg",
+        "page": "https://commons.wikimedia.org/wiki/File:Aegina_harbour_embankment.jpg",
+        "download": "https://thumb.wikimedia.org/wikipedia/commons/thumb/c/c9/Aegina_harbour_embankment.jpg/1920px-Aegina_harbour_embankment.jpg",
+        "licence": "CC0",
+        "licence_url": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+        "author": "Jebulon",
+        "sha256": "8240ae079c5b1af57b30a983351e8e53d9504fa9fa4fc9ecc0b021ba7751bc07"
+      }
+    },
+    {
+      "file": "user-2053.jpg",
+      "name": "IMG_2053.jpg",
+      "created": "2026-08-13T18:12:00.000Z",
+      "source": {
+        "title": "Boats-sailboats-harbor-harbour (23697998574).jpg",
+        "page": "https://commons.wikimedia.org/wiki/File:Boats-sailboats-harbor-harbour_(23697998574).jpg",
+        "download": "https://thumb.wikimedia.org/wikipedia/commons/thumb/1/16/Boats-sailboats-harbor-harbour_%2823697998574%29.jpg/1920px-Boats-sailboats-harbor-harbour_%2823697998574%29.jpg",
+        "licence": "CC0",
+        "licence_url": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+        "author": "www.Pixel.la Free Stock Photos",
+        "sha256": "68645f5905f0ed47edf892e201f01006ae086fdb71b8b44dab866219ee5483e3"
+      }
+    },
+    {
+      "file": "user-2054.jpg",
+      "name": "IMG_2054.jpg",
+      "created": "2026-08-16T08:41:00.000Z",
+      "source": {
+        "title": "Boats in Reykjavik's Old Harbour.JPG",
+        "page": "https://commons.wikimedia.org/wiki/File:Boats_in_Reykjavik%27s_Old_Harbour.JPG",
+        "download": "https://thumb.wikimedia.org/wikipedia/commons/thumb/0/07/Boats_in_Reykjavik%27s_Old_Harbour.JPG/1920px-Boats_in_Reykjavik%27s_Old_Harbour.JPG",
+        "licence": "CC0",
+        "licence_url": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+        "author": "Ypsilon from Finland",
+        "sha256": "e11790810d4d6cb1ee84f058da14bb71c3662284e145d8ff02ba0498a12f701d"
+      }
+    },
+    {
+      "file": "user-2055.jpg",
+      "name": "IMG_2055.jpg",
+      "created": "2026-08-18T19:47:00.000Z",
+      "albums": [
+        "Summer Trip"
+      ],
+      "source": {
+        "title": "Backlit Margarita Island Sunset in Las Guevaras, Venezuela CaptureNX2.jpg",
+        "page": "https://commons.wikimedia.org/wiki/File:Backlit_Margarita_Island_Sunset_in_Las_Guevaras,_Venezuela_CaptureNX2.jpg",
+        "download": "https://thumb.wikimedia.org/wikipedia/commons/thumb/b/b8/Backlit_Margarita_Island_Sunset_in_Las_Guevaras%2C_Venezuela_CaptureNX2.jpg/1920px-Backlit_Margarita_Island_Sunset_in_Las_Guevaras%2C_Venezuela_CaptureNX2.jpg",
+        "licence": "CC0",
+        "licence_url": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+        "author": "Wilfredor",
+        "sha256": "e352c45480add653c5a90f9fe635f582a871cb4eea85d23f85fbb0a75ed1689f"
+      }
+    },
+    {
+      "file": "user-2056.jpg",
+      "name": "IMG_2056.jpg",
+      "created": "2026-08-18T20:05:00.000Z",
+      "favorite": true,
+      "albums": [
+        "Summer Trip"
+      ],
+      "source": {
+        "title": "Juan Griego Sunset.jpg",
+        "page": "https://commons.wikimedia.org/wiki/File:Juan_Griego_Sunset.jpg",
+        "download": "https://thumb.wikimedia.org/wikipedia/commons/thumb/3/3f/Juan_Griego_Sunset.jpg/1920px-Juan_Griego_Sunset.jpg",
+        "licence": "CC0",
+        "licence_url": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+        "author": "Wilfredor",
+        "sha256": "8f9d96761a2184681a50a9fd3488e3d8f33627dd9055b8b6f3ea3232163048d3"
+      }
+    },
+    {
+      "file": "user-2057.jpg",
+      "name": "IMG_2057.jpg",
+      "created": "2026-08-21T20:31:00.000Z",
+      "source": {
+        "title": "Sunset on lake with tree silhouette.jpg",
+        "page": "https://commons.wikimedia.org/wiki/File:Sunset_on_lake_with_tree_silhouette.jpg",
+        "download": "https://thumb.wikimedia.org/wikipedia/commons/thumb/0/05/Sunset_on_lake_with_tree_silhouette.jpg/1920px-Sunset_on_lake_with_tree_silhouette.jpg",
+        "licence": "CC0",
+        "licence_url": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+        "author": "Geodeakgol",
+        "sha256": "1b2628f7ab629b618960118e3b11b3a981e22a2b9378db6f604ae03340814e26"
+      }
+    },
+    {
+      "file": "user-2058.jpg",
+      "name": "IMG_2058.jpg",
+      "created": "2026-09-06T10:03:00.000Z",
+      "favorite": true,
+      "albums": [
+        "Garden"
+      ],
+      "source": {
+        "title": "Common Jezebel Delias eucharis by kadavoor 3.jpg",
+        "page": "https://commons.wikimedia.org/wiki/File:Common_Jezebel_Delias_eucharis_by_kadavoor_3.jpg",
+        "download": "https://thumb.wikimedia.org/wikipedia/commons/thumb/9/96/Common_Jezebel_Delias_eucharis_by_kadavoor_3.jpg/1920px-Common_Jezebel_Delias_eucharis_by_kadavoor_3.jpg",
+        "licence": "CC0",
+        "licence_url": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+        "author": "Jeevan Jose, Kerala, India",
+        "sha256": "80ec3de892d1f38d18d5e5a42c999b3124d92f1f22a17f96de902c6d92f87daf"
+      }
+    },
+    {
+      "file": "user-2059.jpg",
+      "name": "IMG_2059.jpg",
+      "created": "2026-09-06T10:09:00.000Z",
+      "albums": [
+        "Garden"
+      ],
+      "source": {
+        "title": "Catopsilia pomona 3 by kadavoor.jpg",
+        "page": "https://commons.wikimedia.org/wiki/File:Catopsilia_pomona_3_by_kadavoor.jpg",
+        "download": "https://thumb.wikimedia.org/wikipedia/commons/thumb/e/e5/Catopsilia_pomona_3_by_kadavoor.jpg/1920px-Catopsilia_pomona_3_by_kadavoor.jpg",
+        "licence": "CC0",
+        "licence_url": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+        "author": "Jeevan Jose, Kerala, India",
+        "sha256": "82adbe8f9b72480219973893b4a199acdbfa83dbc3d5c7bcd1800146f5e6c0cf"
+      }
+    },
+    {
+      "file": "partner-5111.jpg",
+      "name": "IMG_5111.jpg",
+      "created": "2026-09-12T09:05:00.000Z",
+      "owner": "partner",
+      "source": {
+        "title": "The Big Breakfast and Three Vegan Sausages Breakfast Sandwich by Café Arium.jpg",
+        "page": "https://commons.wikimedia.org/wiki/File:The_Big_Breakfast_and_Three_Vegan_Sausages_Breakfast_Sandwich_by_Caf%C3%A9_Arium.jpg",
+        "download": "https://thumb.wikimedia.org/wikipedia/commons/thumb/9/92/The_Big_Breakfast_and_Three_Vegan_Sausages_Breakfast_Sandwich_by_Caf%C3%A9_Arium.jpg/1920px-The_Big_Breakfast_and_Three_Vegan_Sausages_Breakfast_Sandwich_by_Caf%C3%A9_Arium.jpg",
+        "licence": "CC0",
+        "licence_url": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+        "author": "Andy Li",
+        "sha256": "ee45767fe2c108e0792c41b951b439a58c83f866eee63a4e8b50fb457d062c8a"
+      }
+    },
+    {
+      "file": "user-2060.jpg",
+      "name": "IMG_2060.jpg",
+      "created": "2026-09-13T14:20:00.000Z",
+      "albums": [
+        "Garden"
+      ],
+      "source": {
+        "title": "White flowers in Tokyo.jpg",
+        "page": "https://commons.wikimedia.org/wiki/File:White_flowers_in_Tokyo.jpg",
+        "download": "https://thumb.wikimedia.org/wikipedia/commons/thumb/9/90/White_flowers_in_Tokyo.jpg/1920px-White_flowers_in_Tokyo.jpg",
+        "licence": "CC0",
+        "licence_url": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+        "author": "Syced",
+        "sha256": "7916dd73b4031f5c170e74d57d6cea5678bfd60d076f54ca16db71dc593f8f7f"
+      }
+    },
+    {
+      "file": "user-2061.jpg",
+      "name": "IMG_2061.jpg",
+      "created": "2026-09-13T14:22:00.000Z",
+      "albums": [
+        "Garden"
+      ],
+      "source": {
+        "title": "White flowers in Tokyo 3.jpg",
+        "page": "https://commons.wikimedia.org/wiki/File:White_flowers_in_Tokyo_3.jpg",
+        "download": "https://thumb.wikimedia.org/wikipedia/commons/thumb/e/e5/White_flowers_in_Tokyo_3.jpg/1920px-White_flowers_in_Tokyo_3.jpg",
+        "licence": "CC0",
+        "licence_url": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+        "author": "Syced",
+        "sha256": "b9b67e16b3d2fb34a0fb0eb0deca8195ad61040f52b794c0dc597b50bc6f7e8e"
+      }
+    },
+    {
+      "file": "partner-5112.jpg",
+      "name": "IMG_5112.jpg",
+      "created": "2026-09-19T09:40:00.000Z",
+      "owner": "partner",
+      "source": {
+        "title": "Set breakfast (1) - Café Belchers.jpg",
+        "page": "https://commons.wikimedia.org/wiki/File:Set_breakfast_(1)_-_Caf%C3%A9_Belchers.jpg",
+        "download": "https://thumb.wikimedia.org/wikipedia/commons/thumb/c/c7/Set_breakfast_%281%29_-_Caf%C3%A9_Belchers.jpg/1920px-Set_breakfast_%281%29_-_Caf%C3%A9_Belchers.jpg",
+        "licence": "CC0",
+        "licence_url": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+        "author": "Andy Li",
+        "sha256": "b672c72d21bdb3a38ba79726619096e4bc1e2491a393aaf4b1b3c22e7d919691"
+      }
+    },
+    {
+      "file": "user-2062.jpg",
+      "name": "IMG_2062.jpg",
+      "created": "2026-09-20T11:15:00.000Z",
+      "albums": [
+        "Garden"
+      ],
+      "source": {
+        "title": "Sand and Stone Garden - Portland Japanese Garden - Portland, Oregon - DSC08222.jpg",
+        "page": "https://commons.wikimedia.org/wiki/File:Sand_and_Stone_Garden_-_Portland_Japanese_Garden_-_Portland,_Oregon_-_DSC08222.jpg",
+        "download": "https://thumb.wikimedia.org/wikipedia/commons/thumb/d/d8/Sand_and_Stone_Garden_-_Portland_Japanese_Garden_-_Portland%2C_Oregon_-_DSC08222.jpg/1920px-Sand_and_Stone_Garden_-_Portland_Japanese_Garden_-_Portland%2C_Oregon_-_DSC08222.jpg",
+        "licence": "CC0",
+        "licence_url": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+        "author": "Daderot",
+        "sha256": "ab512163807f7625d0e93643bb84d63e485576c8dd8d4f443958556b6f82f2a2"
+      }
+    },
+    {
+      "file": "user-2063.jpg",
+      "name": "IMG_2063.jpg",
+      "created": "2026-09-20T11:31:00.000Z",
+      "favorite": true,
+      "albums": [
+        "Garden"
+      ],
+      "source": {
+        "title": "Pagoda lantern and stones- Portland Japanese Garden - Portland, Oregon - DSC08252.jpg",
+        "page": "https://commons.wikimedia.org/wiki/File:Pagoda_lantern_and_stones-_Portland_Japanese_Garden_-_Portland,_Oregon_-_DSC08252.jpg",
+        "download": "https://thumb.wikimedia.org/wikipedia/commons/thumb/3/3c/Pagoda_lantern_and_stones-_Portland_Japanese_Garden_-_Portland%2C_Oregon_-_DSC08252.jpg/1920px-Pagoda_lantern_and_stones-_Portland_Japanese_Garden_-_Portland%2C_Oregon_-_DSC08252.jpg",
+        "licence": "CC0",
+        "licence_url": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+        "author": "Daderot",
+        "sha256": "1ab8469636639e5ba85073ddb5e960bc62206c1ce175066d1d7e53c631a289d0"
+      }
+    },
+    {
+      "file": "user-2064.jpg",
+      "name": "IMG_2064.jpg",
+      "created": "2026-09-27T16:48:00.000Z",
+      "albums": [
+        "Garden"
+      ],
+      "source": {
+        "title": "Lady fern at Myrstigen trail 1.jpg",
+        "page": "https://commons.wikimedia.org/wiki/File:Lady_fern_at_Myrstigen_trail_1.jpg",
+        "download": "https://thumb.wikimedia.org/wikipedia/commons/thumb/2/24/Lady_fern_at_Myrstigen_trail_1.jpg/1920px-Lady_fern_at_Myrstigen_trail_1.jpg",
+        "licence": "CC0",
+        "licence_url": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+        "author": "W.carter",
+        "sha256": "fd6f176ad040c853eaba3e568568a8f74225ab234b98b2d8dac4c347a91b63e2"
+      }
+    },
+    {
+      "file": "user-2065.jpg",
+      "name": "IMG_2065.jpg",
+      "created": "2026-10-02T17:22:00.000Z",
+      "albums": [
+        "Pets"
+      ],
+      "source": {
+        "title": "'Radhe' the pet cat of Worli fish marke in Mumbai..(Wednesday 14-3-2012).JPG",
+        "page": "https://commons.wikimedia.org/wiki/File:%27Radhe%27_the_pet_cat_of_Worli_fish_marke_in_Mumbai..(Wednesday_14-3-2012).JPG",
+        "download": "https://thumb.wikimedia.org/wikipedia/commons/thumb/f/fc/%27Radhe%27_the_pet_cat_of_Worli_fish_marke_in_Mumbai..%28Wednesday_14-3-2012%29.JPG/1920px-%27Radhe%27_the_pet_cat_of_Worli_fish_marke_in_Mumbai..%28Wednesday_14-3-2012%29.JPG",
+        "licence": "CC0",
+        "licence_url": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+        "author": "Rudolph.A.furtado",
+        "sha256": "ffc027dde3bea71b9a9280aeeefbdeaec50390a04830a9fa06d390b361866837"
+      }
+    },
+    {
+      "file": "partner-5113.jpg",
+      "name": "IMG_5113.jpg",
+      "created": "2026-10-03T10:12:00.000Z",
+      "owner": "partner",
+      "source": {
+        "title": "Mini breakfast - Wai Kika Moo Kau.jpg",
+        "page": "https://commons.wikimedia.org/wiki/File:Mini_breakfast_-_Wai_Kika_Moo_Kau.jpg",
+        "download": "https://thumb.wikimedia.org/wikipedia/commons/thumb/3/34/Mini_breakfast_-_Wai_Kika_Moo_Kau.jpg/1920px-Mini_breakfast_-_Wai_Kika_Moo_Kau.jpg",
+        "licence": "CC0",
+        "licence_url": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+        "author": "Andy Li",
+        "sha256": "27b08a752b44ad45ee5d319b19c111b0335ff4e32f3eb5134fe8de4796272b0b"
+      }
+    },
+    {
+      "file": "user-2066.jpg",
+      "name": "IMG_2066.jpg",
+      "created": "2026-10-04T09:10:00.000Z",
+      "favorite": true,
+      "albums": [
+        "Pets"
+      ],
+      "source": {
+        "title": "Cat Bathing in Sunbeam.jpg",
+        "page": "https://commons.wikimedia.org/wiki/File:Cat_Bathing_in_Sunbeam.jpg",
+        "download": "https://thumb.wikimedia.org/wikipedia/commons/thumb/3/32/Cat_Bathing_in_Sunbeam.jpg/1920px-Cat_Bathing_in_Sunbeam.jpg",
+        "licence": "CC0",
+        "licence_url": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+        "author": "http://www.photos-public-domain.com/",
+        "sha256": "f64b0e3437264dabd07b1e66ef27ceb0b3296507adcd8f7a612adcc7eeb5675a"
+      }
+    },
+    {
+      "file": "user-2067.jpg",
+      "name": "IMG_2067.jpg",
+      "created": "2026-10-07T19:35:00.000Z",
+      "albums": [
+        "Pets"
+      ],
+      "source": {
+        "title": "Orange tabby cat-932269.jpg",
+        "page": "https://commons.wikimedia.org/wiki/File:Orange_tabby_cat-932269.jpg",
+        "download": "https://thumb.wikimedia.org/wikipedia/commons/thumb/3/35/Orange_tabby_cat-932269.jpg/1920px-Orange_tabby_cat-932269.jpg",
+        "licence": "CC0",
+        "licence_url": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+        "author": "Leroy_Skalstad",
+        "sha256": "9314f9e6066c721fce76ed0a4ab315b99edba39268fe023bad3e38028149fe90"
+      }
+    },
+    {
+      "file": "user-2068.jpg",
+      "name": "IMG_2068.jpg",
+      "created": "2026-10-11T12:04:00.000Z",
+      "albums": [
+        "Pets"
+      ],
+      "source": {
+        "title": "Young tabby cat keeping watch.jpg",
+        "page": "https://commons.wikimedia.org/wiki/File:Young_tabby_cat_keeping_watch.jpg",
+        "download": "https://thumb.wikimedia.org/wikipedia/commons/thumb/9/95/Young_tabby_cat_keeping_watch.jpg/1920px-Young_tabby_cat_keeping_watch.jpg",
+        "licence": "CC0",
+        "licence_url": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+        "author": "W.carter",
+        "sha256": "d95d2ec5f13be0134659260ea8ed70f5875f9f384a6f8e11258df6a08668e363"
+      }
+    },
+    {
+      "file": "user-2069.jpg",
+      "name": "IMG_2069.jpg",
+      "created": "2026-10-11T12:19:00.000Z",
+      "albums": [
+        "Pets"
+      ],
+      "source": {
+        "title": "Tabby kitten in Brastad.jpg",
+        "page": "https://commons.wikimedia.org/wiki/File:Tabby_kitten_in_Brastad.jpg",
+        "download": "https://thumb.wikimedia.org/wikipedia/commons/thumb/5/53/Tabby_kitten_in_Brastad.jpg/1920px-Tabby_kitten_in_Brastad.jpg",
+        "licence": "CC0",
+        "licence_url": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+        "author": "W.carter",
+        "sha256": "ab514ea15daf09e6b59076f499f4a842aa8a82121faa58a332c109feb542b486"
+      }
+    },
+    {
+      "file": "user-2070.jpg",
+      "name": "IMG_2070.jpg",
+      "created": "2026-10-15T15:40:00.000Z",
+      "favorite": true,
+      "albums": [
+        "Pets"
+      ],
+      "source": {
+        "title": "A curious kitten (Pixabay).jpg",
+        "page": "https://commons.wikimedia.org/wiki/File:A_curious_kitten_(Pixabay).jpg",
+        "download": "https://thumb.wikimedia.org/wikipedia/commons/thumb/7/75/A_curious_kitten_%28Pixabay%29.jpg/1920px-A_curious_kitten_%28Pixabay%29.jpg",
+        "licence": "CC0",
+        "licence_url": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+        "author": "Dimitri Houtteman",
+        "sha256": "5b8fa1722e2d6871cc10f7cf0bf5b9985421e9700c6978fe7aee3f30d816c483"
+      }
+    },
+    {
+      "file": "partner-5114.jpg",
+      "name": "IMG_5114.jpg",
+      "created": "2026-10-17T09:58:00.000Z",
+      "owner": "partner",
+      "source": {
+        "title": "All Day Breakfast Set 1 - Breakfast At Tiffany's Brighton.jpg",
+        "page": "https://commons.wikimedia.org/wiki/File:All_Day_Breakfast_Set_1_-_Breakfast_At_Tiffany%27s_Brighton.jpg",
+        "download": "https://thumb.wikimedia.org/wikipedia/commons/thumb/6/6e/All_Day_Breakfast_Set_1_-_Breakfast_At_Tiffany%27s_Brighton.jpg/1920px-All_Day_Breakfast_Set_1_-_Breakfast_At_Tiffany%27s_Brighton.jpg",
+        "licence": "CC0",
+        "licence_url": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+        "author": "Andy Li",
+        "sha256": "5b20ff7b437ab55ae535e42cc0977a1c4231ee8af0daeb96385e2b8979142853"
+      }
+    },
+    {
+      "file": "user-2071.jpg",
+      "name": "IMG_2071.jpg",
+      "created": "2026-10-18T13:28:00.000Z",
+      "albums": [
+        "Pets"
+      ],
+      "source": {
+        "title": "A kitten on the lawn (Pixabay).jpg",
+        "page": "https://commons.wikimedia.org/wiki/File:A_kitten_on_the_lawn_(Pixabay).jpg",
+        "download": "https://thumb.wikimedia.org/wikipedia/commons/thumb/4/46/A_kitten_on_the_lawn_%28Pixabay%29.jpg/1920px-A_kitten_on_the_lawn_%28Pixabay%29.jpg",
+        "licence": "CC0",
+        "licence_url": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+        "author": "Ilona Ilyés",
+        "sha256": "48243dbb1e096e7ab71175f404f3d06966eafbfde36313a8f5fd8d68cfeccb79"
+      }
+    },
+    {
+      "file": "user-2072.jpg",
+      "name": "IMG_2072.jpg",
+      "created": "2026-10-19T15:30:00.000Z",
+      "source": {
+        "title": "Apple cake with vanilla ice cream 2.jpg",
+        "page": "https://commons.wikimedia.org/wiki/File:Apple_cake_with_vanilla_ice_cream_2.jpg",
+        "download": "https://thumb.wikimedia.org/wikipedia/commons/thumb/a/a6/Apple_cake_with_vanilla_ice_cream_2.jpg/1920px-Apple_cake_with_vanilla_ice_cream_2.jpg",
+        "licence": "CC0",
+        "licence_url": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+        "author": "W.carter",
+        "sha256": "9d6d4985e2a1ebbd80ff9d806cb00691aecba21ec5f35141a8560bedf815f108"
+      }
+    },
+    {
+      "file": "user-2073.jpg",
+      "name": "IMG_2073.jpg",
+      "created": "2026-10-19T15:34:00.000Z",
+      "source": {
+        "title": "Piece of chocolate cake on a white plate decorated with chocolate sauce.jpg",
+        "page": "https://commons.wikimedia.org/wiki/File:Piece_of_chocolate_cake_on_a_white_plate_decorated_with_chocolate_sauce.jpg",
+        "download": "https://thumb.wikimedia.org/wikipedia/commons/thumb/e/ef/Piece_of_chocolate_cake_on_a_white_plate_decorated_with_chocolate_sauce.jpg/1920px-Piece_of_chocolate_cake_on_a_white_plate_decorated_with_chocolate_sauce.jpg",
+        "licence": "CC0",
+        "licence_url": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+        "author": "Daria Yakovleva Minor edits made by Subsidiary account",
+        "sha256": "e12f50e843d51fe75cbb1270225a4ed68f1dc707b06cfa716a440b5cbf154346"
+      }
+    },
+    {
+      "file": "user-2074.jpg",
+      "name": "IMG_2074.jpg",
+      "created": "2026-10-22T20:16:00.000Z",
+      "albums": [
+        "Pets"
+      ],
+      "source": {
+        "title": "A kitten in a carton (Flickr).jpg",
+        "page": "https://commons.wikimedia.org/wiki/File:A_kitten_in_a_carton_(Flickr).jpg",
+        "download": "https://thumb.wikimedia.org/wikipedia/commons/thumb/a/a0/A_kitten_in_a_carton_%28Flickr%29.jpg/1920px-A_kitten_in_a_carton_%28Flickr%29.jpg",
+        "licence": "CC0",
+        "licence_url": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+        "author": "游 焰熾",
+        "sha256": "e79bc3182f9a730d79701e8490934e15663c178cdaa472cc8841a4cc89c1aa15"
+      }
+    },
+    {
+      "file": "partner-5115.jpg",
+      "name": "IMG_5115.jpg",
+      "created": "2026-10-24T11:33:00.000Z",
+      "owner": "partner",
+      "source": {
+        "title": "Fruit market in Genoa, Italy - DSC01268.JPG",
+        "page": "https://commons.wikimedia.org/wiki/File:Fruit_market_in_Genoa,_Italy_-_DSC01268.JPG",
+        "download": "https://thumb.wikimedia.org/wikipedia/commons/thumb/0/0a/Fruit_market_in_Genoa%2C_Italy_-_DSC01268.JPG/1920px-Fruit_market_in_Genoa%2C_Italy_-_DSC01268.JPG",
+        "licence": "CC0",
+        "licence_url": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+        "author": "Daderot",
+        "sha256": "46e11a84c23d263b12894072a58d6649eb3f965edb19b25a9005fc924ea0ec46"
+      }
+    },
+    {
+      "file": "user-2075.jpg",
+      "name": "IMG_2075.jpg",
+      "created": "2026-10-25T10:52:00.000Z",
+      "albums": [
+        "Pets"
+      ],
+      "source": {
+        "title": "9568Black and white kitten portraits in the Philippines 03.jpg",
+        "page": "https://commons.wikimedia.org/wiki/File:9568Black_and_white_kitten_portraits_in_the_Philippines_03.jpg",
+        "download": "https://thumb.wikimedia.org/wikipedia/commons/thumb/c/cd/9568Black_and_white_kitten_portraits_in_the_Philippines_03.jpg/1920px-9568Black_and_white_kitten_portraits_in_the_Philippines_03.jpg",
+        "licence": "CC0",
+        "licence_url": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+        "author": "Judgefloro",
+        "sha256": "640638f971ec4f91f3fcb63bbc4880ec67588f9a9464f1d9fc470c9ba097045c"
+      }
+    },
+    {
+      "file": "user-2076.jpg",
+      "name": "IMG_2076.jpg",
+      "created": "2026-10-26T16:07:00.000Z",
+      "albums": [
+        "Pets"
+      ],
+      "source": {
+        "title": "Dog in Chacachacare.jpg",
+        "page": "https://commons.wikimedia.org/wiki/File:Dog_in_Chacachacare.jpg",
+        "download": "https://thumb.wikimedia.org/wikipedia/commons/thumb/2/2b/Dog_in_Chacachacare.jpg/1920px-Dog_in_Chacachacare.jpg",
+        "licence": "CC0",
+        "licence_url": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+        "author": "Wilfredor",
+        "sha256": "205062ebf9bf785949f844ec0654a32610a1fc623786bdf5141de3e5f5d9b4f1"
+      }
+    },
+    {
+      "file": "user-2077.jpg",
+      "name": "IMG_2077.jpg",
+      "created": "2026-11-01T11:20:00.000Z",
+      "source": {
+        "title": "Autumn Forest Wet Bark.jpg",
+        "page": "https://commons.wikimedia.org/wiki/File:Autumn_Forest_Wet_Bark.jpg",
+        "download": "https://thumb.wikimedia.org/wikipedia/commons/thumb/0/0a/Autumn_Forest_Wet_Bark.jpg/1920px-Autumn_Forest_Wet_Bark.jpg",
+        "licence": "CC0",
+        "licence_url": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+        "author": "Martin Vorel",
+        "sha256": "39f67b1175afd306f90b887100b21286b07e5bbfff237fc6ac05396f664c157f"
+      }
+    },
+    {
+      "file": "user-2078.jpg",
+      "name": "IMG_2078.jpg",
+      "created": "2026-11-01T11:46:00.000Z",
+      "favorite": true,
+      "source": {
+        "title": "Autumn Lane.jpg",
+        "page": "https://commons.wikimedia.org/wiki/File:Autumn_Lane.jpg",
+        "download": "https://thumb.wikimedia.org/wikipedia/commons/thumb/3/37/Autumn_Lane.jpg/1920px-Autumn_Lane.jpg",
+        "licence": "CC0",
+        "licence_url": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+        "author": "Unknown author Unknown author",
+        "sha256": "34ba6f3456a7bd960a8a00bf5a677da2204d88cdbaac6ce7ce6ec24d7bb82e4a"
+      }
+    },
+    {
+      "file": "partner-5116.jpg",
+      "name": "IMG_5116.jpg",
+      "created": "2026-11-07T12:47:00.000Z",
+      "owner": "partner",
+      "source": {
+        "title": "Fruit in Hong Kong Market.jpg",
+        "page": "https://commons.wikimedia.org/wiki/File:Fruit_in_Hong_Kong_Market.jpg",
+        "download": "https://thumb.wikimedia.org/wikipedia/commons/thumb/d/d7/Fruit_in_Hong_Kong_Market.jpg/1920px-Fruit_in_Hong_Kong_Market.jpg",
+        "licence": "CC0",
+        "licence_url": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+        "author": "Wilfredor",
+        "sha256": "50551f2265680be347fc6a8956caf6753bb465fd8baa5235016c6eb76953a444"
+      }
+    },
+    {
+      "file": "user-2079.jpg",
+      "name": "IMG_2079.jpg",
+      "created": "2026-11-08T14:02:00.000Z",
+      "source": {
+        "title": "Beautiful autumn forest (Unsplash).jpg",
+        "page": "https://commons.wikimedia.org/wiki/File:Beautiful_autumn_forest_(Unsplash).jpg",
+        "download": "https://thumb.wikimedia.org/wikipedia/commons/thumb/8/8b/Beautiful_autumn_forest_%28Unsplash%29.jpg/1920px-Beautiful_autumn_forest_%28Unsplash%29.jpg",
+        "licence": "CC0",
+        "licence_url": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+        "author": "Layne Lawson laynelawson",
+        "sha256": "6d5de6a3ddb4a2d99794c09145152722e47a1a41115dd8d1553ee13d1b33b90e"
+      }
+    },
+    {
+      "file": "user-2080.jpg",
+      "name": "IMG_2080.jpg",
+      "created": "2026-11-08T14:10:00.000Z",
+      "source": {
+        "title": "Autumn forest canopy (Unsplash).jpg",
+        "page": "https://commons.wikimedia.org/wiki/File:Autumn_forest_canopy_(Unsplash).jpg",
+        "download": "https://thumb.wikimedia.org/wikipedia/commons/thumb/7/7b/Autumn_forest_canopy_%28Unsplash%29.jpg/1920px-Autumn_forest_canopy_%28Unsplash%29.jpg",
+        "licence": "CC0",
+        "licence_url": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+        "author": "Andrew Preble apreble",
+        "sha256": "cb9ca2053caa8c13125193de52938b7c54024cc78057e53d552702da9be88ae5"
+      }
+    },
+    {
+      "file": "user-2081.jpg",
+      "name": "IMG_2081.jpg",
+      "created": "2026-11-12T16:25:00.000Z",
+      "source": {
+        "title": "Slice of chocolate cloud cake at Tous les Jours.jpg",
+        "page": "https://commons.wikimedia.org/wiki/File:Slice_of_chocolate_cloud_cake_at_Tous_les_Jours.jpg",
+        "download": "https://thumb.wikimedia.org/wikipedia/commons/thumb/b/bd/Slice_of_chocolate_cloud_cake_at_Tous_les_Jours.jpg/1920px-Slice_of_chocolate_cloud_cake_at_Tous_les_Jours.jpg",
+        "licence": "CC0",
+        "licence_url": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+        "author": "Ser Amantio di Nicolao",
+        "sha256": "21e70391e3b218a9179945d672dbc14bcba51a6333237342d26c2712e2d28e62"
+      }
+    },
+    {
+      "file": "user-2082.jpg",
+      "name": "IMG_2082.jpg",
+      "created": "2026-11-14T15:12:00.000Z",
+      "source": {
+        "title": "Mocha cake - Jolliffes Coffee Shop 2024-01-07.jpg",
+        "page": "https://commons.wikimedia.org/wiki/File:Mocha_cake_-_Jolliffes_Coffee_Shop_2024-01-07.jpg",
+        "download": "https://thumb.wikimedia.org/wikipedia/commons/thumb/f/f3/Mocha_cake_-_Jolliffes_Coffee_Shop_2024-01-07.jpg/1920px-Mocha_cake_-_Jolliffes_Coffee_Shop_2024-01-07.jpg",
+        "licence": "CC0",
+        "licence_url": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+        "author": "Andy Li",
+        "sha256": "9555251eb817d173770d55a74ea8a3356db18c17120549ae37da4830f8effc9b"
+      }
+    }
+  ]
+}

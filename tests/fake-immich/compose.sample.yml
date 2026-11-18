@@ -1,0 +1,10 @@
+# Serve the sample library (README.md, "Sample library") instead of the synthetic one, for the Store
+# screenshots. Download it first with fetch_sample_library.py, then add this file to the usual command:
+#   FAKE_IMMICH_NETWORK=windows-dev_default docker compose -f tests/fake-immich/compose.yml -f tests/fake-immich/compose.sample.yml up -d
+# No thumbnail fails on purpose here, so every placeholder shows its photo.
+services:
+  fake-immich:
+    command: ["python3", "-I", "/app/fake_immich.py", "--port", "2283", "--key", "test-key",
+              "--library", "/library"]
+    volumes:
+      - ../../.artifacts/sample-library:/library:ro

@@ -14,6 +14,23 @@ Only the endpoints ImmichDrive calls ([docs/immich-api.md](../../docs/immich-api
 
 Everything is generated in memory at start: synthetic images, a test user and partner on `example.invalid` addresses, and the API key `test-key`, which is a test value, not a secret. Nothing is written to disk.
 
+## Sample library
+
+For the Store screenshots, `--library DIR` serves real photos instead of the synthetic set, through the same endpoints and shapes. [sample-library.json](sample-library.json) lists them: 48 CC0 photos from Wikimedia Commons (landscapes, a seaside trip, a garden, cats and a dog, food), none with recognisable people, dated June to November 2026, with three albums ("Summer Trip", "Garden", "Pets"), ten favourites, and a partner ("Jordan Lee") sharing six. The user is "Alex Rivera". Both people are synthetic, on `example.invalid` addresses. Each photo records its Commons page, the download URL, the licence, the author and the file's SHA-256.
+
+The photos are never committed. Download them, then start the fake with the override file:
+
+```bash
+python3 -I tests/fake-immich/fetch_sample_library.py          # into .artifacts/sample-library, hashes checked
+FAKE_IMMICH_NETWORK=windows-dev_default docker compose -f tests/fake-immich/compose.yml -f tests/fake-immich/compose.sample.yml up -d
+```
+
+A photo whose download no longer matches its recorded hash fails the fetch, so a changed upstream file is noticed. The fake keeps the library in memory (about 32 MB, inside the same 128 MB cap), and each photo's JPEG is also its thumbnail, as Immich's "preview" size is a JPEG of about that size. No thumbnail fails on purpose in this mode.
+
+`library.json`, which the fetch writes beside the photos, is the format `--library` reads: `user` and `partner` (`name`, `email`), `albums` (names), and `assets`, each with `file`, `name` (the original file name ImmichDrive shows), `created` (ISO UTC), and optional `favorite`, `albums` (names) and `owner` (`user`, the default, or `partner`). The fake ignores `source`. The contract check runs the fake in this mode too, against a small generated library.
+
+To change the set, edit `sample-library.json` (a new photo needs CC0 or public domain, no recognisable people, and its source fields), delete the photo's local copy, and fetch again; the fetch prints the SHA-256 it got when it differs.
+
 ## Contract with real Immich
 
 `contract_test.py` (`npm run check:fake-immich`, part of `validate`) holds one spec of what ImmichDrive reads from each endpoint: fields and their JSON types, response shapes, status codes and the month-key format. It checks the recorded responses of a real Immich release (`contract/immich-v3.4.1.json`) against the spec, then starts the fake in-process and checks it against the same spec, so the fake cannot drift from Immich silently. It needs no server or Docker.

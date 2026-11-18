@@ -3,21 +3,23 @@
 
 Serves only the endpoints ImmichDrive calls (docs/immich-api.md), in the shapes it parses, from
 synthetic images generated in memory at start: no personal data, no disk writes, standard library
-only. It is not Immich and proves nothing about compatibility with a real server; the contract test
+only. With --library, it serves a folder of sample photos instead (the Store screenshots use the
+public-domain set that fetch_sample_library.py downloads); the shapes are the same. It is not Immich and proves nothing about compatibility with a real server; the contract test
 against a recorded Immich release does that. See README.md.
 
 Usage:
     python3 fake_immich.py [--port 2283] [--key test-key] [--fail-thumbnail ASSET_ID ...] [--deny-area albums|partners ...]
+                           [--library DIR]
 
 Endpoints (all under /api, all but /server/ping need the x-api-key header):
-    GET  /users/me                       the test user (the connection probe)
+    GET  /users/me                       the user (the connection probe)
     GET  /server/ping                    {"res": "pong"}
     GET  /timeline/buckets               month buckets, newest first; filters userId, isFavorite, albumId
     GET  /timeline/bucket                one month, columnar (struct of arrays), no originalFileName
     GET  /assets/{id}                    name, type, created time and exifInfo.fileSizeInByte
-    GET  /assets/{id}/thumbnail          a small PNG; 500 for ids passed to --fail-thumbnail
+    GET  /assets/{id}/thumbnail          a small PNG, or a sample photo's JPEG; 500 for ids passed to --fail-thumbnail
     GET  /assets/{id}/original           the original bytes, with HTTP Range support
-    GET  /albums                         one album
+    GET  /albums                         the albums (one, or the sample library's)
     GET  /partners?direction=shared-with one partner, whose library is reached with userId
     POST /assets                         multipart upload; the asset joins the newest month
 """
@@ -26,6 +28,7 @@ from __future__ import annotations
 import argparse
 import json
 import os
+from pathlib import Path
 import re
 import struct
 import sys
@@ -39,6 +42,10 @@ from urllib.parse import parse_qs, urlparse
 USER_ID = "user-0001"
 PARTNER_ID = "partner-0001"
 ALBUM_ID = "album-0001"
+
+# Who the synthetic library belongs to. A sample library names its own people (also synthetic).
+TEST_USER = {"name": "Test User", "email": "test.user@example.invalid"}
+TEST_PARTNER = {"name": "Test Partner", "email": "test.partner@example.invalid"}
 
 
 # ---------------------------------------------------------------------------------------------------
@@ -72,14 +79,16 @@ def colour_for(index: int) -> tuple[int, int, int]:
 class Asset:
     """One asset: what the timeline, the asset endpoint, the thumbnail and the original serve."""
 
-    def __init__(self, asset_id: str, name: str, created: str, owner: str, favorite: bool, original: bytes, colour):
+    def __init__(self, asset_id: str, name: str, created: str, owner: str, favorite: bool, original: bytes, colour,
+                 thumbnail: tuple[bytes, str] | None = None):
+        """`thumbnail` is the image and its content type; without it, a small PNG in `colour`."""
         self.id = asset_id
         self.name = name
         self.created = created
         self.owner = owner
         self.favorite = favorite
         self.original = original
-        self.thumbnail = png(64, 48, colour=colour)
+        self.thumbnail, self.thumbnail_type = thumbnail or (png(64, 48, colour=colour), "image/png")
 
     @property
     def month(self) -> str:
@@ -111,13 +120,45 @@ def build_library() -> list[Asset]:
     return assets
 
 
+def load_sample_library(folder: Path) -> tuple[list[Asset], dict[str, tuple[str, set[str]]], dict, dict]:
+    """A sample library from `folder`/library.json and the photos beside it.
+
+    Returns the assets, the albums (id to name and asset ids), and the user and partner. The file
+    format is described in README.md ("Sample library"); every photo is read into memory at start,
+    and its JPEG is also its thumbnail (ImmichDrive asks for the "preview" size, which Immich serves as
+    a JPEG about this size). Fails at start, naming the file, when a listed photo is missing.
+    """
+    spec = json.loads((folder / "library.json").read_text(encoding="utf-8"))
+    owners = {"user": USER_ID, "partner": PARTNER_ID}
+    albums = {f"album-{i + 1:04d}": (name, set()) for i, name in enumerate(spec["albums"])}
+    album_by_name = {name: album_id for album_id, (name, _) in albums.items()}
+
+    assets: list[Asset] = []
+    for i, entry in enumerate(spec["assets"]):
+        path = folder / entry["file"]
+        if not path.is_file():
+            raise SystemExit(f"fake-immich: {path} is missing; run fetch_sample_library.py first")
+        data = path.read_bytes()
+        asset = Asset(f"asset-{i:04d}", entry["name"], entry["created"], owners[entry.get("owner", "user")],
+                      bool(entry.get("favorite")), data, colour_for(i), thumbnail=(data, "image/jpeg"))
+        assets.append(asset)
+        for name in entry.get("albums", []):
+            albums[album_by_name[name]][1].add(asset.id)
+    return assets, albums, spec["user"], spec["partner"]
+
+
 class Library:
     """The in-memory library, safe to read and extend from the server's threads."""
 
-    def __init__(self):
+    def __init__(self, folder: Path | None = None):
+        """The synthetic library, or with `folder` the sample library in it (load_sample_library)."""
         self._lock = threading.Lock()
-        self.assets = build_library()
-        self.album_ids = {a.id for a in self.assets[:5]}
+        if folder is None:
+            self.assets = build_library()
+            self.albums = {ALBUM_ID: ("Test Album", {a.id for a in self.assets[:5]})}
+            self.user, self.partner = TEST_USER, TEST_PARTNER
+        else:
+            self.assets, self.albums, self.user, self.partner = load_sample_library(folder)
         self.uploads = 0
 
     def select(self, query: dict[str, list[str]]) -> list[Asset]:
@@ -126,7 +167,11 @@ class Library:
         user = first(query, "userId") or USER_ID
         favourite = first(query, "isFavorite") == "true"
         with self._lock:
-            chosen = [a for a in self.assets if a.id in self.album_ids] if album == ALBUM_ID else [a for a in self.assets if a.owner == user]
+            if album is not None:
+                members = self.albums.get(album, ("", set()))[1]
+                chosen = [a for a in self.assets if a.id in members]
+            else:
+                chosen = [a for a in self.assets if a.owner == user]
         if favourite:
             chosen = [a for a in chosen if a.favorite]
         return chosen
@@ -197,7 +242,7 @@ class Handler(BaseHTTPRequestHandler):
             return self.send_json({"message": "Invalid API key"}, HTTPStatus.UNAUTHORIZED)
 
         if method == "GET" and path == "/users/me":
-            return self.send_json({"id": USER_ID, "name": "Test User", "email": "test.user@example.invalid"})
+            return self.send_json({"id": USER_ID, **self.library.user})
         if method == "GET" and path == "/timeline/buckets":
             return self.send_json(self.buckets(query))
         if method == "GET" and path == "/timeline/bucket":
@@ -206,9 +251,12 @@ class Handler(BaseHTTPRequestHandler):
             if path == f"/{area}" and area in self.denied_areas:
                 return self.send_json({"message": f"Missing required permission: {permission}"}, HTTPStatus.FORBIDDEN)
         if method == "GET" and path == "/albums":
-            return self.send_json([{"id": ALBUM_ID, "albumName": "Test Album", "assetCount": len(self.library.album_ids)}])
+            return self.send_json([
+                {"id": album_id, "albumName": name, "assetCount": len(members)}
+                for album_id, (name, members) in self.library.albums.items()
+            ])
         if method == "GET" and path == "/partners":
-            return self.send_json([{"id": PARTNER_ID, "name": "Test Partner", "email": "test.partner@example.invalid"}])
+            return self.send_json([{"id": PARTNER_ID, **self.library.partner}])
         if method == "POST" and path == "/assets":
             return self.upload()
 
@@ -220,7 +268,7 @@ class Handler(BaseHTTPRequestHandler):
             if match.group(2) == "/thumbnail":
                 if asset.id in self.failing_thumbnails:
                     return self.send_json({"message": "Thumbnail failed (fake)"}, HTTPStatus.INTERNAL_SERVER_ERROR)
-                return self.send_bytes(asset.thumbnail, "image/png")
+                return self.send_bytes(asset.thumbnail, asset.thumbnail_type)
             if match.group(2) == "/original":
                 return self.send_original(asset)
             return self.send_json({
@@ -329,9 +377,11 @@ def main() -> None:
     parser.add_argument("--fail-thumbnail", nargs="*", default=[], help="Asset ids whose thumbnail returns 500.")
     parser.add_argument("--deny-area", nargs="*", default=[], choices=["albums", "partners"],
                         help="Areas answered with 403, as for a key without that permission.")
+    parser.add_argument("--library", type=Path, default=None,
+                        help="Serve the sample library in this folder (library.json and its photos) instead of the synthetic one.")
     args = parser.parse_args()
 
-    Handler.library = Library()
+    Handler.library = Library(args.library)
     Handler.api_key = args.key
     Handler.failing_thumbnails = set(args.fail_thumbnail)
     Handler.denied_areas = set(args.deny_area)
