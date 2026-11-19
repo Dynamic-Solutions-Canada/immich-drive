@@ -13,7 +13,7 @@ indent_style = space
 indent_size = 4
 
 # Two-space languages.
-[*.{ts,tsx,js,mjs,cjs,json,jsonc,yml,yaml,css,scss,md}]
+[*.{ts,tsx,js,mjs,cjs,json,jsonc,yml,yaml,css,scss,html,md}]
 indent_size = 2
 
 # MSBuild and packaging XML keep the two-space indentation Visual Studio writes and the family already uses.
