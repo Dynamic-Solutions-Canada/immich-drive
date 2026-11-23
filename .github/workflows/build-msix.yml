@@ -43,6 +43,12 @@ jobs:
         with:
           global-json-file: global.json
 
+      # check:icons runs devkit, which needs Node 22.12 or later, below 25 (the kit's Store workflow uses 24).
+      - name: Setup Node
+        uses: actions/setup-node@v7
+        with:
+          node-version: '24'
+
       - name: Validate
         run: npm run validate
 
@@ -85,11 +91,6 @@ jobs:
           $ver = $props.Project.PropertyGroup[0].Version
           echo "VERSION=$ver" >> $env:GITHUB_OUTPUT
           Write-Host "Detected version: $ver"
-
-      # -- Generate MSIX visual assets -----------------------------
-      - name: Generate images
-        shell: pwsh
-        run: ./ImmichDriveMSIX/generate-msix-images.ps1
 
       # -- Build the MSIX package ----------------------------------
       # This build produces no downloadable output on purpose, and it is still the point of the

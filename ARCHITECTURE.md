@@ -201,8 +201,7 @@ watchdog runs the full connect instead. `DriveManager.RetryConnectionAsync` is t
 demand, wired to "Try again" in the flyout, the home page, and the tray menu.
 
 **How it's surfaced: passively.** The tray icon swaps to `Resources\ImmichDrive-Offline.ico`
-(greyscale mark + amber pip, generated alongside the normal icon by
-`ImmichDriveMSIX/generate-msix-images.ps1`) and the tooltip says why. The flyout shows a coloured
+(greyscale mark + amber pip; a committed file with no generator since the app icon moved to devkit, see [docs/packaging.md](docs/packaging.md)) and the tooltip says why. The flyout shows a coloured
 status dot, a plain-language line, and how stale the listing is. **No balloon or toast, no
 sound, no dialog**: a server that is down for a day must not nag once an hour.
 
