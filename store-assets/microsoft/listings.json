@@ -29,12 +29,15 @@
         "immich virtual drive"
       ],
       "screenshotCaptions": [
+        "Thumbnails, and files that download when you open them. Requires your own Immich server.",
         "Drive status and folder at a glance",
         "Connect with your server URL and your own API key",
         "Thumbnails in Explorer without downloading full photos or videos",
         "Tray icon and flyout",
         "Browse by date, album, favorites, or partner shares, and add files through Upload"
-      ]
+      ],
+      "heroHeadline": "Your Immich photos, right in File Explorer.",
+      "heroSubline": "Thumbnails, and files that download when you open them. Requires your own Immich server."
     },
     "en-CA": {
       "copyFrom": "en-US"
@@ -67,12 +70,15 @@
         "unidad virtual immich"
       ],
       "screenshotCaptions": [
+        "Miniaturas y archivos que se descargan cuando los abres. Necesitas tu propio servidor de Immich.",
         "El estado y la carpeta de la unidad de un vistazo",
         "Conéctate con la URL del servidor y tu propia clave de API",
         "Miniaturas en el Explorador sin descargar fotos ni vídeos completos",
         "Icono de la bandeja y panel flotante",
         "Explora por fecha, álbum, favoritos o elementos compartidos, y añade archivos con Upload"
-      ]
+      ],
+      "heroHeadline": "Tus fotos de Immich, en el Explorador de archivos.",
+      "heroSubline": "Miniaturas y archivos que se descargan cuando los abres. Necesitas tu propio servidor de Immich."
     },
     "fr-FR": {
       "title": "ImmichDrive",
@@ -102,12 +108,15 @@
         "lecteur virtuel immich"
       ],
       "screenshotCaptions": [
+        "Des miniatures, et des fichiers téléchargés à l’ouverture. Nécessite votre propre serveur Immich.",
         "L’état et le dossier du lecteur en un coup d’œil",
         "Connectez-vous avec l’URL du serveur et votre propre clé d’API",
         "Miniatures dans l’Explorateur sans télécharger les photos ou vidéos complètes",
         "Icône de la zone de notification et panneau",
         "Parcourez par date, album, favoris ou partages, et ajoutez des fichiers avec Upload"
-      ]
+      ],
+      "heroHeadline": "Vos photos Immich, directement dans l’Explorateur de fichiers.",
+      "heroSubline": "Des miniatures, et des fichiers téléchargés à l’ouverture. Nécessite votre propre serveur Immich."
     },
     "fr-CA": {
       "copyFrom": "fr-FR"
@@ -140,12 +149,15 @@
         "immich virtuelles laufwerk"
       ],
       "screenshotCaptions": [
+        "Miniaturansichten und Dateien, die beim Öffnen heruntergeladen werden. Erfordert einen eigenen Immich-Server.",
         "Laufwerksstatus und -ordner auf einen Blick",
         "Mit Ihrer Server-URL und Ihrem eigenen API-Schlüssel verbinden",
         "Miniaturansichten im Explorer, ohne ganze Fotos oder Videos herunterzuladen",
         "Taskleistensymbol und Flyout",
         "Nach Datum, Album, Favoriten oder Partnerfreigaben durchsuchen und Dateien über Upload hinzufügen"
-      ]
+      ],
+      "heroHeadline": "Deine Immich-Fotos, direkt im Datei-Explorer.",
+      "heroSubline": "Miniaturansichten und Dateien, die beim Öffnen heruntergeladen werden. Erfordert einen eigenen Immich-Server."
     },
     "zh-CN": {
       "title": "ImmichDrive",
@@ -175,12 +187,15 @@
         "immich 虚拟驱动器"
       ],
       "screenshotCaptions": [
+        "带缩略图，文件在打开时才下载。需要你自己的 Immich 服务器。",
         "一目了然地查看驱动器状态和文件夹",
         "使用你的服务器 URL 和你自己的 API 密钥连接",
         "在资源管理器中查看缩略图，无需下载完整照片或视频",
         "托盘图标和弹出面板",
         "按日期、相册、收藏或伙伴共享浏览，并通过 Upload 添加文件"
-      ]
+      ],
+      "heroHeadline": "你的 Immich 照片，就在文件资源管理器中。",
+      "heroSubline": "带缩略图，文件在打开时才下载。需要你自己的 Immich 服务器。"
     },
     "pt-BR": {
       "title": "ImmichDrive",
@@ -210,12 +225,15 @@
         "unidade virtual immich"
       ],
       "screenshotCaptions": [
+        "Miniaturas e arquivos baixados quando você os abre. Requer seu próprio servidor Immich.",
         "O status e a pasta da unidade em um relance",
         "Conecte-se com a URL do servidor e sua própria chave de API",
         "Miniaturas no Explorador sem baixar fotos ou vídeos completos",
         "Ícone da bandeja e painel",
         "Navegue por data, álbum, favoritos ou compartilhamentos de parceiros, e adicione arquivos pela pasta Upload"
-      ]
+      ],
+      "heroHeadline": "Suas fotos do Immich, direto no Explorador de Arquivos.",
+      "heroSubline": "Miniaturas e arquivos baixados quando você os abre. Requer seu próprio servidor Immich."
     },
     "ja-JP": {
       "title": "ImmichDrive",
@@ -245,12 +263,15 @@
         "immich 仮想ドライブ"
       ],
       "screenshotCaptions": [
+        "サムネイル付きで、ファイルは開いたときにダウンロード。ご自身の Immich サーバーが必要です。",
         "ドライブの状態とフォルダーをひと目で確認",
         "サーバー URL と自分の API キーで接続",
         "写真や動画全体をダウンロードせずにエクスプローラーでサムネイルを表示",
         "通知領域のアイコンとフライアウト",
         "日付、アルバム、お気に入り、パートナーの共有で閲覧し、Upload からファイルを追加"
-      ]
+      ],
+      "heroHeadline": "Immich の写真を、\nエクスプローラーで。",
+      "heroSubline": "サムネイル付きで、ファイルは開いたときにダウンロード。ご自身の Immich サーバーが必要です。"
     }
   }
 }
