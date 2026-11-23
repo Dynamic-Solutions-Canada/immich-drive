@@ -2,7 +2,7 @@
 
 `listings.json` is the source of every field a user can read on the ImmichDrive Store listing (LIST-1): title, short and full description, features, keywords and screenshot captions, in the shared `schemaVersion: 1` / `locales` shape. Partner Center is an output; change the wording here first. Field names are semantic, not Partner Center import IDs. Release notes are not in this file: they come from `release-notes/<version>.md` (REL-6).
 
-The file holds all nine identities (LIST-3, LIST-7, LOC-11): full records for `en-US` and the six other wording catalogs, and `en-CA` and `fr-CA` as `{"copyFrom": ...}` of `en-US` and `fr-FR`. The six translations were drafted on 2026-11-17 from the `en-US` text, using the interface catalogs' terms (see [docs/localization.md](../../docs/localization.md)); they are AI-drafted and not yet reviewed by a native speaker (LOC-12). The first two screenshot captions were rewritten on 2026-11-18 and translated the same way, also unreviewed. `check:listing` holds the full records to the app's wording catalogs.
+The file holds all nine identities (LIST-3, LIST-7, LOC-11): full records for `en-US` and the six other wording catalogs, and `en-CA` and `fr-CA` as `{"copyFrom": ...}` of `en-US` and `fr-FR`. The six translations were drafted on 2026-11-17 from the `en-US` text, using the interface catalogs' terms (see [docs/localization.md](../../docs/localization.md)); they are AI-drafted and not yet reviewed by a native speaker (LOC-12). The first two screenshot captions were rewritten on 2026-11-18 and translated the same way, also unreviewed. The hero's `heroHeadline` and `heroSubline` (2026-11-23) translate the maintainer's approved English the same way. `check:listing` holds the full records to the app's wording catalogs.
 
 `npm run check:listing` (winui-app-kit's shared listing check, configured by the `listing` block in `windows-build.json`) validates the file and the current version's release notes, and `npm run validate` runs it.
 
@@ -27,7 +27,7 @@ A listing-only Store submission made on 2026-11-16 (submission 11529215057024224
 | `fullDescription` | 4,000 characters | 1,365 |
 | `features` | Up to 20, each up to 200 characters | 12, longest 77 |
 | `keywords` | Up to 7, each up to 40 characters, 21 words combined | 7, longest 21 characters, 21 words (at the limit) |
-| `screenshotCaptions` | One per screenshot, each up to 200 characters | 5, longest 81 |
+| `screenshotCaptions` | One per screenshot, each up to 200 characters | 6, longest 88 |
 | Release notes ("What's new") | 1,500 characters | From `release-notes/` |
 
 ## Claims to keep true
@@ -54,5 +54,5 @@ A listing-only Store submission made on 2026-11-16 (submission 11529215057024224
 
 ## Open questions before the next submission
 
-- **Screenshots:** the five Store screenshots were recaptured on 2026-11-18 with synthetic data ([store-assets/README.md](../README.md)); nothing uploads them automatically, so they go into Partner Center with the next submission, listing-only or with a package, together with their captions (step 4 there). The README set in `store-assets/web/screenshots/` was recaptured in the same session (LIST-8).
-- **Publishing:** nothing yet pushes this file to Partner Center. The corrected text goes in by hand, or with a listing-sync step added to `store-publish.yml` later (LIST-6).
+- **Screenshots:** the first is a generated hero in each locale (D-123): the headline and subline from `heroHeadline` and `heroSubline` on the brand card; its caption is the subline, and it claims only what the listing says (photos in File Explorer, thumbnails, download on open, your own server). The other five were recaptured on 2026-11-18 with synthetic data ([store-assets/README.md](../README.md)). The Store workflow uploads all six with their captions in every locale (step 4 there). The README set in `store-assets/web/screenshots/` was recaptured in the same session (LIST-8).
+- **Publishing:** the Store workflow pushes only the screenshot captions from this file, with the screenshots. The rest of the text goes in by hand, or with a listing-sync step added to `store-publish.yml` later (LIST-6).

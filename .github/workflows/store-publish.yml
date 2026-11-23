@@ -81,4 +81,7 @@ jobs:
       failed_upload: ${{ inputs.failed_upload || '' }}
       hold_publication: ${{ github.event_name == 'workflow_dispatch' && inputs.hold_publication }}
       inspect_draft: ${{ inputs.inspect_draft || '' }}
+      # Every listing's screenshots come from store-assets: the hero for that locale first, then the
+      # captured screenshots with that locale's captions (D-123). Logos are kept.
+      screenshots: true
     secrets: inherit
