@@ -55,4 +55,4 @@ A listing-only Store submission made on 2026-11-16 (submission 11529215057024224
 ## Open questions before the next submission
 
 - **Screenshots:** the first is a generated hero in each locale (D-123): the headline and subline from `heroHeadline` and `heroSubline` on the brand card; its caption is the subline, and it claims only what the listing says (photos in File Explorer, thumbnails, download on open, your own server). The other five were recaptured on 2026-11-18 with synthetic data ([store-assets/README.md](../README.md)). The Store workflow uploads all six with their captions in every locale (step 4 there). The README set in `store-assets/web/screenshots/` was recaptured in the same session (LIST-8).
-- **Publishing:** nothing yet pushes this file to Partner Center. The corrected text goes in by hand, or with a listing-sync step added to `store-publish.yml` later (LIST-6).
+- **Publishing:** the Store workflow pushes only the screenshot captions from this file, with the screenshots. The rest of the text goes in by hand, or with a listing-sync step added to `store-publish.yml` later (LIST-6).
