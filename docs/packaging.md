@@ -33,16 +33,8 @@ declaratively (no manual HKCR writes).
   (`-TrustedPfxPath`/`-TrustedPfxPassword`, which the shared bridge supplies); it never generates a
   certificate. `-NoSign` for Store uploads or an unsigned check. The README's "Packaging" section in
   the kit lists every `windows-build.json` key.
-- `generate-msix-images.ps1`: renders **one** master icon (the "Photo Panes" mark: a dark
-  slate rounded tile with a 2x2 grid of three tiny photo scenes plus a white cloud pane; an
-  original design, deliberately NOT Immich's iris logo, which got the app rejected under
-  Store policy 10.1.1.11) and downscales it (4x supersampling per size) into every Store
-  tile/logo/splash PNG under `Images\`, **plus** the multi-size app `.ico`
-  (`ImmichDrive/Resources/ImmichDrive.ico`), its muted tray variant
-  (`ImmichDrive-Offline.ico`, the same mark run through a luminance `ColorMatrix` with an amber
-  pip, shown while the server is unreachable), and a 256px in-app PNG
-  (`ImmichDrive/Resources/ImmichDrive.png`). The same detailed art is used at every size
-  (no simplified small-size variants, by the maintainer's explicit choice). **ASCII only.**
+- App icon and MSIX images: the "Photo Panes" mark (a dark slate rounded tile with a 2x2 grid of three tiny photo scenes plus a white cloud pane; an original design, deliberately NOT Immich's iris logo, which got the app rejected under Store policy 10.1.1.11) is drawn once as the SVG masters `assets/brand/icon.svg` and `icon-mono.svg` (the light-taskbar form). `npm run icons` (devkit, configured by `assets/brand/icons.json`) sizes them into every Store logo and splash PNG under `Images\`, the taskbar target sizes in their plain, unplated and light-unplated forms, the multi-size app `.ico` (`ImmichDrive/Resources/ImmichDrive.ico`), the 256 px in-app PNG beside it, and `assets/generated/` (the README, website and promo icon). The output is committed and never edited by hand; `check:icons` in `validate` fails when it no longer matches the masters. The same detailed art is used at every size (no simplified small-size variants, by the maintainer's explicit choice).
+- `ImmichDrive/Resources/ImmichDrive-Offline.ico`, the muted tray icon shown while the server is unreachable (the same mark through a luminance filter with an amber pip), has no generator: devkit writes only the app icon, so it is the committed file from the retired `generate-msix-images.ps1`. Redrawing it needs either devkit support for tray state icons or drawing it in code.
 
 ## Identity stamping (dev vs Store)
 

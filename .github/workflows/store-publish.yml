@@ -65,11 +65,10 @@ jobs:
       # US $0.99 base price. The published submission reports Base, but the Store CLI needs Tier1012
       # for this product; regional prices can change when the tier is applied.
       price_tier: 'Tier1012'
-      # The Cloud Files struct layout check (x64 runner), then the MSIX images and app icons. The kit
-      # stops on any failed command, native ones included.
+      # The Cloud Files struct layout check (x64 runner). The MSIX images and app icons are committed
+      # (npm run icons output). The kit stops on any failed command, native ones included.
       pre_build: >-
-        dotnet run --project tests/ImmichDrive.CloudFilterLayout.Tests/ImmichDrive.CloudFilterLayout.Tests.csproj -c Release;
-        & ./ImmichDriveMSIX/generate-msix-images.ps1
+        dotnet run --project tests/ImmichDrive.CloudFilterLayout.Tests/ImmichDrive.CloudFilterLayout.Tests.csproj -c Release
       # The gate run first, on Linux; this is the default.
       gate_command: 'npm run validate'
       # A tag run is always a draft (REL-7); these only matter for manual runs.

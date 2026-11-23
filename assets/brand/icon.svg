@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 96 96" width="256" height="256">
+  <rect x="0" y="0" width="96" height="96" rx="22" fill="#1E293B"/>
+  <defs>
+    <clipPath id="pane-day"><rect x="20" y="20" width="26" height="26" rx="6"/></clipPath>
+    <clipPath id="pane-sunset"><rect x="50" y="20" width="26" height="26" rx="6"/></clipPath>
+    <clipPath id="pane-hills"><rect x="20" y="50" width="26" height="26" rx="6"/></clipPath>
+  </defs>
+  <g clip-path="url(#pane-day)">
+    <rect x="20" y="20" width="26" height="26" fill="#7DD3FC"/>
+    <circle cx="40" cy="27" r="3" fill="#FDE047"/>
+    <path d="M20 46L30 32L36 39L40 35L46 46Z" fill="#0369A1"/>
+  </g>
+  <g clip-path="url(#pane-sunset)">
+    <rect x="50" y="20" width="26" height="26" fill="#FDBA74"/>
+    <circle cx="68" cy="28" r="3.5" fill="#F59E0B"/>
+    <path d="M50 46L60 33L66 40L70 36L76 46Z" fill="#9A3412"/>
+  </g>
+  <g clip-path="url(#pane-hills)">
+    <rect x="20" y="50" width="26" height="26" fill="#A7F3D0"/>
+    <path d="M20 76L28 62L34 69L38 64L46 76Z" fill="#047857"/>
+  </g>
+  <circle cx="57" cy="64.5" r="6" fill="#FFFFFF"/>
+  <circle cx="65" cy="62" r="7.5" fill="#FFFFFF"/>
+  <rect x="50" y="64" width="26" height="9" rx="4.5" fill="#FFFFFF"/>
+</svg>

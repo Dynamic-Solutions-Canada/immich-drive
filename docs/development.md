@@ -37,9 +37,8 @@ npm run package:desktop     # Store build (unsigned; the Store re-signs)
 - **Identity:** sideload (signed) builds swap in a local dev identity so they form a stable package
   family that updates your install in place; `-NoSign` (Store) builds keep the real Partner Center
   identity declared in `ImmichDriveMSIX/Package.appxmanifest`.
-- `generate-msix-images.ps1` renders one master icon and downscales it into every Store logo/tile,
-  the app `.ico`, its muted `ImmichDrive-Offline.ico` tray variant, and the in-app PNG. PowerShell
-  build scripts must be **ASCII only** (Windows PowerShell 5.1 reads BOM-less `.ps1` as ANSI).
+- The app icon and MSIX images come from the SVG masters in `assets/brand/` (`icon.svg`, and `icon-mono.svg` for the light taskbar), sized by devkit through `npm run icons`, which writes `ImmichDriveMSIX/Images/`, `ImmichDrive/Resources/ImmichDrive.ico` and `.png`, and `assets/generated/` (the README, website and promo icon). The output is committed; never edit it by hand. `npm run check:icons`, part of `validate`, fails when it no longer matches the masters; it needs Node 22.12 or later, below 25. The offline tray icon is not generated; see [packaging.md](packaging.md).
+- PowerShell build scripts must be **ASCII only** (Windows PowerShell 5.1 reads BOM-less `.ps1` as ANSI).
 
 ## Releases and distribution
 

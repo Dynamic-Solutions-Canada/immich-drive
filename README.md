@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="ImmichDrive/Resources/ImmichDrive.png" alt="ImmichDrive" width="128">
+  <img src="assets/generated/icon-256.png" alt="ImmichDrive" width="128">
 </p>
 
 <h1 align="center">ImmichDrive</h1>

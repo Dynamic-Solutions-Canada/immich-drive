@@ -15,6 +15,9 @@
     },
     "package-desktop": {
       "command": "npm run package:desktop"
+    },
+    "icons": {
+      "command": "npm run icons"
     }
   }
 }

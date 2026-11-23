@@ -1,0 +1,9 @@
+{
+  "targets": {
+    "windows": {
+      "images": "ImmichDriveMSIX/Images",
+      "ico": "ImmichDrive/Resources/ImmichDrive.ico",
+      "tiles": false
+    }
+  }
+}

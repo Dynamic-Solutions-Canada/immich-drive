@@ -35,6 +35,12 @@ jobs:
         with:
           global-json-file: global.json
 
+      # check:icons runs devkit, which needs Node 22.12 or later, below 25 (the kit's Store workflow uses 24).
+      - name: Setup Node
+        uses: actions/setup-node@v7
+        with:
+          node-version: '24'
+
       # Portable harnesses and the Store workflow script tests; ubuntu-latest ships pwsh.
       - name: Validate
         run: npm run validate
