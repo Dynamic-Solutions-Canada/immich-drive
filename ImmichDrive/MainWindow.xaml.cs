@@ -94,7 +94,8 @@ public sealed partial class MainWindow : Window
         // A language change relabels the tooltip now; the menu is built when it opens, so it follows.
         UiText.Changed += OnLanguageChanged;
 
-        // Teardown runs on Exit, in this order (kit HostWindow).
+        // Teardown runs on Exit, and when Windows signs out, shuts down or closes the app for an update, in this
+        // order (kit HostWindow).
         _host.AddExitStep("stop tray updates", () =>
         {
             DriveManager.Current.StatusChanged -= OnDriveStatusChanged;
