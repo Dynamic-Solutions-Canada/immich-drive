@@ -8,7 +8,8 @@
         "layout": "split",
         "icon": "assets/generated/icon-256.png",
         "primary": "#EAB308",
-        "accent": "#FDE047"
+        "accent": "#FDE047",
+        "textFreeFile": "text-free/00-hero-dark.png"
       },
       "caption": "Thumbnails, and files that download when you open them. Requires your own Immich server.",
       "alt": "ImmichDrive's name and the headline \"Your Immich photos, right in File Explorer.\" on a gold panel, beside File Explorer, enlarged, showing the drive's 2026-08 August folder: landscape and seaside photos with real thumbnails, each marked as an online-only file."
