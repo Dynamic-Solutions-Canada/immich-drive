@@ -17,7 +17,7 @@
       "file": "screenshots/01-home-dark.png",
       "source": "raw/microsoft/00-home-dark.png",
       "theme": "dark",
-      "caption": "Drive status and folder at a glance",
+      "caption": "See your drive's status and open its folder",
       "alt": "ImmichDrive's Home page in the dark theme: Online, connected as Alex Rivera, the drive folder C:\\ImmichDrive with the time it was last updated, and Open drive folder and Refresh buttons."
     },
     {
@@ -39,7 +39,7 @@
       "source": "raw/microsoft/03-flyout-dark.png",
       "theme": "dark",
       "crop": "tray",
-      "caption": "Tray icon and flyout",
+      "caption": "Sync status from the system tray",
       "alt": "ImmichDrive's tray flyout above the notification area in the dark theme: Up to date, with Refresh and Settings buttons and Open folder and Open Immich actions, above the ImmichDrive tray icon."
     },
     {

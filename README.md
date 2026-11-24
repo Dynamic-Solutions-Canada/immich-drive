@@ -35,20 +35,18 @@ Take a photo on your phone, let it sync to Immich, and then pick it straight fro
 - **Real thumbnails without downloading:** see your photos in Explorer before you open them, with nothing stored on disk.
 - **Upload folder:** drop files into `Upload` and ImmichDrive sends them to your Immich library.
 - **Lives in the tray:** one tray icon shows whether the drive is online or syncing, and opens settings or refreshes the drive.
-- **Quiet when your server isn't there:** if Immich can't be reached, the tray icon turns grey with an amber dot and the flyout says so. ImmichDrive keeps retrying on its own and reconnects when the server comes back, or you can select **Try again**. No pop-ups, no sounds.
+- **Reconnects on its own:** if your server is unreachable, the tray icon shows it and ImmichDrive reconnects when the server is back. No pop-ups, no sounds.
 
 ## Get it
 
-Install ImmichDrive from the [Microsoft Store](https://apps.microsoft.com/detail/9MWC6165N7DH), where it is currently listed as **Drive for Immich**.
+Get ImmichDrive from the [Microsoft Store](https://apps.microsoft.com/detail/9MWC6165N7DH). It installs and stays up to date automatically. US$0.99, with a free trial.
 
 ImmichDrive collects no telemetry or crash reports.
 
 ### Requirements
 
-- **Windows 10 22H2 with updates from October 2024 or later** (build 19045.5011 or newer) or **Windows 11**, on x64 or ARM64. Older Windows 10 builds can't run apps built on .NET 10, so Windows refuses the install there; install Windows updates first.
-- **An Immich server** you can reach (any reasonably recent version), and an **API key** from it.
-
-Windows 10 22H2 reached [Microsoft's end of standard support](https://learn.microsoft.com/en-us/windows/release-health/release-information) on October 14, 2025. ImmichDrive running there does not extend Microsoft's support; see the [developer notes](docs/development.md#compatibility-verification) for runtime and edition limits.
+- **Windows 11**, or **Windows 10 22H2** with updates from October 2024 or later, on x64 or ARM64. If Windows 10 will not install it, run Windows Update first.
+- **An Immich server** you can reach, and an **API key** from it.
 
 ### Setup
 
@@ -62,52 +60,21 @@ That's it: browse by date and open or attach any photo.
 
 #### API key permissions
 
-You do **not** need **All permissions**. To browse your photos with thumbnails and open or attach originals, select these four:
-
-| Permission | What it enables |
-| --- | --- |
-| `user.read` | Test connection, connecting the drive, and reconnecting after the server comes back. |
-| `asset.read` | List your photos and favorites, and read file names and sizes. |
-| `asset.view` | Display thumbnails in Explorer without downloading originals. |
-| `asset.download` | Open or attach original photos and videos. |
-
-Add these for the features you use:
-
-| Permission | What it enables |
-| --- | --- |
-| `album.read` | Mirror your Albums folders. |
-| `partner.read` | Mirror libraries shared with you in Partners folders. |
-| `asset.upload` | Upload files dropped into the Upload folder. |
-
-Select all **seven** to use every feature. Delete, update, API key management and admin permissions are not needed. Without `asset.upload`, dropped files stay in Upload because the server rejects them.
-
-**If Test connection rejects your key:** check that it includes `user.read`. A key with only asset and album permissions cannot pass the connection check. A successful test checks the URL and `user.read`, not the permissions for thumbnails, downloads or other features.
-
-These permissions match [Immich's endpoint declarations](https://github.com/immich-app/immich/tree/main/server/src/controllers).
+The key does **not** need *All permissions*. The Connection page lists the ones ImmichDrive uses, and [the permissions guide](docs/api-key-permissions.md) explains what each one enables. If **Test connection** rejects your key, check that it includes `user.read`.
 
 ### Uninstall
 
-Uninstall ImmichDrive like any app. Windows removes the photos you never opened, and what's left of the `ImmichDrive` folder (its folders, and any photo you opened or kept on the device) can be deleted normally.
-
-If you uninstalled ImmichDrive 0.1.50 or earlier without disconnecting first, the drive folder may stay behind: its photos can't be opened ("The cloud file provider is not running") and Windows refuses to delete it ("Access is denied"). To remove it, open a Command Prompt (no administrator rights needed) and run:
-
-```
-icacls "%USERPROFILE%\ImmichDrive" /reset /t /c /q
-attrib -r "%USERPROFILE%\ImmichDrive\*" /s /d
-rmdir /s /q "%USERPROFILE%\ImmichDrive"
-```
-
-Use your own folder's path instead if you chose a different drive folder. Nothing is deleted from your Immich server either way.
+Uninstall ImmichDrive like any app. Nothing is deleted from your Immich server. The `ImmichDrive` folder that is left holds only photos you opened or kept on this PC, and can be deleted normally. Removing a folder left by version 0.1.50 or earlier takes one extra step; see [the uninstall guide](docs/uninstall.md).
 
 ## How it works
 
-ImmichDrive uses the same Windows mechanism as OneDrive and Dropbox, the **Cloud Files API**, to create *placeholder* files. They look and behave like normal files in Explorer, with correct names, dates and **thumbnails**, but take up **0 bytes** until you open one. Opening a file streams the original from your Immich server in the background; freeing up space turns it back into a placeholder.
+ImmichDrive uses the same Windows feature as OneDrive and Dropbox. Your photos appear as normal files in Explorer, with the right names, dates and thumbnails, and take no disk space until you open one. Opening a file downloads the original from your Immich server; **Free up space** turns it back into an online-only file.
 
 Your API key is stored encrypted for your Windows account, never in plain text.
 
 ## Languages
 
-ImmichDrive is available in English (United States and Canada), Spanish, French (France and Canada), German, Simplified Chinese, Brazilian Portuguese and Japanese. It follows Windows' language unless you pick one in Settings. The folders it creates in File Explorer (Albums, Favorites, Partners, Upload and the month folders) keep their English names in every language.
+Available in English, Spanish, French, German, Simplified Chinese, Brazilian Portuguese and Japanese. ImmichDrive follows Windows' language unless you pick one in Settings. The folders it creates in File Explorer (Albums, Favorites, Partners, Upload and the month folders) keep their English names in every language. Translations are machine-generated.
 
 ## Developers
 
@@ -117,4 +84,4 @@ ImmichDrive is available in English (United States and Canada), Spanish, French 
 
 ## License
 
-Licensed under the [PolyForm Noncommercial License 1.0.0](LICENSE): free for any **personal and other noncommercial use**, including modifying and redistributing it. **Commercial use is not permitted.** Copyright © 2026 Dynamic Solutions.
+Copyright (c) 2026 Dynamic Solutions. Licensed under the [PolyForm Noncommercial License 1.0.0](LICENSE), free for personal and other noncommercial use.

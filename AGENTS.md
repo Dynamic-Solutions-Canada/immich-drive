@@ -93,7 +93,7 @@ Releases are tag-driven: a `v*` tag makes `build-msix.yml` create a notes-only G
 | What changed | Update |
 | --- | --- |
 | A setting added, renamed or removed | `.agents/guides/user-settings.md` |
-| An Immich endpoint, parameter or permission | `docs/immich-api.md`, and the permission list on the Connection page and in `README.md` |
+| An Immich endpoint, parameter or permission | `docs/immich-api.md`, and the permission list on the Connection page and in `docs/api-key-permissions.md` |
 | Placeholder layout, naming or populate behaviour | `docs/cloud-files.md`, `ARCHITECTURE.md` |
 | A file linked into the thumbnail provider | `docs/thumbnails.md`, the Architecture section above |
 | Where the app writes data, or the credential store | `ARCHITECTURE.md` |
