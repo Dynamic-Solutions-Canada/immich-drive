@@ -144,6 +144,39 @@ Windows 10 22H2 status: a user reported the Store release 0.1.50 working on Wind
 
 Complete these checks before tagging a release. v0.1.49 and v0.1.50 shipped with them still pending, by an explicit one-time exception that does not establish runtime compatibility and does not extend to later releases. Windows CI passed the layout check and built x64 and ARM64 packages for [v0.1.49](https://github.com/Dynamic-Solutions-Canada/immich-drive/actions/runs/41942150001). A `v*` tag starts Store submission independently of the GitHub packaging workflow. Both workflows run the layout check before building, but neither supplies Windows 10 runtime evidence. For a compile/package check without publication, manually dispatch `build-msix.yml` on a pushed branch.
 
+### 0.2.0 release candidate (checked 2026-11-23)
+
+Run on Nov 23, 2026, from 6:45 p.m. to 7:55 p.m. Toronto time, in the windows-build-tools test VMs: `windows-dev` (Windows 11) and `windows10-test` (Windows 10 22H2, build 19045.6456, the last public update). The package was a dev-signed x64 build of `main` at f2968b8 with the version set to 0.2.0 (0.2.0.1). It was installed over a dev-signed build of the v0.1.50 tag that had been connected to the fake Immich server ([tests/fake-immich](../tests/fake-immich/README.md)), so every check ran on an upgraded drive. Screenshots are kept with the maintainer's review files. The same results held on both systems unless a row says otherwise.
+
+| Check | Result |
+| --- | --- |
+| Upgrade from 0.1.50 with a connected drive | Pass. The API key moved to the protected store, settings moved to schema 1, the drive stayed connected and Online, the old delete-blocking ACE was replaced by one that denies only creating files and writing extended attributes, and `C:\ProgramData\ImmichDrive\thumb.log` was deleted at first launch |
+| Settings window: Home, Connection, Our other apps, About, Settings, in light, dark and high contrast, and a narrow Our other apps | Pass; nothing clipped or unreadable (Windows 10 draws square corners, as the kit documents) |
+| German and Japanese on every page | Pass; nothing clipped or overlapping. A text box's context menu stays English (Windows is English in both VMs), as WinUI's own text follows the Windows language |
+| Connection: the `http://` warning | Pass. Shown for a network `http://` address, with a name for screen readers; not shown for `https://`, `http://localhost` or `http://127.0.0.1`; the `http://` address still connects |
+| Reset settings | Pass. Cancel changes nothing; Reset returns the theme and language to defaults, keeps the drive connected and Online, and leaves a `settings.json.<time>.reset` file |
+| Unreadable settings file | Pass. The next launch opens Settings with "Settings were reset" and keeps the file as `settings.json.bad`. The drive then shows Not connected until Connect is pressed again (the API key is kept) |
+| Sync root, placeholders and thumbnails | Pass. Month, Albums, Favorites, Partners and Upload folders populate; Explorer shows thumbnails at large icons without hydrating any file |
+| Opening files: a 12 MB file in several fetches, a read cancelled mid-download then reopened, three concurrent opens | Pass. All reads return the full file with the same hash. On Windows 10 the cancelled read left the file unhydrated; on Windows 11 it had already finished |
+| Free up space and Always keep on this device | Pass. Free up space dehydrates; pinning hydrates (seen within 8 seconds on Windows 10; on Windows 11 the pin was set but hydration was not yet seen when checked) |
+| Changes outside Upload while running | Pass. A new file, a delete and a rename are each refused |
+| Upload | Pass. A file copied into Upload leaves the folder and appears in the newest month |
+| Thumbnail failure log | Pass. A failed thumbnail writes one line to `thumbnail-provider.log` naming the asset id and no file path |
+| Server offline, then back | Pass. Home shows "Can't reach Immich" with Try again (on Windows 11 the first refresh showed "Some photos could not be synced"); Online again once the server answers |
+| API key rejected (401), then accepted | Pass. "Immich rejected the API key" with Try again, one log line, sync paused; Online again after Try again |
+| Tray flyout | Pass on both; the Windows 10 icon starts among the hidden icons |
+| Tray menu | Pass on Windows 11 (Up to date, Open drive folder, Refresh, Disconnect, Settings, Open logs folder, Exit). Not checked on Windows 10: the test script could not reach the icon in the overflow by its position |
+| Uninstall | Pass. Removing the package leaves a drive folder that can be deleted |
+
+Not run, so still open:
+
+- Sign-in launch (Start with Windows was on, but no guest was signed out and in again).
+- Multi-monitor and DPI behaviour, and top or side taskbars: the VMs have one 100% display and a bottom taskbar.
+- Video seeking: the fake server has no videos.
+- ARM64: the VMs are x64. CI builds the ARM64 package and runs the layout check, which does not run the app.
+- Screen reader output, which needs Narrator by hand. Buttons were checked to expose names through UI Automation.
+- Install of the Store-signed package itself: the dev-signed package has the same identity and content.
+
 **Windows 10 needs the October 2024 update or later.** .NET 9 and later turn on CET shadow stacks by default ([Microsoft: CET support](https://learn.microsoft.com/en-us/dotnet/core/compatibility/interop/9.0/cet-support)). On a Windows 10 build without Windows' CET fixes, the runtime stops at startup: the Event Log shows ".NET Runtime ... internal error ... exit code 0x80131506" in KERNELBASE, and a console app prints "Your Windows doesn't fully support CET. Please install all available Windows updates." This was reproduced on 2026-11-17 with build 19045.2965, for the current app, for the v0.1.50 release and for a plain .NET 10 console app. A .NET maintainer reads the same fatal error as CET support and points at "1904x.5007" as the lowest fixed version ([dotnet/runtime#121922](https://github.com/dotnet/runtime/issues/121922)); that number comes from a community measurement that ntdll `10.0.19041.5007` first shipped in KB5044273, October 8, 2024, OS build 19045.5011 ([dotnet/runtime#110920](https://github.com/dotnet/runtime/issues/110920#issuecomment-2939318863)). Microsoft confirms only that fully patched supported Windows works and does not list the revision; [KB5044273](https://support.microsoft.com/en-us/help/5044273) does not mention CET. So the manifest's `MinVersion` is `10.0.19045.5011`: Windows refuses the install on an older build with an "update Windows" message instead of the app failing silently. Opting out with `<CETCompat>false</CETCompat>` would run everywhere but drop CET hardening on every machine, Windows 11 included; it is used only for local diagnosis, never committed. Re-check the threshold if a user on 19045.5011 or later reports this crash.
 
 Windows 10 22H2 reached [end of standard support](https://learn.microsoft.com/en-us/windows/release-health/release-information) on October 14, 2025; ESU enrollment has separate terms. As checked on November 4, 2026, [.NET 10's supported OS list](https://github.com/dotnet/core/blob/main/release-notes/10.0/supported-os.md) includes specific Windows 10 Enterprise/IoT versions but does not list 22H2. Enabling compatibility does not establish Microsoft-supported .NET operation on 22H2. Windows 10 Enterprise LTSC 2021 and IoT Enterprise LTSC 2021 use build 19044 and are excluded by this app's 19045 minimum, even though those editions have different servicing lifecycles. Supporting those editions would require a separate compatibility decision and validation.
