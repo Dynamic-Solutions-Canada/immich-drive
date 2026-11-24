@@ -2,16 +2,16 @@
   "microsoft": [
     {
       "file": "screenshots/{locale}/00-hero-dark.png",
-      "source": "raw/microsoft/00-home-dark.png",
+      "source": "raw/microsoft/02-thumbnails-dark.png",
       "theme": "dark",
       "hero": {
-        "layout": "brand-card",
+        "layout": "split",
         "icon": "assets/generated/icon-256.png",
         "primary": "#EAB308",
         "accent": "#FDE047"
       },
       "caption": "Thumbnails, and files that download when you open them. Requires your own Immich server.",
-      "alt": "ImmichDrive's icon and name, the headline \"Your Immich photos, right in File Explorer.\" and the subline on a gold gradient, over a faint view of the app's Home page."
+      "alt": "ImmichDrive's name and the headline \"Your Immich photos, right in File Explorer.\" on a gold panel, beside File Explorer, enlarged, showing the drive's 2026-08 August folder: landscape and seaside photos with real thumbnails, each marked as an online-only file."
     },
     {
       "file": "screenshots/01-home-dark.png",
