@@ -1,0 +1,4 @@
+# Scan only this repo's code. The submodules are checked out so calls into them resolve during
+# extraction, but winui-app-kit and apps-promo are scanned in their own repos.
+paths-ignore:
+  - external/**

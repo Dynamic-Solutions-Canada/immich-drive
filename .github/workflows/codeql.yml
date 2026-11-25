@@ -37,14 +37,19 @@ jobs:
             build-mode: none
 
     steps:
+      # Submodules too, so calls into the kit and the promo page resolve during extraction;
+      # codeql-config.yml keeps their own code out of the results.
       - name: Checkout
         uses: actions/checkout@v7
+        with:
+          submodules: true
 
       - name: Initialize CodeQL
         uses: github/codeql-action/init@v4
         with:
           languages: ${{ matrix.language }}
           build-mode: ${{ matrix.build-mode }}
+          config-file: ./.github/codeql/codeql-config.yml
 
       - name: Perform CodeQL Analysis
         uses: github/codeql-action/analyze@v4
