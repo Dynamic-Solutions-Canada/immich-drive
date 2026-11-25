@@ -18,7 +18,7 @@ Goal: every path, command, setting and behaviour named in the docs matches the t
    - `docs/read-only.md`: the deny rules and the Upload flow.
    - `docs/packaging.md`: manifest, identities, packaging script, workflows.
    - `.agents/guides/user-settings.md`: the settings table against `UserSettings.cs`.
-   - `.agents/guides/ui-conventions.md` and `.agents/guides/pinvoke.md`: the conventions still match the code.
+   - `.agents/guides/ui-conventions.md`, `.agents/guides/code-conventions.md` and `.agents/guides/pinvoke.md`: the conventions and helpers still match the code.
    - The skills in `.agents/skills/`: every step still works.
 4. Search the files above for em dashes and remove any.
 5. Fix anything stale.

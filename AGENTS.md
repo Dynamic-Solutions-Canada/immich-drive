@@ -1,6 +1,6 @@
 # ImmichDrive: Agent Instructions
 
-ImmichDrive is a paid Windows 10 22H2 and Windows 11 app that shows a user's [Immich](https://immich.app) photo and video library in File Explorer as a cloud drive, without storing the files on the device. It uses the Windows Cloud Files API to create placeholder files that show real thumbnails and download only when opened. It ships only through the Microsoft Store as one MSIX built from WSL through the shared Windows build bridge. The tray, flyout, settings store, protected store, startup, theme, window chrome, update check, logging and build configuration come from the winui-app-kit submodule at `external/winui-app-kit` (read its README's "Gotchas" before changing that plumbing), and the "Our other apps" page from the apps-promo submodule at `external/promo`. Neither submodule is edited here; a change goes into the kit or promo repo and arrives with a pin bump to a release tag.
+ImmichDrive is a paid Windows 10 22H2 and Windows 11 app that shows a user's [Immich](https://immich.app) photo and video library in File Explorer as a cloud drive, without storing the files on the device. It uses the Windows Cloud Files API to create placeholder files that show real thumbnails and download only when opened. It ships only through the Microsoft Store as one MSIX built from WSL through the shared Windows build bridge. Shared plumbing (tray, flyout, settings and protected stores, startup, theme, logging, build configuration) comes from the winui-app-kit submodule at `external/winui-app-kit` (read its README's "Gotchas" before changing that plumbing), and the "Our other apps" page from the apps-promo submodule at `external/promo`. Neither submodule is edited here; a change goes into the kit or promo repo and arrives with a pin bump to a release tag.
 
 ## Standards
 
@@ -12,7 +12,7 @@ This repo follows the shared standards at https://github.com/Dynamic-Solutions-C
 - **`ImmichDrive.ThumbnailProvider/`** is an out-of-process COM thumbnail server (an exe, because the in-process DLL failed to activate in the shell surrogate). The shell launches it to draw thumbnails for placeholders without hydrating them.
 - **Shared files are linked, not copied:** the thumbnail provider compiles the asset model, `ImmichClient`, `AssetIndex`, `SharedPaths`, `SettingsFile`, `ProtectedStore`, `AtomicFile` and `StoredApiKey` from `ImmichDrive/` (see its `.csproj`).
 - **`ImmichDriveMSIX/`** packages both, and the manifest is the only place the sync root integration and the COM server are registered.
-- Full design, data flow and storage locations: [ARCHITECTURE.md](ARCHITECTURE.md).
+- Design, data flow and storage: [ARCHITECTURE.md](ARCHITECTURE.md).
 
 ## Behaviour
 
@@ -24,23 +24,10 @@ This repo follows the shared standards at https://github.com/Dynamic-Solutions-C
 
 ## Conventions and gotchas
 
-- Files linked into the thumbnail provider stay WinUI-free and NLog-free; failures there are reported through hooks the app wires to NLog. Check its `.csproj` before adding a dependency to a shared file.
-- Startup order matters: single instance, then the API key migration, then the settings load (`App.RestoreSettings`). The kit's settings store rewrites `settings.json` as it loads, so the key must be moved out first.
-- Release builds treat warnings as errors (kit default). A kit switch such as `WinUIAppKitWarningsAsErrors`, if ever needed, goes before the kit's props import in `Directory.Build.props`, with a comment saying why.
-- The sync root must be registered before callbacks connect, and the process must stay alive while the drive is online; that is why the app is resident.
-- Packaged AppData is redirected per package. Both processes find the data folder through the breadcrumb `SharedPaths` writes to `C:\ProgramData\ImmichDrive`.
-- cfapi structs must match `cfapi.h` exactly; a wrong offset silently corrupts hydration. See [.agents/guides/pinvoke.md](.agents/guides/pinvoke.md).
-- PowerShell build scripts are ASCII only: Windows PowerShell 5.1 reads a BOM-less `.ps1` as ANSI.
-- `global::` does not parse inside an interpolated string; assign to a local first.
+Read [.agents/guides/code-conventions.md](.agents/guides/code-conventions.md) before changing C#: it lists the startup order, the rules for files linked into the thumbnail provider, the cfapi and PowerShell gotchas, and the shared helpers to use instead of writing a copy. The two that break silently:
 
-## Shared helpers (do not duplicate)
-
-- For tray, flyout, window, theme, startup, single-instance, update and settings-file plumbing, use the kit; never re-add an app copy.
-- For replacing a file atomically, use the kit's `AtomicFile`.
-- For any credential, use the store from `CredentialStore.Create`; for the API key specifically, `ApiKeyStore`.
-- For a settings schema change, add a step to `SettingsMigrations`.
-- For the data folder, settings path or index path, use `SharedPaths`.
-- For the GitHub owner and repository, use `SourceRepository`.
+- Files linked into the thumbnail provider stay WinUI-free and NLog-free.
+- cfapi structs must match `cfapi.h` exactly; a wrong offset corrupts hydration.
 
 ## Commands
 
@@ -51,12 +38,10 @@ This repo follows the shared standards at https://github.com/Dynamic-Solutions-C
 | `npm run package:desktop:dev` | A signed dev package builds | That it installs or runs |
 | `npm run install:desktop` | The dev package updates in place and launches | Behaviour; check it in the running app |
 | `npm test` | Every portable harness under `tests/` and every Store workflow script test pass, on Linux (host .NET SDK or Docker; run as a non-root user) | Windows data protection, the shell, the installed app; each harness README says what it leaves out |
-| `npm run shots:render` | The Store screenshots are rendered from the raw captures in `store-assets/manifest.json` | That they match the current UI |
-| `npm run check:screenshots` | Captures and screenshots follow the Store rules and match the en-US captions | That the screenshots are approved or uploaded |
-| `npm run validate` | The whole Linux gate passes: `format:check`, `check:gitignore`, `check:icons`, `check:l10n`, `check:listing`, `check:notices`, `check:screenshots`, `check:hero`, `check:fake-immich`, then `npm test` | A Windows compile; also run `verify:desktop` |
-| `npm run icons` | Writes every app icon from `assets/brand/` (devkit; `check:icons` in `validate` fails when a committed icon differs from what the masters make) | How the icon looks; check it on a light and a dark taskbar. The offline tray icon is not generated |
-| `npm run hero` | Draws the first Store screenshot in every listing locale (devkit; `check:hero` in `validate` compares the pixels) | That the text reads well; the maintainer approves new heroes |
-| `npm run generate:notices` | Rewrites `ImmichDrive/THIRD-PARTY-NOTICES.txt` from the NuGet restore graph (kit script); run after a package change and commit the result | That the notices are complete for files outside NuGet |
+| `npm run validate` | The whole Linux gate passes: format, ignore block, icons, l10n, listing, notices, screenshots, hero and fake Immich checks, then `npm test` ([docs/development.md](docs/development.md) has each; the screenshot commands are in `store-assets/README.md`) | A Windows compile; also run `verify:desktop` |
+| `npm run icons` | Writes every app icon from `assets/brand/` (devkit; checked by `check:icons`) | How the icon looks on light and dark taskbars. The offline tray icon is not generated |
+| `npm run hero` | Draws the first Store screenshot in every listing locale (devkit; checked by `check:hero`) | That the text reads well; the maintainer approves new heroes |
+| `npm run generate:notices` | Rewrites `ImmichDrive/THIRD-PARTY-NOTICES.txt` from the NuGet restore graph; run after a package change | Completeness for files outside NuGet |
 | `npm run format` | Rewrites every C# project (not `external/`) to the root `.editorconfig`, which is winui-app-kit's copied unchanged | Behaviour; review the diff |
 
 Before finishing a change, run `npm run validate` and `npm run verify:desktop`, plus `npm run package:desktop:dev` when the thumbnail provider or a file linked into it changed. Use the `desktop` skill for build and install requests.
@@ -78,6 +63,7 @@ Releases are tag-driven: a `v*` tag makes `build-msix.yml` create a notes-only G
 | [docs/packaging.md](docs/packaging.md) | Changing the manifest, packaging script or release workflows | `ImmichDriveMSIX/**`, `.github/workflows/**` |
 | [docs/localization.md](docs/localization.md) | Adding or changing any user-facing text, or a language | `ImmichDrive/Localization/**`, `Classes/AppLanguages.cs` |
 | [store-assets/microsoft/listings.md](store-assets/microsoft/listings.md), [store-assets/README.md](store-assets/README.md) | Changing Store listing text, anything a listing claim depends on, or the screenshots | `store-assets/**` |
+| [.agents/guides/code-conventions.md](.agents/guides/code-conventions.md) | Writing or changing C#, startup, or a linked file; before adding a helper | `ImmichDrive/**/*.cs`, `ImmichDrive.ThumbnailProvider/**/*.cs` |
 | [.agents/guides/user-settings.md](.agents/guides/user-settings.md) | Adding or changing a setting | `UserSettings.cs`, `Classes/Settings/**` |
 | [.agents/guides/ui-conventions.md](.agents/guides/ui-conventions.md) | Any window, page, flyout or card | `ImmichDrive/**/*.xaml(.cs)` |
 | [.agents/guides/pinvoke.md](.agents/guides/pinvoke.md) | Any native declaration or cfapi struct | `CfApi.cs`, `DriveSecurity.cs` |
