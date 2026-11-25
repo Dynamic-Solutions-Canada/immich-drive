@@ -1,3 +1,6 @@
+> **Scope:** How the interface is translated: the catalogs, language selection, the localization check, review status and the terms to keep consistent.
+> **Governs:** `ImmichDrive/Localization/**`, `ImmichDrive/Classes/AppLanguages.cs`, `store-assets/microsoft/listings.json` translations, `release-notes/*.<catalog>.md`
+
 # Localization
 
 ImmichDrive's interface is in the family's nine languages (LOC-1): English (United States and Canada), Spanish, French (France and Canada), German, Simplified Chinese, Brazilian Portuguese and Japanese. It follows Windows' language list unless the user picks a language in Settings (LOC-4).
