@@ -73,6 +73,10 @@ capture_locale() {
     app_test_put "$tools/vm/app-test/ui-lib.ps1"
     app_test_put "$here/capture.ps1"
     app_test_put "$here/sample-data.json"
+    # Any other fixture capture.ps1 reads, such as Little Launcher's seed settings.
+    for fixture in "$here"/*.json; do
+        [[ "$(basename "$fixture")" == sample-data.json ]] || app_test_put "$fixture"
+    done
     app_test_put "$input" capture-input.json
     rm -f "$input"
 
