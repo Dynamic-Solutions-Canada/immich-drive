@@ -115,7 +115,7 @@
         "L’état de synchronisation depuis la zone de notification",
         "Parcourez par date, album, favoris ou partages, et ajoutez des fichiers avec Upload"
       ],
-      "heroHeadline": "Vos photos Immich, directement dans l’Explorateur de fichiers.",
+      "heroHeadline": "Vos photos Immich,\ndirectement dans\nl’Explorateur\nde fichiers.",
       "heroSubline": "Des miniatures, et des fichiers téléchargés à l’ouverture. Nécessite votre propre serveur Immich."
     },
     "fr-CA": {
@@ -151,7 +151,7 @@
       "screenshotCaptions": [
         "Miniaturansichten und Dateien, die beim Öffnen heruntergeladen werden. Erfordert einen eigenen Immich-Server.",
         "Sieh den Status deines Laufwerks und öffne seinen Ordner",
-        "Mit Ihrer Server-URL und Ihrem eigenen API-Schlüssel verbinden",
+        "Mit deiner Server-URL und deinem eigenen API-Schlüssel verbinden",
         "Miniaturansichten im Explorer, ohne ganze Fotos oder Videos herunterzuladen",
         "Synchronisierungsstatus im Infobereich",
         "Nach Datum, Album, Favoriten oder Partnerfreigaben durchsuchen und Dateien über Upload hinzufügen"
@@ -194,7 +194,7 @@
         "在系统托盘中查看同步状态",
         "按日期、相册、收藏或伙伴共享浏览，并通过 Upload 添加文件"
       ],
-      "heroHeadline": "你的 Immich 照片，就在文件资源管理器中。",
+      "heroHeadline": "你的 Immich 照片，\n就在\n文件资源管理器中。",
       "heroSubline": "带缩略图，文件在打开时才下载。需要你自己的 Immich 服务器。"
     },
     "pt-BR": {
@@ -271,7 +271,7 @@
         "日付、アルバム、お気に入り、パートナーの共有で閲覧し、Upload からファイルを追加"
       ],
       "heroHeadline": "Immich の写真を、\nエクスプローラーで。",
-      "heroSubline": "サムネイル付きで、ファイルは開いたときにダウンロード。ご自身の Immich サーバーが必要です。"
+      "heroSubline": "サムネイル付きで、ファイルは\n開いたときにダウンロード。\nご自身の Immich サーバーが必要です。"
     }
   }
 }
