@@ -73,7 +73,7 @@ function Get-SettingsWindow {
 # --- Check the guest, then start clean --------------------------------------------------------
 
 # Windows itself must already be in this language; the app is set to it below.
-$ui = (Get-UICulture).Name
+$ui = Get-DisplayLanguage   # not Get-UICulture, which reads en-US for zh-CN and ja-JP in a console (ui-lib.ps1)
 if ($ui -ne $locale) { throw "Windows is in $ui, not ${locale}; switch it first (capture.sh, CAPTURE_PREPARE_LOCALE)" }
 
 New-Item -ItemType Directory -Force $UiOut | Out-Null
