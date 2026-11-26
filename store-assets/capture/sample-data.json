@@ -1,0 +1,47 @@
+{
+  "about": "The synthetic data the Store screenshots show, in each listing language (LIST-8). The fake Immich server reads the people and album names (--sample-data with --locale), and the capture script reads the server address. Album keys are the English names in tests/fake-immich/sample-library.json; photo file names (IMG_2041.jpg) stay as cameras write them. Every person is synthetic, on example.invalid addresses. en-CA and fr-CA reuse en-US and fr-FR, as their listings do.",
+  "locales": {
+    "en-US": {
+      "server": "photos.example.net",
+      "user": { "name": "Alex Rivera", "email": "alex.rivera@example.invalid" },
+      "partner": { "name": "Jordan Lee", "email": "jordan.lee@example.invalid" },
+      "albums": { "Summer Trip": "Summer Trip", "Garden": "Garden", "Pets": "Pets" }
+    },
+    "es-ES": {
+      "server": "fotos.example.net",
+      "user": { "name": "Lucía Martín", "email": "lucia.martin@example.invalid" },
+      "partner": { "name": "Pablo García", "email": "pablo.garcia@example.invalid" },
+      "albums": { "Summer Trip": "Viaje de verano", "Garden": "Jardín", "Pets": "Mascotas" }
+    },
+    "fr-FR": {
+      "server": "photos.example.net",
+      "user": { "name": "Camille Dubois", "email": "camille.dubois@example.invalid" },
+      "partner": { "name": "Julien Moreau", "email": "julien.moreau@example.invalid" },
+      "albums": { "Summer Trip": "Voyage d'été", "Garden": "Jardin", "Pets": "Animaux" }
+    },
+    "de-DE": {
+      "server": "fotos.example.net",
+      "user": { "name": "Lena Schneider", "email": "lena.schneider@example.invalid" },
+      "partner": { "name": "Jonas Weber", "email": "jonas.weber@example.invalid" },
+      "albums": { "Summer Trip": "Sommerurlaub", "Garden": "Garten", "Pets": "Haustiere" }
+    },
+    "zh-CN": {
+      "server": "xiangce.example.net",
+      "user": { "name": "王晓明", "email": "wang.xiaoming@example.invalid" },
+      "partner": { "name": "李娜", "email": "li.na@example.invalid" },
+      "albums": { "Summer Trip": "夏日旅行", "Garden": "花园", "Pets": "宠物" }
+    },
+    "pt-BR": {
+      "server": "fotos.example.net",
+      "user": { "name": "Ana Souza", "email": "ana.souza@example.invalid" },
+      "partner": { "name": "Lucas Oliveira", "email": "lucas.oliveira@example.invalid" },
+      "albums": { "Summer Trip": "Viagem de verão", "Garden": "Jardim", "Pets": "Animais de estimação" }
+    },
+    "ja-JP": {
+      "server": "shashin.example.net",
+      "user": { "name": "佐藤 美咲", "email": "misaki.sato@example.invalid" },
+      "partner": { "name": "鈴木 健太", "email": "kenta.suzuki@example.invalid" },
+      "albums": { "Summer Trip": "夏の旅行", "Garden": "庭", "Pets": "ペット" }
+    }
+  }
+}

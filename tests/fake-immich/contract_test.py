@@ -26,6 +26,9 @@ from pathlib import Path
 
 HERE = Path(__file__).resolve().parent
 RECORDING = HERE / "contract" / "immich-v3.4.1.json"
+# The Store screenshots' per-language sample data and the listing locales it must cover.
+SAMPLE_DATA = HERE.parent.parent / "store-assets" / "capture" / "sample-data.json"
+LISTINGS = HERE.parent.parent / "store-assets" / "microsoft" / "listings.json"
 
 # What ImmichDrive reads. "?" after a type name means the field may be null; a list type means a
 # columnar array whose elements have that type.
@@ -137,10 +140,10 @@ def write_sample_library(folder: Path) -> None:
     (folder / "library.json").write_text(json.dumps(library), encoding="utf-8")
 
 
-def serve(fake, denied: set[str], library_folder: Path | None = None):
+def serve(fake, denied: set[str], library_folder: Path | None = None, names: dict | None = None):
     """Start the fake on a free local port; returns its base URL."""
     handler = type("ContractHandler", (fake.Handler,), {
-        "library": fake.Library(library_folder), "api_key": "test-key", "failing_thumbnails": set(), "denied_areas": denied,
+        "library": fake.Library(library_folder, names), "api_key": "test-key", "failing_thumbnails": set(), "denied_areas": denied,
         "log_message": lambda self, *args: None,
     })
     server = fake.Server(("127.0.0.1", 0), handler)
@@ -161,10 +164,10 @@ def fetch(base: str, path: str, key: str = "test-key", headers: dict | None = No
     return entry
 
 
-def fake_responses(fake, library_folder: Path | None = None) -> dict[str, dict]:
+def fake_responses(fake, library_folder: Path | None = None, names: dict | None = None) -> dict[str, dict]:
     """The fake's answers to the same requests the recording made, with the fake's own ids."""
-    base, server = serve(fake, set(), library_folder)
-    denied_base, denied_server = serve(fake, {"albums", "partners"}, library_folder)
+    base, server = serve(fake, set(), library_folder, names)
+    denied_base, denied_server = serve(fake, {"albums", "partners"}, library_folder, names)
     query = "size=MONTH&isTrashed=false&isArchived=false"
     try:
         buckets = fetch(base, f"/timeline/buckets?{query}")
@@ -192,6 +195,46 @@ def fake_responses(fake, library_folder: Path | None = None) -> dict[str, dict]:
         denied_server.shutdown()
 
 
+def check_sample_names(fake, problems: list[str]) -> None:
+    """The Store screenshots' sample data names everything the sample library shows, in every language.
+
+    Every listing locale with its own record in listings.json needs the server, the user, the partner
+    and each album of sample-library.json, with no em dash; and the fake, given one locale's names,
+    must serve them (checked in the --library mode with a translated album and user).
+    """
+    data = json.loads(SAMPLE_DATA.read_text(encoding="utf-8"))["locales"]
+    albums = json.loads((HERE / "sample-library.json").read_text(encoding="utf-8"))["albums"]
+    listings = json.loads(LISTINGS.read_text(encoding="utf-8"))["locales"]
+    own = [locale for locale, record in listings.items() if "copyFrom" not in record]
+
+    # Completeness, the way the capture flow will use it.
+    for locale in own:
+        names = data.get(locale)
+        if names is None:
+            problems.append(f"sample-data.json: no entry for listing locale {locale}")
+            continue
+        for field in ("server", "user", "partner"):
+            if not names.get(field):
+                problems.append(f"sample-data.json: {locale} has no {field}")
+        missing = [album for album in albums if not names.get("albums", {}).get(album)]
+        if missing:
+            problems.append(f"sample-data.json: {locale} has no name for album(s) {missing}")
+        if "\u2014" in json.dumps(names, ensure_ascii=False):
+            problems.append(f"sample-data.json: {locale} has an em dash")
+
+    # The fake applies one locale's names: a minimal library with album "Trip", named in German.
+    names = {"user": {"name": "Lena Schneider", "email": "lena@example.invalid"},
+             "partner": {"name": "Jonas Weber", "email": "jonas@example.invalid"},
+             "albums": {"Trip": "Reise"}}
+    with tempfile.TemporaryDirectory() as folder:
+        write_sample_library(Path(folder))
+        served = fake_responses(fake, Path(folder), names)
+    if served["users_me"]["body"].get("name") != "Lena Schneider":
+        problems.append("fake --locale: /users/me does not carry the localized user name")
+    if [album["albumName"] for album in served["albums"]["body"]] != ["Reise"]:
+        problems.append("fake --locale: /albums does not carry the localized album name")
+
+
 def main() -> int:
     recording = json.loads(RECORDING.read_text())
     real = recording["responses"]
@@ -214,6 +257,8 @@ def main() -> int:
         sample = fake_responses(module, Path(folder))
     for name in sorted(SPEC):
         check("fake --library", name, sample[name], problems)
+
+    check_sample_names(module, problems)
 
     for problem in problems:
         print("error:", problem, file=sys.stderr)

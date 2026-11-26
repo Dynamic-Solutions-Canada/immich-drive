@@ -4,12 +4,13 @@
 Serves only the endpoints ImmichDrive calls (docs/immich-api.md), in the shapes it parses, from
 synthetic images generated in memory at start: no personal data, no disk writes, standard library
 only. With --library, it serves a folder of sample photos instead (the Store screenshots use the
-public-domain set that fetch_sample_library.py downloads); the shapes are the same. It is not Immich and proves nothing about compatibility with a real server; the contract test
+public-domain set that fetch_sample_library.py downloads), and with --sample-data and --locale it
+names the people and albums in that listing language; the shapes are the same. It is not Immich and proves nothing about compatibility with a real server; the contract test
 against a recorded Immich release does that. See README.md.
 
 Usage:
     python3 fake_immich.py [--port 2283] [--key test-key] [--fail-thumbnail ASSET_ID ...] [--deny-area albums|partners ...]
-                           [--library DIR]
+                           [--library DIR [--sample-data FILE --locale LOCALE]]
 
 Endpoints (all under /api, all but /server/ping need the x-api-key header):
     GET  /users/me                       the user (the connection probe)
@@ -120,13 +121,35 @@ def build_library() -> list[Asset]:
     return assets
 
 
-def load_sample_library(folder: Path) -> tuple[list[Asset], dict[str, tuple[str, set[str]]], dict, dict]:
+def load_sample_names(path: Path, locale: str, albums: list[str]) -> dict:
+    """One listing language's names for the sample library, from the Store screenshots' sample data.
+
+    `path` is store-assets/capture/sample-data.json (README.md, "Sample library"), `locale` a listing
+    locale such as de-DE, and `albums` the library's English album names. Returns that locale's
+    `user`, `partner` and `albums` (English name to the shown one). Fails at start, naming what is
+    missing, when the locale or one of its album names is absent, so a screenshot never shows an
+    English name in another language's listing by accident.
+    """
+    locales = json.loads(path.read_text(encoding="utf-8"))["locales"]
+    if locale not in locales:
+        raise SystemExit(f"fake-immich: {path} has no names for {locale}")
+    names = locales[locale]
+    missing = [album for album in albums if album not in names.get("albums", {})]
+    if missing:
+        raise SystemExit(f"fake-immich: {path} has no {locale} name for album(s) {missing}")
+    return names
+
+
+def load_sample_library(folder: Path, names: dict | None = None) -> tuple[list[Asset], dict[str, tuple[str, set[str]]], dict, dict]:
     """A sample library from `folder`/library.json and the photos beside it.
 
     Returns the assets, the albums (id to name and asset ids), and the user and partner. The file
     format is described in README.md ("Sample library"); every photo is read into memory at start,
     and its JPEG is also its thumbnail (ImmichDrive asks for the "preview" size, which Immich serves as
     a JPEG about this size). Fails at start, naming the file, when a listed photo is missing.
+
+    With `names` (from load_sample_names), the user, the partner and each album carry that language's
+    names instead; assets still refer to albums by their English names, so the photos stay the same.
     """
     spec = json.loads((folder / "library.json").read_text(encoding="utf-8"))
     owners = {"user": USER_ID, "partner": PARTNER_ID}
@@ -144,21 +167,28 @@ def load_sample_library(folder: Path) -> tuple[list[Asset], dict[str, tuple[str,
         assets.append(asset)
         for name in entry.get("albums", []):
             albums[album_by_name[name]][1].add(asset.id)
-    return assets, albums, spec["user"], spec["partner"]
+
+    if names is None:
+        return assets, albums, spec["user"], spec["partner"]
+
+    # The shown names change; the album ids and their members do not.
+    shown = {album_id: (names["albums"][name], members) for album_id, (name, members) in albums.items()}
+    return assets, shown, names["user"], names["partner"]
 
 
 class Library:
     """The in-memory library, safe to read and extend from the server's threads."""
 
-    def __init__(self, folder: Path | None = None):
-        """The synthetic library, or with `folder` the sample library in it (load_sample_library)."""
+    def __init__(self, folder: Path | None = None, names: dict | None = None):
+        """The synthetic library, or with `folder` the sample library in it (load_sample_library),
+        named in one language when `names` is given (load_sample_names)."""
         self._lock = threading.Lock()
         if folder is None:
             self.assets = build_library()
             self.albums = {ALBUM_ID: ("Test Album", {a.id for a in self.assets[:5]})}
             self.user, self.partner = TEST_USER, TEST_PARTNER
         else:
-            self.assets, self.albums, self.user, self.partner = load_sample_library(folder)
+            self.assets, self.albums, self.user, self.partner = load_sample_library(folder, names)
         self.uploads = 0
 
     def select(self, query: dict[str, list[str]]) -> list[Asset]:
@@ -379,15 +409,28 @@ def main() -> None:
                         help="Areas answered with 403, as for a key without that permission.")
     parser.add_argument("--library", type=Path, default=None,
                         help="Serve the sample library in this folder (library.json and its photos) instead of the synthetic one.")
+    parser.add_argument("--sample-data", type=Path, default=None,
+                        help="With --library and --locale: the Store screenshots' sample data (store-assets/capture/sample-data.json).")
+    parser.add_argument("--locale", default=None,
+                        help="With --library and --sample-data: the listing locale whose people and album names to show, such as de-DE.")
     args = parser.parse_args()
 
-    Handler.library = Library(args.library)
+    # Localized names apply only to the sample library, and need both the file and the locale.
+    names = None
+    if args.sample_data or args.locale:
+        if not (args.library and args.sample_data and args.locale):
+            parser.error("--sample-data and --locale go together, with --library")
+        album_names = json.loads((args.library / "library.json").read_text(encoding="utf-8"))["albums"]
+        names = load_sample_names(args.sample_data, args.locale, album_names)
+
+    Handler.library = Library(args.library, names)
     Handler.api_key = args.key
     Handler.failing_thumbnails = set(args.fail_thumbnail)
     Handler.denied_areas = set(args.deny_area)
     server = Server(("0.0.0.0", args.port), Handler)
     count = len(Handler.library.assets)
-    print(f"fake-immich: serving {count} assets on port {args.port}", flush=True)
+    language = f" in {args.locale}" if args.locale else ""
+    print(f"fake-immich: serving {count} assets{language} on port {args.port}", flush=True)
     server.serve_forever()
 
 

@@ -22,10 +22,12 @@ The photos are never committed. Download them, then start the fake with the over
 
 ```bash
 python3 -I tests/fake-immich/fetch_sample_library.py          # into .artifacts/sample-library, hashes checked
-FAKE_IMMICH_NETWORK=windows-dev_default docker compose -f tests/fake-immich/compose.yml -f tests/fake-immich/compose.sample.yml up -d
+FAKE_IMMICH_NETWORK=windows-dev_default SAMPLE_LOCALE=en-US docker compose -f tests/fake-immich/compose.yml -f tests/fake-immich/compose.sample.yml up -d
 ```
 
 A photo whose download no longer matches its recorded hash fails the fetch, so a changed upstream file is noticed. The fake keeps the library in memory (about 32 MB, inside the same 128 MB cap), and each photo's JPEG is also its thumbnail, as Immich's "preview" size is a JPEG of about that size. No thumbnail fails on purpose in this mode.
+
+Each Store listing language shows its own people and album names: with `--sample-data ../../store-assets/capture/sample-data.json --locale de-DE`, the fake names the user, the partner and the albums from that file's `de-DE` entry, while assets keep referring to albums by their English names. `compose.sample.yml` passes both, with the locale from `SAMPLE_LOCALE` (default `en-US`). It refuses to start when the locale or one of its album names is missing, so English never shows in another language's screenshot by accident; `check:fake-immich` checks that every listing locale has a complete entry.
 
 `library.json`, which the fetch writes beside the photos, is the format `--library` reads: `user` and `partner` (`name`, `email`), `albums` (names), and `assets`, each with `file`, `name` (the original file name ImmichDrive shows), `created` (ISO UTC), and optional `favorite`, `albums` (names) and `owner` (`user`, the default, or `partner`). The fake ignores `source`. The contract check runs the fake in this mode too, against a small generated library.
 

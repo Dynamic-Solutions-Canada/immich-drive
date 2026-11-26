@@ -2,6 +2,7 @@ using ImmichDrive.Classes;
 using ImmichDrive.Classes.Settings;
 using ImmichDrive.Pages;
 using Microsoft.UI.Xaml;
+using Microsoft.UI.Xaml.Automation;
 using Microsoft.UI.Xaml.Controls;
 using WinUIAppKit.Localization;
 using WinUIAppKit.Pages;
@@ -62,18 +63,29 @@ public sealed partial class SettingsWindow : Window
     private void BuildMenu()
     {
         Shell.MenuItems.Clear();
-        Shell.MenuItems.Add(new NavigationViewItem
+        Shell.MenuItems.Add(CreateNavItem(HomeTag, "nav.home", "", "NavHome"));
+        Shell.MenuItems.Add(CreateNavItem(ConnectionTag, "nav.connection", "", "NavConnection"));
+    }
+
+    /// <summary>
+    /// One navigation item built in code. It gets an automation ID because, unlike XAML elements, it
+    /// has no <c>x:Name</c> to supply one, and UI automation (the Store screenshot capture) must find it
+    /// by something that does not change with the interface language.
+    /// </summary>
+    /// <param name="tag">The page's navigation tag.</param>
+    /// <param name="textKey">The wording catalog key of its label.</param>
+    /// <param name="glyph">The Segoe Fluent Icons glyph.</param>
+    /// <param name="automationId">The language-independent automation ID.</param>
+    private static NavigationViewItem CreateNavItem(string tag, string textKey, string glyph, string automationId)
+    {
+        var item = new NavigationViewItem
         {
-            Content = UiText.Get("nav.home"),
-            Tag = HomeTag,
-            Icon = new FontIcon { Glyph = "" },
-        });
-        Shell.MenuItems.Add(new NavigationViewItem
-        {
-            Content = UiText.Get("nav.connection"),
-            Tag = ConnectionTag,
-            Icon = new FontIcon { Glyph = "" },
-        });
+            Content = UiText.Get(textKey),
+            Tag = tag,
+            Icon = new FontIcon { Glyph = glyph },
+        };
+        AutomationProperties.SetAutomationId(item, automationId);
+        return item;
     }
 
     /// <summary>

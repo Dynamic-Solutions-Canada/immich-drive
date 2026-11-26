@@ -1,10 +1,14 @@
 # Serve the sample library (README.md, "Sample library") instead of the synthetic one, for the Store
 # screenshots. Download it first with fetch_sample_library.py, then add this file to the usual command:
-#   FAKE_IMMICH_NETWORK=windows-dev_default docker compose -f tests/fake-immich/compose.yml -f tests/fake-immich/compose.sample.yml up -d
+#   FAKE_IMMICH_NETWORK=windows-dev_default SAMPLE_LOCALE=de-DE docker compose -f tests/fake-immich/compose.yml -f tests/fake-immich/compose.sample.yml up -d
+# SAMPLE_LOCALE (default en-US) picks the listing language whose people and album names it shows, from
+# store-assets/capture/sample-data.json; recreate the container for each language.
 # No thumbnail fails on purpose here, so every placeholder shows its photo.
 services:
   fake-immich:
     command: ["python3", "-I", "/app/fake_immich.py", "--port", "2283", "--key", "test-key",
-              "--library", "/library"]
+              "--library", "/library", "--sample-data", "/app/sample-data.json",
+              "--locale", "${SAMPLE_LOCALE:-en-US}"]
     volumes:
       - ../../.artifacts/sample-library:/library:ro
+      - ../../store-assets/capture/sample-data.json:/app/sample-data.json:ro
