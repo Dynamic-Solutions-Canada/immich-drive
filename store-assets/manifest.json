@@ -2,7 +2,7 @@
   "microsoft": [
     {
       "file": "screenshots/{locale}/00-hero-dark.png",
-      "source": "raw/microsoft/02-thumbnails-dark.png",
+      "source": "raw/microsoft/{locale}/02-thumbnails-dark.png",
       "theme": "dark",
       "hero": {
         "layout": "split",
@@ -15,37 +15,37 @@
       "alt": "ImmichDrive's name and the headline \"Your Immich photos, right in File Explorer.\" on a gold panel, beside File Explorer, enlarged, showing the drive's 2026-08 August folder: landscape and seaside photos with real thumbnails, each marked as an online-only file."
     },
     {
-      "file": "screenshots/01-home-dark.png",
-      "source": "raw/microsoft/00-home-dark.png",
+      "file": "screenshots/{locale}/01-home-dark.png",
+      "source": "raw/microsoft/{locale}/00-home-dark.png",
       "theme": "dark",
       "caption": "See your drive's status and open its folder",
       "alt": "ImmichDrive's Home page in the dark theme: Online, connected as Alex Rivera, the drive folder C:\\ImmichDrive with the time it was last updated, and Open drive folder and Refresh buttons."
     },
     {
-      "file": "screenshots/02-connection-dark.png",
-      "source": "raw/microsoft/01-connection-dark.png",
+      "file": "screenshots/{locale}/02-connection-dark.png",
+      "source": "raw/microsoft/{locale}/01-connection-dark.png",
       "theme": "dark",
       "caption": "Connect with your server URL and your own API key",
       "alt": "The Connection page in the dark theme: the server URL https://photos.example.net, a masked API key, and the Immich API key permissions the drive needs, with the optional ones for albums, partner libraries and Upload."
     },
     {
-      "file": "screenshots/03-thumbnails-dark.png",
-      "source": "raw/microsoft/02-thumbnails-dark.png",
+      "file": "screenshots/{locale}/03-thumbnails-dark.png",
+      "source": "raw/microsoft/{locale}/02-thumbnails-dark.png",
       "theme": "dark",
       "caption": "Thumbnails in Explorer without downloading full photos or videos",
       "alt": "File Explorer in the dark theme showing the 2026-08 August folder of the ImmichDrive drive: fourteen landscape and seaside photos with real thumbnails, each marked with the cloud icon for an online-only file."
     },
     {
-      "file": "screenshots/04-flyout-dark.png",
-      "source": "raw/microsoft/03-flyout-dark.png",
+      "file": "screenshots/{locale}/04-flyout-dark.png",
+      "source": "raw/microsoft/{locale}/03-flyout-dark.png",
       "theme": "dark",
       "crop": "tray",
       "caption": "Sync status from the system tray",
       "alt": "ImmichDrive's tray flyout above the notification area in the dark theme: Up to date, with Refresh and Settings buttons and Open folder and Open Immich actions, above the ImmichDrive tray icon."
     },
     {
-      "file": "screenshots/05-library-dark.png",
-      "source": "raw/microsoft/04-library-dark.png",
+      "file": "screenshots/{locale}/05-library-dark.png",
+      "source": "raw/microsoft/{locale}/04-library-dark.png",
       "theme": "dark",
       "caption": "Browse by date, album, favorites, or partner shares, and add files through Upload",
       "alt": "The ImmichDrive drive's top folder in File Explorer's Details view, dark theme: month folders from 2026-06 June to 2026-11 November, then Albums, Favorites, Partners and Upload, each with the cloud status icon."
