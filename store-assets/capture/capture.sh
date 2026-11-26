@@ -80,7 +80,7 @@ capture_locale() {
     app_test_put "$input" capture-input.json
     rm -f "$input"
 
-    if ! app_test_ui 'C:\apptest\capture.ps1' | tee /dev/stderr | grep -q "^capture finished: $locale$"; then
+    if ! app_test_ui 'C:\apptest\capture.ps1' | tr -d '\r' | tee /dev/stderr | grep "^capture finished: $locale$" >/dev/null; then
         echo "capture.sh: $locale did not finish; nothing copied" >&2
         return 1
     fi
