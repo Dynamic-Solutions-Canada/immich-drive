@@ -59,7 +59,7 @@ concurrency:
 
 jobs:
   publish:
-    uses: Dynamic-Solutions-Canada/winui-app-kit/.github/workflows/store-publish.yml@v2.8.0
+    uses: Dynamic-Solutions-Canada/winui-app-kit/.github/workflows/store-publish.yml@v2.10.0
     with:
       store_product_id: 9MWC6165N7DH
       # US $0.99 base price. The published submission reports Base, but the Store CLI needs Tier1012
