@@ -72,6 +72,7 @@
                                        TextWrapping="Wrap" VerticalAlignment="Center" />
                         </Grid>
                         <TextBlock l10n:Localize.Text="connection.not-needed"
+                                   AutomationProperties.AutomationId="NotNeededText"
                                    TextWrapping="Wrap" Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
                     </StackPanel>
                     <Grid ColumnSpacing="8">

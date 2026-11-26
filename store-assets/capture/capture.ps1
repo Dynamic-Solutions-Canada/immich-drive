@@ -47,6 +47,62 @@ function Invoke-DoubleClick($Element) {
 }
 
 <#
+Widen File Explorer's navigation pane by dragging its splitter, as a user would, so translated folder
+names ("Area de Trabalho", "Telechargements") are not clipped. The pane's tree is found as a Win32
+child window (class SysTreeView32), which UI Automation often misses (papercut 518); the splitter is
+just right of it. Returns the tree's new width in physical pixels.
+#>
+function Expand-ExplorerNavPane($Explorer, [int]$ByLogical) {
+    if (-not ('ExplorerPane' -as [type])) {
+        Add-Type @"
+using System;
+using System.Runtime.InteropServices;
+public static class ExplorerPane {
+    [StructLayout(LayoutKind.Sequential)] public struct RECT { public int Left, Top, Right, Bottom; }
+    [DllImport("user32.dll", CharSet = CharSet.Unicode)] static extern IntPtr FindWindowEx(IntPtr parent, IntPtr after, string cls, string title);
+    [DllImport("user32.dll")] public static extern bool GetWindowRect(IntPtr hwnd, out RECT rect);
+    public delegate bool EnumProc(IntPtr hwnd, IntPtr data);
+    [DllImport("user32.dll")] static extern bool EnumChildWindows(IntPtr parent, EnumProc proc, IntPtr data);
+    [DllImport("user32.dll", CharSet = CharSet.Unicode)] static extern int GetClassName(IntPtr hwnd, System.Text.StringBuilder name, int max);
+    [DllImport("user32.dll")] static extern bool IsWindowVisible(IntPtr hwnd);
+    public static IntPtr FindTree(IntPtr top) {
+        IntPtr found = IntPtr.Zero;
+        EnumChildWindows(top, (h, d) => {
+            var name = new System.Text.StringBuilder(64);
+            GetClassName(h, name, 64);
+            if (name.ToString() == "SysTreeView32" && IsWindowVisible(h)) { found = h; return false; }
+            return true;
+        }, IntPtr.Zero);
+        return found;
+    }
+}
+"@
+    }
+
+    $tree = [ExplorerPane]::FindTree([IntPtr]$Explorer.Current.NativeWindowHandle)
+    if ($tree -eq [IntPtr]::Zero) { throw 'No navigation pane in File Explorer' }
+    $rect = New-Object ExplorerPane+RECT
+    [ExplorerPane]::GetWindowRect($tree, [ref]$rect) | Out-Null
+
+    # Press on the splitter, move in small steps so Explorer tracks the drag, then release.
+    $x = $rect.Right + (Px 2)
+    $y = [int](($rect.Top + $rect.Bottom) / 2)
+    [UiNative]::SetCursorPos($x, $y) | Out-Null
+    Start-Sleep -Milliseconds 300
+    [UiNative]::mouse_event(2, 0, 0, 0, [UIntPtr]::Zero)
+    $steps = 10
+    foreach ($i in 1..$steps) {
+        [UiNative]::SetCursorPos($x + [int]((Px $ByLogical) * $i / $steps), $y) | Out-Null
+        Start-Sleep -Milliseconds 40
+    }
+    [UiNative]::mouse_event(4, 0, 0, 0, [UIntPtr]::Zero)
+    Start-Sleep -Milliseconds 500
+
+    [ExplorerPane]::GetWindowRect($tree, [ref]$rect) | Out-Null
+    $rect.Right - $rect.Left
+}
+
+<#
 Clear the keyboard focus rectangle that automation leaves, by clicking blank space at an offset (at
 100%) from the window's top left, then park the pointer on the desktop's right edge so no hover shows.
 #>
@@ -133,6 +189,16 @@ Clear-Focus $window 1020 85
 Save-DesktopCapture '00-home-dark' $window
 
 Select-Page $window 'NavConnection'
+# End the window just below the permissions note, as in English. A shorter translation moves the
+# drive folder's header up, and at the usual height half of it would show at the bottom edge.
+$note = Find-ById $window 'NotNeededText'
+if (-not $note) { throw 'No NotNeededText on the Connection page' }
+$frame = Get-WindowFrame $window
+$height = [int]($note.Current.BoundingRectangle.Bottom - $frame.Y + (Px 9))
+if ($height -lt (Px 700)) {
+    Set-WindowCentered $window (Px 1100) $height
+    Start-Sleep -Seconds 1
+}
 Clear-Focus $window 1020 85
 Save-DesktopCapture '01-connection-dark' $window
 
@@ -151,6 +217,9 @@ if (-not $explorer) { throw 'No File Explorer window' }
 Set-WindowActive $explorer
 Set-WindowCentered $explorer (Px 1200) (Px 700)
 Start-Sleep -Seconds 1
+# Room for the longest translated folder names; Explorer keeps the width for the later shots.
+$paneWidth = Expand-ExplorerNavPane $explorer 50
+Write-Output "navigation pane: $paneWidth px"
 
 # The drive's entry in the navigation pane, clicked as a user would, so the pane shows it selected
 # (opening C:\ImmichDrive by path selects This PC instead). "ImmichDrive" is the product name in every
