@@ -9,7 +9,7 @@
 - [.NET 10 SDK](https://dotnet.microsoft.com/download/dotnet/10.0)
 - Windows SDK packaging tools (`makeappx` / `makepri` / `signtool`); winui-app-kit's packaging script auto-acquires
   them via the `Microsoft.Windows.SDK.BuildTools` NuGet package if they aren't already installed.
-- [lefthook](https://lefthook.dev) for the git hooks in `lefthook.yml` (they block committing signing material, credentials, app data files and files over 5 MB). The main check runs winui-app-kit's `scripts/devkit precommit`, which needs Node 22.12 or later, below 25, and installs its pinned tools inside the kit on first use. Install it once per machine, then run `lefthook install` once per clone; the Paseo worktree setup runs it for you.
+- [lefthook](https://lefthook.dev) for the git hooks in `lefthook.yml` (they block committing signing material, credentials, app data files and files over 5 MB). The main check runs winui-app-kit's `scripts/devkit precommit`, which needs Node 22.12 or later, below 25, and installs its pinned tools inside the kit on first use. Install it once per machine, then run `lefthook install` once per clone.
 - The `external/` submodules (`git submodule update --init`): winui-app-kit supplies the shared build
   configuration, and apps-promo the "Our other apps" page.
 

@@ -84,7 +84,7 @@ Releases are tag-driven: a `v*` tag makes `build-msix.yml` create a notes-only G
 | A file linked into the thumbnail provider | `docs/thumbnails.md`, the Architecture section above |
 | Where the app writes data, or the credential store | `ARCHITECTURE.md` |
 | Manifest, packaging script or workflows | `docs/packaging.md`, the `release` skill |
-| An npm command | This file's Commands table, the `desktop` skill, `docs/development.md`, `paseo.json` |
+| An npm command | This file's Commands table, the `desktop` skill, `docs/development.md` |
 | A test harness added or changed | Its README; `npm test` finds it by itself |
 | User-facing text added or changed | All seven catalogs in `ImmichDrive/Localization/Catalogs/` in the same change, and the review status in `docs/localization.md` |
 | A UI change that shows in a Store screenshot | Recapture that shot as `store-assets/README.md` describes, and get it approved before committing |
